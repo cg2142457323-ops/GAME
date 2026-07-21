@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>熵增知识小游戏 - 选择判断</title>
+
+    <style>
+        /* ===== 全局重置 & 基础 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', system-ui, sans-serif;
+            min-height: 100vh;
+            background: #0b1424;
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        /* ===== 粒子画布 ===== */
+        #particleCanvas {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+        /* ===== 答题烟花画布 ===== */
+        #fxCanvas {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        /* ===== 主容器 ===== */
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 90%;
+            max-width: 820px;
+            margin: 0 auto;
+            padding: 20px 0 40px;
+        }
+
+        /* ===== 玻璃态卡片 ===== */
+        .glass-card, .game-panel {
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(18px) saturate(1.4);
+            -webkit-backdrop-filter: blur(18px) saturate(1.4);
+            border-radius: 40px;
+            padding: 40px 32px 36px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            margin-bottom: 24px;
+        }
+
+        /* ===== 工具类 ===== */
+        .hidden { display: none !important; }
+
+        /* ================================================================
+           选择判断子菜单样式
+           ================================================================ */
+        .submenu-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .submenu-header h2 {
+            color: #fff;
+            font-size: 26px;
+            font-weight: 700;
+            text-align: center;
+            flex: 1;
+            margin: 0;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 16px rgba(100, 180, 255, 0.2);
+        }
+        .module-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .module-card {
+            border-radius: 24px;
+            padding: 32px 24px 28px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+            animation: cardSlideIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        }
+        .module-card:nth-child(1) { animation-delay: 0.08s; }
+        .module-card:nth-child(2) { animation-delay: 0.20s; }
+
+        @keyframes cardSlideIn {
+            0% { opacity: 0; transform: translateY(30px) scale(0.94); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .module-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 24px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.05), transparent);
+            pointer-events: none;
+        }
+        .module-card:hover {
+            transform: translateY(-6px) scale(1.03);
+            border-color: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+        }
+        .module-card:active { transform: scale(0.96); }
+
+        .module-card.card-simple {
+            background: rgba(80, 200, 120, 0.12);
+        }
+        .module-card.card-simple::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle at 30% 40%, rgba(80, 200, 120, 0.22), transparent 60%);
+            pointer-events: none;
+        }
+        .module-card.card-hard {
+            background: rgba(255, 90, 90, 0.12);
+        }
+        .module-card.card-hard::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle at 70% 60%, rgba(255, 90, 90, 0.22), transparent 60%);
+            pointer-events: none;
+        }
+
+        .module-emoji {
+            font-size: 52px;
+            display: block;
+            margin-bottom: 10px;
+            animation: floatIcon 3s ease-in-out infinite;
+        }
+        @keyframes floatIcon {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .module-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+        .module-desc {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.55);
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+        .module-tag {
+            display: inline-block;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 5px 18px;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+        }
+        .module-card:hover .module-tag {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        /* ===== 题目样式 ===== */
+        .game-panel h2 {
+            text-align: center;
+            color: #fff;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 28px;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 16px rgba(100, 180, 255, 0.2);
+        }
+        .question-block { margin-bottom: 36px; position: relative; }
+        .q-title {
+            font-size: 22px;
+            color: #fff;
+            margin-bottom: 16px;
+            line-height: 1.4;
+            text-shadow: 0 1px 8px rgba(100, 180, 255, 0.15);
+        }
+        .opt-item {
+            width: 100%;
+            padding: 16px 18px;
+            margin: 10px 0;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            font-size: 18px;
+            text-align: left;
+            background: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.85);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+        .opt-item:hover {
+            border-color: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .opt-right {
+            border-color: #2a9d6e;
+            background: rgba(42, 157, 110, 0.2);
+            color: #4ade80;
+            animation: correctPop 0.5s ease, correctGlow 2s ease-in-out 0.5s infinite;
+        }
+        .opt-wrong {
+            border-color: rgba(231, 76, 60, 0.7);
+            background: rgba(231, 76, 60, 0.15);
+            color: #f87171;
+            animation: wrongShake 0.45s ease, wrongFlash 0.6s ease;
+        }
+        .tip-text { margin-top: 8px; font-size: 16px; padding-left: 4px; }
+        .right-tip { color: #4ade80; font-weight: 600; animation: tipIn 0.35s ease; }
+        .wrong-tip { color: #f87171; font-weight: 600; animation: tipIn 0.35s ease; }
+        /* ===== 答题特效动画 ===== */
+        @keyframes correctPop {
+            0%   { transform: scale(1); }
+            35%  { transform: scale(1.05); }
+            70%  { transform: scale(0.98); }
+            100% { transform: scale(1); }
+        }
+        @keyframes correctGlow {
+            0%, 100% { box-shadow: 0 0 10px 1px rgba(74, 222, 128, 0.25); }
+            50%      { box-shadow: 0 0 20px 3px rgba(74, 222, 128, 0.5); }
+        }
+        @keyframes wrongShake {
+            0%, 100% { transform: translateX(0); }
+            15% { transform: translateX(-9px); }
+            30% { transform: translateX(8px); }
+            45% { transform: translateX(-7px); }
+            60% { transform: translateX(5px); }
+            75% { transform: translateX(-3px); }
+        }
+        @keyframes wrongFlash {
+            0%   { box-shadow: 0 0 0 0 rgba(248, 113, 113, 0); }
+            30%  { box-shadow: 0 0 22px 4px rgba(248, 113, 113, 0.7); }
+            100% { box-shadow: 0 0 12px 1px rgba(248, 113, 113, 0.3); }
+        }
+        @keyframes tipIn {
+            0%   { opacity: 0; transform: translateY(-6px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes floatScore {
+            0%   { opacity: 0; transform: translateY(0) scale(0.8); }
+            20%  { opacity: 1; transform: translateY(-12px) scale(1.15); }
+            100% { opacity: 0; transform: translateY(-52px) scale(1); }
+        }
+        .float-score {
+            position: absolute;
+            right: 20px;
+            top: 10px;
+            font-size: 22px;
+            font-weight: 800;
+            pointer-events: none;
+            z-index: 6;
+            animation: floatScore 1s ease forwards;
+        }
+        .float-score.plus { color: #4ade80; text-shadow: 0 0 10px rgba(74, 222, 128, 0.7); }
+        .float-score.minus { color: #f87171; text-shadow: 0 0 10px rgba(248, 113, 113, 0.7); }
+        .explain-box {
+            margin-top: 12px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 15px;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.85);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .explain-box::before {
+            content: '💡 解析：';
+            font-weight: 700;
+            color: #f0c27f;
+        }
+        .score-text {
+            font-size: 19px;
+            text-align: center;
+            margin: 20px 0;
+            color: #f0c27f;
+            font-weight: 500;
+        }
+
+        /* ===== 返回按钮 ===== */
+        .back-btn {
+            padding: 8px 16px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.06);
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            font-family: 'Microsoft YaHei', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.25);
+            color: #fff;
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 640px) {
+            .glass-card { padding: 24px 16px 20px; border-radius: 28px; }
+            .submenu-header h2 { font-size: 20px; }
+            .module-grid { grid-template-columns: 1fr; gap: 14px; }
+            .module-card { padding: 18px 14px 16px; }
+            .module-emoji { font-size: 34px; }
+            .module-title { font-size: 16px; }
+            .game-panel h2 { font-size: 24px; }
+            .q-title { font-size: 18px; }
+            .opt-item { font-size: 16px; padding: 14px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== 粒子背景 ===== -->
+    <canvas id="particleCanvas"></canvas>
+
+    <!-- ===== 主容器 ===== -->
+    <div class="container">
+
+        <!-- 选择判断子菜单（默认显示） -->
+        <div class="game-panel" id="judgeTypePanel">
+            <div class="submenu-header">
+                <button class="back-btn" onclick="location.href='index.html'">← 返回主菜单</button>
+                <h2>📋 选择判断</h2>
+            </div>
+            <div class="module-grid">
+                <div class="module-card card-simple" onclick="showSimple()">
+                    <div class="module-emoji">📝</div>
+                    <div class="module-title">简单 | 热力学选择题</div>
+                    <div class="module-desc">热学基础 · 4道精选热力学选择题<br/>每题含详细解析</div>
+                    <div class="module-tag">开始答题 →</div>
+                </div>
+                <div class="module-card card-hard" onclick="showHard()">
+                    <div class="module-emoji">⚡</div>
+                    <div class="module-title">有点难 | 熵变判断题</div>
+                    <div class="module-desc">深入理解 · 熵增原理与宏观表述<br/>真假判断，含完整解析</div>
+                    <div class="module-tag">挑战自我 →</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 简单模式：热力学选择题 -->
+        <div class="game-panel hidden" id="simplePanel">
+            <h2>热力学选择题</h2>
+            <div id="selectList"></div>
+            <div class="score-text" id="selectScore">当前总分：0/4</div>
+            <button class="back-btn" style="width:100%; margin-top:16px;" onclick="showJudgeType()">← 返回选择判断</button>
+        </div>
+
+        <!-- 有点难模式：熵变判断题 -->
+        <div class="game-panel hidden" id="hardPanel">
+            <h2>熵变判断题</h2>
+            <div id="judgeList"></div>
+            <div class="score-text" id="judgeScore">当前总分：0/100</div>
+            <button class="back-btn" style="width:100%; margin-top:16px;" onclick="showJudgeType()">← 返回选择判断</button>
+        </div>
+
+    </div>
+
+<script>
+/* ================================================================
+   粒子背景
+   ================================================================ */
+(function initParticles() {
+    const canvas = document.getElementById('particleCanvas');
+    const ctx = canvas.getContext('2d');
+    let w, h;
+    const particles = [];
+    const COUNT = 110;
+    const MAX_R = 2.8;
+
+    function resize() {
+        w = canvas.width = window.innerWidth;
+        h = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    class Particle {
+        constructor() { this.reset(); }
+        reset() {
+            this.x = Math.random() * w;
+            this.y = Math.random() * h;
+            this.r = Math.random() * MAX_R + 0.6;
+            this.speedX = (Math.random() - 0.5) * 0.35;
+            this.speedY = (Math.random() - 0.5) * 0.35;
+            this.alpha = Math.random() * 0.5 + 0.2;
+            this.hue = Math.random() * 60 + 200;
+        }
+        update() {
+            this.x += this.speedX;
+            this.y += this.speedY;
+            if (this.x < -10 || this.x > w + 10 || this.y < -10 || this.y > h + 10) {
+                this.reset();
+            }
+            this.alpha = 0.2 + 0.35 * (0.5 + 0.5 * Math.sin(Date.now() / 2000 + this.x));
+        }
+        draw() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+            ctx.fillStyle = `hsla(${this.hue}, 70%, 70%, ${this.alpha})`;
+            ctx.fill();
+            if (this.r > 1.5) {
+                ctx.shadowColor = `hsla(${this.hue}, 80%, 70%, 0.15)`;
+                ctx.shadowBlur = 12;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+        }
+    }
+
+    for (let i = 0; i < COUNT; i++) {
+        const p = new Particle();
+        p.x = Math.random() * w;
+        p.y = Math.random() * h;
+        particles.push(p);
+    }
+
+    function drawLines() {
+        for (let i = 0; i < particles.length; i++) {
+            for (let j = i + 1; j < particles.length; j++) {
+                const a = particles[i], b = particles[j];
+                const dx = a.x - b.x, dy = a.y - b.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 120) {
+                    const alpha = (1 - dist / 120) * 0.12;
+                    ctx.beginPath();
+                    ctx.moveTo(a.x, a.y);
+                    ctx.lineTo(b.x, b.y);
+                    ctx.strokeStyle = `rgba(180, 210, 255, ${alpha})`;
+                    ctx.lineWidth = 0.6;
+                    ctx.stroke();
+                }
+            }
+        }
+    }
+
+    function animate() {
+        ctx.clearRect(0, 0, w, h);
+        const grad = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, Math.max(w, h) * 0.7);
+        grad.addColorStop(0, '#13203a');
+        grad.addColorStop(0.5, '#0b1424');
+        grad.addColorStop(1, '#060a14');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, w, h);
+
+        for (const p of particles) { p.update(); p.draw(); }
+        drawLines();
+        requestAnimationFrame(animate);
+    }
+    animate();
+})();
+
+/* ================================================================
+   页面切换控制
+   ================================================================ */
+function hideAll(){
+    document.getElementById("judgeTypePanel").classList.add("hidden");
+    document.getElementById("simplePanel").classList.add("hidden");
+    document.getElementById("hardPanel").classList.add("hidden");
+}
+function showJudgeType(){
+    hideAll();
+    document.getElementById("judgeTypePanel").classList.remove("hidden");
+}
+function showSimple(){
+    hideAll();
+    document.getElementById("simplePanel").classList.remove("hidden");
+    renderSelect();
+}
+function showHard(){
+    hideAll();
+    document.getElementById("hardPanel").classList.remove("hidden");
+    renderJudge();
+}
+
+/* ================================================================
+   选择题逻辑
+   ================================================================ */
+const selectData = [
+    { q:"第1题：熵增加原理只适用于（）。", opt:["A. 封闭系统","B. 孤立系统","C. 均匀系统","D. 开放系统"], ans:"B",
+      explain:"熵增加原理的定义是：在孤立系统中，一切自发过程的熵永不减少，因此选B。" },
+    { q:"第2题：下列说法中正确的是（）。", opt:["A. 不可能把热量从高温物体传给低温物体而不引起其他变化；","B. 功不可能全部转化为热而不引起其他变化；","C. 不可能制造一部机器，在循环过程中把一重物升高而同时使一热库冷却；","D. 可以从一热源吸收热量使它全部变成有用的功而不产生其他影响。"], ans:"C",
+      explain:"循环过程中把重物升高（做功）同时使热库冷却（从单一热库吸热），相当于从单一热源吸热并全部转化为功，这直接违反了热力学第二定律的开尔文表述，选C。" },
+    { q:"第3题：下列说法中正确的是（）。", opt:["A. 热力学系统经可逆绝热过程后熵减少；","B. 孤立系统中所发生的可逆过程总是朝着混乱度增加的方向进行；","C. 孤立系统中所发生的不可逆过程总是朝着熵增加的方向进行；","D. 熵函数是个广延量，其变化跟过程有关系，因而也是个过程量。"], ans:"C",
+      explain:"根据熵增原理，孤立系统中发生的不可逆过程，总是朝着熵增加的方向进行，直到系统达到平衡态，选C。" },
+    { q:"第4题：一绝热容器被隔板分成两半，一半是真空，另一半是理想气体，若把隔板抽出气体将进行自由膨胀，达到平衡后，则（）", opt:["A. 温度不变，熵增加","B. 温度升高，熵增加","C. 温度降低，熵增加","D. 温度不变，熵不变"], ans:"A",
+      explain:"首先，理想气体的内能仅与温度有关，内能不变则温度不变。其次，气体自由膨胀是不可逆的绝热过程，根据熵增原理：不可逆绝热过程的熵总是增加的，故选A。" }
+];
+let selectScore = 0;
+function renderSelect(){
+    selectScore = 0;
+    let html = "";
+    selectData.forEach((item, idx) => {
+        html += `<div class="question-block" id="qBlock${idx}">
+            <div class="q-title">${item.q}</div>
+            <div id="optWrap${idx}">`;
+        item.opt.forEach(optText => {
+            html += `<button class="opt-item" onclick="clickOption(${idx}, '${optText[0]}')">${optText}</button>`;
+        });
+        html += `</div><div class="tip-text" id="tip${idx}"></div></div>`;
+    });
+    document.getElementById("selectList").innerHTML = html;
+    document.getElementById("selectScore").innerText = "当前总分：0/4";
+}
+function clickOption(qIdx, selectKey){
+    const item = selectData[qIdx];
+    const wrapDom = document.getElementById(`optWrap${qIdx}`);
+    const tipDom = document.getElementById(`tip${qIdx}`);
+    wrapDom.querySelectorAll(".opt-item").forEach(btn => { btn.classList.remove("opt-right", "opt-wrong"); btn.disabled = true; });
+    if(selectKey === item.ans){
+        event.target.classList.add("opt-right");
+        spawnFloatScore(document.getElementById('qBlock'+qIdx), '+1分', 'plus');
+        fireworkAt(event.target);
+        tipDom.innerHTML = `<span class="right-tip">✓ 回答正确 +1分</span><div class="explain-box">${item.explain}</div>`;
+        selectScore += 1;
+    } else {
+        event.target.classList.add("opt-wrong");
+        tipDom.innerHTML = `<span class="wrong-tip">✗ 回答错误，正确答案已标绿</span><div class="explain-box">${item.explain}</div>`;
+        wrapDom.querySelectorAll(".opt-item").forEach(btn => { if(btn.innerText.startsWith(item.ans)){ btn.classList.add("opt-right"); } });
+    }
+    document.getElementById("selectScore").innerText = `当前总分：${selectScore}/4`;
+}
+
+/* ================================================================
+   判断题逻辑
+   ================================================================ */
+const judgeData = [
+    {q:"1.对于恒温热源，熵变的计算公式为 ΔS＝Q/T，热源温度恒定，无论过程是否可逆，都可以用该式计算熵变。",ans:"对",explain:"对于恒温热源，熵变的计算公式为△S＝Q/T，热源温度恒定，无论过程是否可逆，都可以用该式计算熵变。"},
+    {q:"2.熵增原理的宏观微分形式为 dS≥0",ans:"对",explain:"熵增原理的宏观微分形式为dS≥0。"}
+];
+let judgeScore = 0;
+function renderJudge(){
+    judgeScore = 0;
+    let html = "";
+    judgeData.forEach((item, i) => {
+        html += `<div class="question-block">
+            <div class="q-title">${item.q}</div>
+            <div>
+                <button class="opt-item" onclick="clickJudge(${i},'对')">对</button>
+                <button class="opt-item" onclick="clickJudge(${i},'错')">错</button>
+            </div>
+            <div class="tip-text" id="judgeTip${i}"></div>
+        </div>`;
+    });
+    document.getElementById("judgeList").innerHTML = html;
+    document.getElementById("judgeScore").innerText = "当前总分：0/100";
+}
+function clickJudge(i, val){
+    const item = judgeData[i];
+    const tipDom = document.getElementById(`judgeTip${i}`);
+    const blockDom = tipDom.closest('.question-block');
+    const buttons = tipDom.parentElement.querySelectorAll('.opt-item');
+    buttons.forEach(b => b.disabled = true);
+    if(val === item.ans){
+        const rightBtn = [...buttons].find(b => b.innerText.startsWith(item.ans));
+        if(rightBtn) rightBtn.classList.add('opt-right');
+        spawnFloatScore(blockDom, '+50分', 'plus');
+        fireworkAt(rightBtn);
+        tipDom.innerHTML = `<span class="right-tip">答对 +50分</span><div class="explain-box">💡 ${item.explain}</div>`;
+        judgeScore += 50;
+    } else {
+        const wrongBtn = [...buttons].find(b => b.innerText.startsWith(val));
+        if(wrongBtn) wrongBtn.classList.add('opt-wrong');
+        buttons.forEach(b => { if(b.innerText.startsWith(item.ans)){ b.classList.add('opt-right'); } });
+        spawnFloatScore(blockDom, '✗', 'minus');
+        tipDom.innerHTML = `<span class="wrong-tip">答错，标准答案：${item.ans}</span><div class="explain-box">💡 ${item.explain}</div>`;
+    }
+    document.getElementById("judgeScore").innerText = `当前总分：${judgeScore}/100`;
+}
+
+/* ================================================================
+   初始化（默认进入选择判断模块）
+   ================================================================ */
+window.onload = function() {
+    showJudgeType();
+};
+
+/* ================================================================
+   答题正确烟花特效引擎 + 答题特效辅助
+   ================================================================ */
+(function initFireworks() {
+    let fx = null, ctx = null;
+    const DPR = Math.min(window.devicePixelRatio || 1, 2);
+    let fw = 0, fh = 0;
+    function ensureCanvas() {
+        if (fx) return true;
+        fx = document.getElementById('fxCanvas');
+        if (!fx) return false;
+        ctx = fx.getContext('2d');
+        resizeFx();
+        return true;
+    }
+    function resizeFx() {
+        if (!fx) return;
+        fw = window.innerWidth; fh = window.innerHeight;
+        fx.width = fw * DPR; fx.height = fh * DPR;
+        fx.style.width = fw + 'px'; fx.style.height = fh + 'px';
+        ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    }
+    window.addEventListener('resize', resizeFx);
+
+    const particles = [];
+    let running = false;
+
+    function launchFirework(cx, cy) {
+        if (!ensureCanvas()) return;
+        particles.push({ flash: true, x: cx, y: cy, size: 5, alpha: 1, decay: 0.07 });
+        const count = 40 + Math.floor(Math.random() * 16);
+        const hueBase = Math.floor(Math.random() * 360);
+        for (let i = 0; i < count; i++) {
+            const ang = (Math.PI * 2 * i) / count + Math.random() * 0.35;
+            const speed = 2.4 + Math.random() * 4.8;
+            particles.push({
+                flash: false,
+                x: cx, y: cy,
+                vx: Math.cos(ang) * speed,
+                vy: Math.sin(ang) * speed,
+                size: 2 + Math.random() * 2.2,
+                hue: (hueBase + Math.random() * 50) % 360,
+                alpha: 1,
+                decay: 0.012 + Math.random() * 0.016,
+                gravity: 0.05
+            });
+        }
+        if (!running) { running = true; requestAnimationFrame(tick); }
+    }
+
+    function tick() {
+        ctx.clearRect(0, 0, fw, fh);
+        ctx.globalCompositeOperation = 'lighter';
+        for (let i = particles.length - 1; i >= 0; i--) {
+            const p = particles[i];
+            if (p.flash) {
+                p.alpha -= p.decay;
+                if (p.alpha <= 0) { particles.splice(i, 1); continue; }
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size * (1 + (1 - p.alpha) * 5), 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255,255,255,' + p.alpha + ')';
+                ctx.fill();
+                continue;
+            }
+            p.vx *= 0.985; p.vy *= 0.985; p.vy += p.gravity;
+            p.x += p.vx; p.y += p.vy; p.alpha -= p.decay;
+            if (p.alpha <= 0) { particles.splice(i, 1); continue; }
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fillStyle = 'hsla(' + p.hue + ', 100%, ' + (60 + p.alpha * 20) + '%, ' + p.alpha + ')';
+            ctx.shadowColor = 'hsla(' + p.hue + ', 100%, 65%, ' + p.alpha + ')';
+            ctx.shadowBlur = 8;
+            ctx.fill();
+        }
+        ctx.shadowBlur = 0;
+        ctx.globalCompositeOperation = 'source-over';
+        if (particles.length > 0) { requestAnimationFrame(tick); }
+        else { running = false; ctx.clearRect(0, 0, fw, fh); }
+    }
+
+    window.launchFirework = launchFirework;
+})();
+
+function fireworkAt(el) {
+    if (!el || !window.launchFirework) return;
+    const r = el.getBoundingClientRect();
+    window.launchFirework(r.left + r.width / 2, r.top + r.height / 2);
+    const x2 = window.innerWidth * (0.2 + Math.random() * 0.6);
+    const y2 = window.innerHeight * (0.15 + Math.random() * 0.25);
+    setTimeout(() => { if (window.launchFirework) window.launchFirework(x2, y2); }, 200);
+}
+
+function spawnFloatScore(blockEl, text, type){
+    if(!blockEl) return;
+    const el = document.createElement('div');
+    el.className = 'float-score ' + type;
+    el.textContent = text;
+    blockEl.appendChild(el);
+    setTimeout(() => { if(el.parentNode){ el.parentNode.removeChild(el); } }, 1000);
+}
+
+</script>
+
+    <!-- 答题正确烟花特效层 -->
+    <canvas id="fxCanvas"></canvas>
+</body>
+</html>
