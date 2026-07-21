@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🔬 熵增原理小游戏 · 启动器</title>
+
+    <style>
+        /* ===== 全局重置 & 基础 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', system-ui, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0b1424;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* ===== 粒子画布 ===== */
+        #particleCanvas {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* ===== 主容器 ===== */
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 90%;
+            max-width: 920px;
+            padding: 20px;
+        }
+
+        /* ===== 玻璃态卡片 ===== */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(18px) saturate(1.4);
+            -webkit-backdrop-filter: blur(18px) saturate(1.4);
+            border-radius: 40px;
+            padding: 40px 32px 36px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            transition: all 0.3s;
+        }
+
+        /* ===== 头部 ===== */
+        .header {
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .header .icon-big {
+            font-size: 52px;
+            display: block;
+            margin-bottom: 4px;
+            animation: floatIcon 3s ease-in-out infinite;
+        }
+
+        @keyframes floatIcon {
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+
+        .header h1 {
+            font-size: 34px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 20px rgba(100, 180, 255, 0.3);
+        }
+
+        .header h1 span {
+            background: linear-gradient(135deg, #f0c27f, #fc5c7d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header .sub {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.55);
+            margin-top: 6px;
+            letter-spacing: 2px;
+            font-weight: 300;
+        }
+
+        /* ===== 开始按钮 ===== */
+        .btn-start-wrap {
+            text-align: center;
+            margin: 22px 0 10px;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            border: none;
+            padding: 16px 52px;
+            border-radius: 60px;
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+            cursor: pointer;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 32px rgba(79, 172, 254, 0.35);
+            position: relative;
+            overflow: hidden;
+            font-family: inherit;
+        }
+
+        .btn-start::after {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 60px;
+            background: linear-gradient(135deg, #4facfe, #00f2fe, #4facfe);
+            background-size: 300% 300%;
+            z-index: -1;
+            animation: shimmerBtn 3s ease infinite;
+            filter: blur(6px);
+            opacity: 0.6;
+        }
+
+        @keyframes shimmerBtn {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .btn-start:hover {
+            transform: scale(1.04);
+            box-shadow: 0 12px 48px rgba(79, 172, 254, 0.5);
+        }
+
+        .btn-start:active {
+            transform: scale(0.96);
+        }
+
+        .btn-start .icon {
+            margin-right: 8px;
+        }
+
+        /* ===== 选项面板 (初始隐藏) ===== */
+        .options-panel {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.7s cubic-bezier(0.34, 1.56, 0.64, 1),
+                opacity 0.5s ease, margin 0.5s ease;
+            opacity: 0;
+            margin-top: 0;
+        }
+
+        .options-panel.open {
+            max-height: 800px;
+            opacity: 1;
+            margin-top: 28px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        /* ===== 选项卡片 ===== */
+        .option-card {
+            background: rgba(255, 255, 255, 0.07);
+            border-radius: 24px;
+            padding: 26px 18px 22px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: pointer;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .option-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 24px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), transparent);
+            pointer-events: none;
+        }
+
+        .option-card:hover {
+            transform: translateY(-6px) scale(1.02);
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35);
+        }
+
+        .option-card:active {
+            transform: scale(0.96);
+        }
+
+        .option-card .emoji {
+            font-size: 44px;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .option-card h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .option-card p {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.55);
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        .option-card .tag {
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 14px;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            transition: all 0.3s;
+        }
+
+        .option-card:hover .tag {
+            background: rgba(255, 255, 255, 0.18);
+            color: #fff;
+        }
+
+        /* ---- 个性光晕 ---- */
+        .option-card.card-hot::after {
+            content: '';
+            position: absolute;
+            top: -60%;
+            left: -60%;
+            width: 220%;
+            height: 220%;
+            background: radial-gradient(circle at 30% 40%, rgba(255, 150, 50, 0.15), transparent 60%);
+            pointer-events: none;
+            transition: all 0.6s;
+        }
+        .option-card.card-hot:hover::after {
+            transform: scale(1.1);
+        }
+
+        .option-card.card-chem::after {
+            content: '';
+            position: absolute;
+            top: -60%;
+            left: -60%;
+            width: 220%;
+            height: 220%;
+            background: radial-gradient(circle at 70% 60%, rgba(120, 80, 255, 0.15), transparent 60%);
+            pointer-events: none;
+            transition: all 0.6s;
+        }
+        .option-card.card-chem:hover::after {
+            transform: scale(1.1);
+        }
+
+        /* 新卡片：金色光晕 —— 智慧与判断 */
+        .option-card.card-quiz::after {
+            content: '';
+            position: absolute;
+            top: -60%;
+            left: -60%;
+            width: 220%;
+            height: 220%;
+            background: radial-gradient(circle at 50% 50%, rgba(255, 215, 0, 0.15), transparent 60%);
+            pointer-events: none;
+            transition: all 0.6s;
+        }
+        .option-card.card-quiz:hover::after {
+            transform: scale(1.1);
+        }
+
+        /* ===== 底部 ===== */
+        .footer {
+            text-align: center;
+            margin-top: 22px;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.2);
+            letter-spacing: 1px;
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 860px) {
+            .options-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .option-card {
+                padding: 20px 14px 18px;
+            }
+            .option-card .emoji {
+                font-size: 36px;
+            }
+            .option-card h3 {
+                font-size: 16px;
+            }
+            .option-card p {
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .glass-card {
+                padding: 24px 16px 20px;
+                border-radius: 28px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+            .header .icon-big {
+                font-size: 38px;
+            }
+            .header .sub {
+                font-size: 13px;
+            }
+
+            .btn-start {
+                padding: 13px 32px;
+                font-size: 17px;
+            }
+
+            .options-grid {
+                grid-template-columns: 1fr;
+                gap: 14px;
+            }
+
+            .option-card {
+                padding: 18px 14px 16px;
+            }
+            .option-card .emoji {
+                font-size: 34px;
+            }
+            .option-card h3 {
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .glass-card {
+                padding: 16px 10px 14px;
+            }
+            .header h1 {
+                font-size: 20px;
+            }
+            .btn-start {
+                padding: 10px 24px;
+                font-size: 15px;
+            }
+        }
+
+        /* ===== 进入动画 ===== */
+        .options-panel.open .option-card {
+            animation: cardSlideIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        }
+        .options-panel.open .option-card:nth-child(1) {
+            animation-delay: 0.08s;
+        }
+        .options-panel.open .option-card:nth-child(2) {
+            animation-delay: 0.20s;
+        }
+        .options-panel.open .option-card:nth-child(3) {
+            animation-delay: 0.32s;
+        }
+
+        @keyframes cardSlideIn {
+            0% {
+                opacity: 0;
+                transform: translateY(30px) scale(0.94);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* ===== 小提示 ===== */
+        .hint {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.15);
+            text-align: center;
+            margin-top: 10px;
+            transition: opacity 0.3s;
+        }
+
+        /* ===== 工具类 ===== */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== 粒子背景 ===== -->
+    <canvas id="particleCanvas"></canvas>
+
+    <!-- ===== 主容器 ===== -->
+    <div class="container">
+        <div class="glass-card">
+
+            <!-- 头部 -->
+            <div class="header">
+                <h1><span>熵增原理小游戏</span></h1>
+                <div class="sub">选择你的游戏项目 · 探索熵增原理的奥秘</div>
+            </div>
+
+            <!-- 开始按钮 -->
+            <div class="btn-start-wrap">
+                <button class="btn-start" id="startBtn">
+                    <span class="icon">🚀</span> 开始游玩
+                </button>
+            </div>
+
+            <!-- 选项面板 -->
+            <div class="options-panel" id="optionsPanel">
+                <div class="options-grid">
+
+                    <!-- 选项1：冷热水混合模拟 -->
+                    <div class="option-card card-hot" data-href="page1.html">
+                        <span class="emoji">🌡️</span>
+                        <h3>冷热水混合模拟</h3>
+                        <p>热力学和流体动力学</p>
+                        <span class="tag">进入游戏 →</span>
+                    </div>
+
+                    <!-- 选项2：化学熵变计算 -->
+                    <div class="option-card card-chem" data-href="page2.html">
+                        <span class="emoji">🧪</span>
+                        <h3>化学熵变计算</h3>
+                        <p>物理化学</p>
+                        <span class="tag">进入游戏 →</span>
+                    </div>
+
+                    <!-- ★ 新增：选择判断（选择题 + 判断题） -->
+                    <div class="option-card card-quiz" data-href="2.html">
+                        <span class="emoji">📝</span>
+                        <h3>选择判断</h3>
+                        <p>热力学选择、判断题</p>
+                        <span class="tag">进入游戏 →</span>
+                    </div>
+
+                </div>
+                <div class="hint">点击卡片进入对应游戏 · 或按 ESC 收起</div>
+            </div>
+
+            <!-- 底部 -->
+            <div class="footer">✦ 每一个探索都是一次发现 ✦</div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        //  1. 粒子背景 (Canvas)
+        // ============================================================
+        (function initParticles() {
+            const canvas = document.getElementById('particleCanvas');
+            const ctx = canvas.getContext('2d');
+            let w, h;
+            const particles = [];
+            const COUNT = 110;
+            const MAX_R = 2.8;
+
+            function resize() {
+                w = canvas.width = window.innerWidth;
+                h = canvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resize);
+            resize();
+
+            class Particle {
+                constructor() { this.reset(); }
+                reset() {
+                    this.x = Math.random() * w;
+                    this.y = Math.random() * h;
+                    this.r = Math.random() * MAX_R + 0.6;
+                    this.speedX = (Math.random() - 0.5) * 0.35;
+                    this.speedY = (Math.random() - 0.5) * 0.35;
+                    this.alpha = Math.random() * 0.5 + 0.2;
+                    this.hue = Math.random() * 60 + 200; // 蓝紫色系
+                }
+                update() {
+                    this.x += this.speedX;
+                    this.y += this.speedY;
+                    if (this.x < -10 || this.x > w + 10 || this.y < -10 || this.y > h + 10) {
+                        this.reset();
+                    }
+                    // 轻微闪烁
+                    this.alpha = 0.2 + 0.35 * (0.5 + 0.5 * Math.sin(Date.now() / 2000 + this.x));
+                }
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+                    ctx.fillStyle = `hsla(${this.hue}, 70%, 70%, ${this.alpha})`;
+                    ctx.fill();
+                    if (this.r > 1.5) {
+                        ctx.shadowColor = `hsla(${this.hue}, 80%, 70%, 0.15)`;
+                        ctx.shadowBlur = 12;
+                        ctx.fill();
+                        ctx.shadowBlur = 0;
+                    }
+                }
+            }
+
+            for (let i = 0; i < COUNT; i++) {
+                const p = new Particle();
+                p.x = Math.random() * w;
+                p.y = Math.random() * h;
+                particles.push(p);
+            }
+
+            function drawLines() {
+                for (let i = 0; i < particles.length; i++) {
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const a = particles[i],
+                            b = particles[j];
+                        const dx = a.x - b.x,
+                            dy = a.y - b.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < 120) {
+                            const alpha = (1 - dist / 120) * 0.12;
+                            ctx.beginPath();
+                            ctx.moveTo(a.x, a.y);
+                            ctx.lineTo(b.x, b.y);
+                            ctx.strokeStyle = `rgba(180, 210, 255, ${alpha})`;
+                            ctx.lineWidth = 0.6;
+                            ctx.stroke();
+                        }
+                    }
+                }
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, w, h);
+                const grad = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, Math.max(w, h) * 0.7);
+                grad.addColorStop(0, '#13203a');
+                grad.addColorStop(0.5, '#0b1424');
+                grad.addColorStop(1, '#060a14');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, w, h);
+
+                for (const p of particles) {
+                    p.update();
+                    p.draw();
+                }
+                drawLines();
+                requestAnimationFrame(animate);
+            }
+            animate();
+        })();
+
+        // ============================================================
+        //  2. 主交互逻辑
+        // ============================================================
+        (function main() {
+            const startBtn = document.getElementById('startBtn');
+            const panel = document.getElementById('optionsPanel');
+            const cards = document.querySelectorAll('.option-card');
+
+            let isOpen = false;
+
+            function togglePanel(open) {
+                isOpen = (open !== undefined) ? open : !isOpen;
+                if (isOpen) {
+                    panel.classList.add('open');
+                    startBtn.innerHTML = '<span class="icon">🎯</span> 选择游戏';
+                } else {
+                    panel.classList.remove('open');
+                    startBtn.innerHTML = '<span class="icon">🚀</span> 开始游戏';
+                }
+            }
+
+            startBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                togglePanel();
+            });
+
+            cards.forEach(card => {
+                card.addEventListener('click', () => {
+                    const href = card.getAttribute('data-href');
+                    if (href) {
+                        card.style.transform = 'scale(0.94)';
+                        setTimeout(() => {
+                            window.location.href = href;
+                        }, 180);
+                    }
+                });
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && isOpen) {
+                    togglePanel(false);
+                }
+            });
+
+            document.addEventListener('click', (e) => {
+                const container = document.querySelector('.container');
+                if (isOpen && !container.contains(e.target)) {
+                    togglePanel(false);
+                }
+            });
+
+            // 初始状态：面板关闭
+            panel.classList.remove('open');
+            isOpen = false;
+            startBtn.innerHTML = '<span class="icon">🚀</span> 开始游戏';
+
+            console.log('✅ 小游戏启动器已加载 · 新增「选择判断」入口');
+        })();
+    </script>
+
+</body>
+</html>
