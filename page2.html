@@ -888,12 +888,36 @@
         elProd.addEventListener('keydown', (e) => { if (e.key === 'Enter') calculate(); });
 
         // ======================================================================
-        //  9. 退出按钮：跳转回游戏.html（启动器界面）
+        //  9. 退出按钮：跳转回 index.html 并自动展开选择面板
+        //     ★ 修改说明：
+        //       1. 点击时在 sessionStorage 中设置标志 'returnFromPage2' = 'true'
+        //       2. 跳转到 index.html
+        //       3. 需要在 index.html 的 main 函数中添加检测该标志的代码（见下方注释）
         // ======================================================================
         elExit.addEventListener('click', function() {
-            // 直接跳转，不弹确认框，体验更流畅
+            // 【关键】设置标志，通知 index.html 需要自动展开选择面板
+            sessionStorage.setItem('returnFromPage2', 'true');
+            // 跳转回主启动器
             window.location.href = 'index.html';
         });
+
+        /*
+         * ================================================================
+         *   ★ 配套修改：请在 index.html 的 main 函数中添加以下代码 ★
+         * ================================================================
+         *   // ---- 检测是否从 page2.html 返回 ----
+         *   if (sessionStorage.getItem('returnFromPage2') === 'true') {
+         *       sessionStorage.removeItem('returnFromPage2');
+         *       // 等待页面完全加载后，自动展开选项面板
+         *       setTimeout(() => {
+         *           // 确保面板是展开状态
+         *           if (!isOpen) {
+         *               togglePanel(true);
+         *           }
+         *       }, 350);
+         *   }
+         * ================================================================
+         */
 
         // ======================================================================
         //  10. 启动时自动计算一次 (展示默认示例)

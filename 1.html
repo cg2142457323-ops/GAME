@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>苹果树答题</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            touch-action: manipulation;
+        }
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: #0b1424;
+        }
+        #gameCanvas {
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* ===== 顶部栏 ===== */
+        .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 100;
+            padding: 0 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            flex-wrap: nowrap;
+            gap: 4px;
+        }
+        .top-bar .left-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+        .top-bar .left-group .back-btn {
+            padding: 5px 12px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.06);
+            color: rgba(255, 255, 255, 0.75);
+            font-size: 12px;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+            white-space: nowrap;
+            line-height: 1.4;
+        }
+        .top-bar .left-group .back-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.25);
+            color: #fff;
+        }
+        .top-bar .info-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: nowrap;
+            flex-shrink: 1;
+            justify-content: flex-end;
+            min-width: 0;
+        }
+        .top-bar .info-group>div {
+            font-size: 15px;
+            color: #fff;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 4px 12px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .top-bar .info-group .gold-icon {
+            color: #FFD700;
+            font-size: 18px;
+        }
+        .top-bar .info-group .timer-icon {
+            color: #facc15;
+            font-size: 17px;
+        }
+        .top-bar .info-group .timer-num.warning {
+            color: #ff6b6b;
+            animation: pulseWarn 0.6s ease-in-out infinite alternate;
+        }
+        @keyframes pulseWarn {
+            0% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            100% {
+                opacity: 0.5;
+                transform: scale(1.06);
+            }
+        }
+        .top-bar .info-group .q-progress {
+            font-size: 14px;
+        }
+
+        /* ===== 开始界面 ===== */
+        .start-screen {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(to bottom, #87CEEB, #90EE90, #6B8E23);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 300;
+            color: #fff;
+            padding: 30px 20px;
+        }
+        .game-title {
+            font-size: 38px;
+            font-weight: bold;
+            text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+            text-align: center;
+            line-height: 1.3;
+        }
+        .game-desc {
+            font-size: 18px;
+            text-align: center;
+            line-height: 2.2;
+            margin-bottom: 35px;
+            padding: 0 20px;
+            max-width: 500px;
+        }
+        .start-btn {
+            padding: 18px 60px;
+            font-size: 24px;
+            background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+            border: none;
+            border-radius: 50px;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.5);
+            animation: pulse 2s ease infinite;
+            font-family: 'PingFang SC', sans-serif;
+            min-width: 200px;
+        }
+        @keyframes pulse {
+            0%,
+            100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.06);
+            }
+        }
+
+        /* ===== 反馈覆盖层 ===== */
+        .feedback-overlay {
+            position: fixed;
+            inset: 0;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+            pointer-events: none;
+        }
+        .feedback-overlay.show {
+            display: flex;
+        }
+        .feedback-text {
+            font-size: 80px;
+            animation: feedbackPop 1s ease forwards;
+        }
+        @keyframes feedbackPop {
+            0% {
+                opacity: 0;
+                transform: scale(0.3);
+            }
+            30% {
+                opacity: 1;
+                transform: scale(1.5);
+            }
+            50% {
+                transform: scale(1);
+            }
+            80% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+        }
+
+        /* ===== 答案覆盖层 ===== */
+        .answer-overlay {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 10, 30, 0.97);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            z-index: 250;
+            padding: 18px 18px 40px;
+            animation: slideUp 0.3s ease;
+            border-top-left-radius: 28px;
+            border-top-right-radius: 28px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .answer-overlay.show {
+            display: flex;
+        }
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+        .answer-icon {
+            font-size: 42px;
+            margin-bottom: 6px;
+        }
+        .answer-label {
+            font-size: 18px;
+            color: #facc15;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        .answer-text {
+            font-size: 14px;
+            color: #f0f0f0;
+            text-align: center;
+            line-height: 1.7;
+            max-width: 96%;
+            word-break: break-word;
+        }
+        .answer-text b {
+            color: #4ade80;
+        }
+        .answer-text span[style*="color:#facc15"] {
+            color: #facc15;
+        }
+        .next-btn {
+            margin-top: 18px;
+            padding: 16px 50px;
+            font-size: 22px;
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            border: none;
+            border-radius: 50px;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(74, 222, 128, 0.4);
+            font-family: 'PingFang SC', sans-serif;
+            min-width: 160px;
+        }
+
+        /* ===== 结果界面 ===== */
+        .result-screen {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.92);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 300;
+            color: #fff;
+            padding: 30px 20px;
+        }
+        .result-screen.show {
+            display: flex;
+        }
+        .result-title {
+            font-size: 28px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .result-score {
+            font-size: 100px;
+            color: #FFD700;
+            text-shadow: 0 0 60px rgba(255, 215, 0, 0.9);
+            animation: bounce 1.2s ease infinite;
+        }
+        @keyframes bounce {
+            0%,
+            100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+        .result-label {
+            font-size: 22px;
+            color: #ccc;
+            margin-top: 8px;
+            text-align: center;
+        }
+        .result-btn-group {
+            display: flex;
+            gap: 14px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .result-btn-group .restart-btn {
+            padding: 16px 44px;
+            font-size: 22px;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            border: none;
+            border-radius: 50px;
+            color: #333;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 8px 30px rgba(255, 215, 0, 0.5);
+            font-family: 'PingFang SC', sans-serif;
+            min-width: 140px;
+        }
+        .result-btn-group .menu-btn {
+            padding: 16px 44px;
+            font-size: 22px;
+            background: rgba(255, 255, 255, 0.10);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 50px;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            font-family: 'PingFang SC', sans-serif;
+            min-width: 140px;
+            transition: all 0.25s;
+        }
+        .result-btn-group .menu-btn:hover {
+            background: rgba(255, 255, 255, 0.20);
+            border-color: rgba(255, 255, 255, 0.30);
+        }
+
+        /* ===== 响应式：平板 & 小屏 ===== */
+        @media (max-width: 820px) {
+            .top-bar {
+                height: 56px;
+                padding: 0 10px;
+            }
+            .top-bar .left-group .back-btn {
+                font-size: 11px;
+                padding: 4px 10px;
+            }
+            .top-bar .info-group>div {
+                font-size: 13px;
+                padding: 3px 10px;
+                gap: 3px;
+            }
+            .top-bar .info-group .gold-icon {
+                font-size: 16px;
+            }
+            .top-bar .info-group .timer-icon {
+                font-size: 15px;
+            }
+            .top-bar .info-group .q-progress {
+                font-size: 12px;
+            }
+            .game-title {
+                font-size: 30px;
+            }
+            .game-desc {
+                font-size: 16px;
+                line-height: 2;
+                padding: 0 15px;
+            }
+            .start-btn {
+                padding: 16px 50px;
+                font-size: 20px;
+                min-width: 160px;
+            }
+            .feedback-text {
+                font-size: 60px;
+            }
+            .answer-overlay {
+                padding: 14px 14px 32px;
+                border-top-left-radius: 22px;
+                border-top-right-radius: 22px;
+            }
+            .answer-icon {
+                font-size: 36px;
+            }
+            .answer-label {
+                font-size: 16px;
+            }
+            .answer-text {
+                font-size: 13px;
+            }
+            .next-btn {
+                padding: 14px 40px;
+                font-size: 20px;
+                min-width: 140px;
+            }
+            .result-title {
+                font-size: 24px;
+            }
+            .result-score {
+                font-size: 80px;
+            }
+            .result-label {
+                font-size: 18px;
+            }
+            .result-btn-group .restart-btn,
+            .result-btn-group .menu-btn {
+                padding: 14px 34px;
+                font-size: 18px;
+                min-width: 120px;
+            }
+        }
+
+        /* ===== 响应式：手机 ===== */
+        @media (max-width: 480px) {
+            .top-bar {
+                height: 50px;
+                padding: 0 6px;
+                gap: 2px;
+            }
+            .top-bar .left-group .back-btn {
+                font-size: 10px;
+                padding: 3px 8px;
+                border-radius: 10px;
+            }
+            .top-bar .info-group {
+                gap: 6px;
+            }
+            .top-bar .info-group>div {
+                font-size: 11px;
+                padding: 2px 8px;
+                border-radius: 20px;
+                gap: 2px;
+            }
+            .top-bar .info-group .gold-icon {
+                font-size: 14px;
+            }
+            .top-bar .info-group .timer-icon {
+                font-size: 13px;
+            }
+            .top-bar .info-group .q-progress {
+                font-size: 10px;
+            }
+            .top-bar .info-group .timer-num {
+                min-width: 24px;
+            }
+            .game-title {
+                font-size: 24px;
+                margin-bottom: 14px;
+            }
+            .game-desc {
+                font-size: 14px;
+                line-height: 1.8;
+                padding: 0 10px;
+                margin-bottom: 25px;
+            }
+            .start-btn {
+                padding: 14px 40px;
+                font-size: 18px;
+                min-width: 140px;
+            }
+            .feedback-text {
+                font-size: 48px;
+            }
+            .answer-overlay {
+                padding: 12px 12px 28px;
+                border-top-left-radius: 18px;
+                border-top-right-radius: 18px;
+            }
+            .answer-icon {
+                font-size: 30px;
+                margin-bottom: 4px;
+            }
+            .answer-label {
+                font-size: 14px;
+                margin-bottom: 6px;
+            }
+            .answer-text {
+                font-size: 12px;
+                line-height: 1.6;
+            }
+            .next-btn {
+                padding: 12px 32px;
+                font-size: 17px;
+                min-width: 120px;
+                margin-top: 14px;
+            }
+            .result-title {
+                font-size: 20px;
+            }
+            .result-score {
+                font-size: 60px;
+            }
+            .result-label {
+                font-size: 16px;
+            }
+            .result-btn-group {
+                gap: 10px;
+                margin-top: 22px;
+            }
+            .result-btn-group .restart-btn,
+            .result-btn-group .menu-btn {
+                padding: 12px 26px;
+                font-size: 16px;
+                min-width: 100px;
+            }
+        }
+
+        /* ===== 超小屏 ===== */
+        @media (max-width: 380px) {
+            .top-bar {
+                height: 44px;
+                padding: 0 4px;
+            }
+            .top-bar .left-group .back-btn {
+                font-size: 9px;
+                padding: 2px 6px;
+            }
+            .top-bar .info-group>div {
+                font-size: 10px;
+                padding: 2px 6px;
+            }
+            .top-bar .info-group .gold-icon {
+                font-size: 12px;
+            }
+            .top-bar .info-group .timer-icon {
+                font-size: 11px;
+            }
+            .top-bar .info-group .q-progress {
+                font-size: 9px;
+            }
+            .game-title {
+                font-size: 20px;
+            }
+            .game-desc {
+                font-size: 12px;
+                line-height: 1.6;
+            }
+            .start-btn {
+                padding: 12px 30px;
+                font-size: 16px;
+                min-width: 120px;
+            }
+            .feedback-text {
+                font-size: 36px;
+            }
+            .answer-overlay {
+                padding: 10px 10px 22px;
+            }
+            .answer-icon {
+                font-size: 26px;
+            }
+            .answer-label {
+                font-size: 12px;
+            }
+            .answer-text {
+                font-size: 11px;
+            }
+            .next-btn {
+                padding: 10px 26px;
+                font-size: 15px;
+                min-width: 100px;
+                margin-top: 12px;
+            }
+            .result-title {
+                font-size: 18px;
+            }
+            .result-score {
+                font-size: 48px;
+            }
+            .result-label {
+                font-size: 14px;
+            }
+            .result-btn-group .restart-btn,
+            .result-btn-group .menu-btn {
+                padding: 10px 20px;
+                font-size: 14px;
+                min-width: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- ===== 顶部栏 ===== -->
+    <div class="top-bar" id="topBar">
+        <div class="left-group">
+            <button class="back-btn" id="topBackBtn">← 主菜单</button>
+        </div>
+        <div class="info-group">
+            <div><span class="gold-icon">🍎</span> <span id="goldCount">0</span></div>
+            <div class="q-progress">第 <span id="currentQ">1</span> / <span id="totalQ">10</span> 题</div>
+            <div><span class="timer-icon">⏱️</span> <span class="timer-num" id="timer">30</span><span style="font-size:12px;opacity:0.7;">s</span></div>
+        </div>
+    </div>
+
+    <!-- ===== 开始界面 ===== -->
+    <div class="start-screen" id="startScreen">
+        <div class="game-title">🍎 苹果树答题 🍎</div>
+        <div class="game-desc">
+            点击苹果或拖动小车接住苹果进行答题<br>
+            ✨ 答对 → 金苹果<br>
+            ☠️ 答错 → 黑苹果<br>
+            30秒内完成挑战！
+        </div>
+        <button class="start-btn" id="startBtn">开始游戏</button>
+    </div>
+
+    <!-- ===== 反馈覆盖层 ===== -->
+    <div class="feedback-overlay" id="feedbackOverlay">
+        <div class="feedback-text" id="feedbackText"></div>
+    </div>
+
+    <!-- ===== 答案覆盖层 ===== -->
+    <div class="answer-overlay" id="answerOverlay">
+        <div class="answer-icon" id="answerIcon">☠️</div>
+        <div class="answer-label" id="answerLabel">答错啦！</div>
+        <div class="answer-text" id="answerText"></div>
+        <button class="next-btn" id="nextBtn">进入下一题 →</button>
+    </div>
+
+    <!-- ===== 结果界面 ===== -->
+    <div class="result-screen" id="resultScreen">
+        <div class="result-title">🎉 游戏结束！</div>
+        <div class="result-score" id="finalScore">0</div>
+        <div class="result-label">获得 <span id="resultGold">0</span> 个金苹果</div>
+        <div class="result-btn-group">
+            <button class="restart-btn" id="restartBtn">再玩一次</button>
+            <button class="menu-btn" id="resultMenuBtn">🏠 主菜单</button>
+        </div>
+    </div>
+
+    <script>
+        var canvas = document.getElementById('gameCanvas');
+        var ctx = canvas.getContext('2d');
+
+        var questions = [
+            { "q": "熵增加原理只适用于（    ）", "opt": ["封闭系统", "孤立系统", "均匀系统", "开放系统"], "ans": "B",
+            "exp": "熵增加原理的定义是：在孤立系统中，一切自发过程的熵永不减少。" },
+            { "q": "下列说法中正确的是（    ）", "opt": ["不可能把热量从高温物体传给低温物体而不引起其他变化", "功不可能全部转化为热而不引起其他变化",
+                    "不可能造出在循环过程中把一重物升高而同时使一热库冷却的机器", "可以从一热源吸收热量使它全部变成有用的功而不产生其他影响"
+                ], "ans": "C", "exp": "循环过程中把重物升高（做功）+同时使热库冷却（从单一热库吸热），相当于从单一热源吸热并全部转化为功，这直接违反了热力学第二定律的开尔文表述。" },
+            { "q": "根据熵增原理，孤立系统中发生的不可逆过程（    ）", "opt": ["总是朝着熵减少的方向进行，直到系统达到平衡态", "总是朝着熵不变的方向进行，直到系统达到平衡态",
+                    "总是朝着熵增加的方向进行，直到系统达到平衡态", "熵的变化方向不确定"
+                ], "ans": "C", "exp": "根据熵增原理，孤立系统中发生的不可逆过程，总是朝着熵增加的方向进行，直到系统达到平衡态。" },
+            { "q": "理想气体自由膨胀后（    ）", "opt": ["温度不变，熵增", "温度升高，熵增", "温度不变，熵减", "温度降低，熵增"], "ans": "A",
+                "exp": "首先理想气体的内能仅与温度有关，内能不变则温度不变。其次，气体自由膨胀是不可逆的绝热过程，根据熵增原理：不可逆绝热过程的熵总是增加的。" },
+            { "q": "下列现象中，能用熵增原理解释的是（    ）", "opt": ["冰在0℃融化成水，需要吸热", "将一滴墨水滴入清水中，整杯水逐渐变均匀",
+                    "热量可以从低温物体传到高温物体（如冰箱制冷）", "电解水生成氢气和氧气"
+                ], "ans": "B", "exp": "墨水在水中自发扩散，系统混乱度升高、熵值增大，是熵增原理的典型宏观现象，故B正确。" },
+            { "q": "关于热力学第二定律和熵增原理的关系，下列说法正确的是（    ）", "opt": ["热力学第二定律的微观本质是熵增原理", "熵增原理是热力学第二定律的宏观表述之一",
+                    "热力学第二定律只适用于宏观过程，不适用于微观过程", "熵增原理和热力学第二定律是两个独立的定律，没有关系"
+                ], "ans": "B", "exp": "熵增原理（孤立系统熵永不减少）是热力学第二定律的熵表述，属于其宏观表述形式之一，故B正确。" },
+            { "q": "关于熵增原理，下列说法正确的是（    ）", "opt": ["熵增原理只适用于孤立系统，不适用于开放系统", "孤立系统的熵总是增加的，不可能减少",
+                    "系统的熵越大，其能量品质越高", "任何宏观过程都一定导致熵增加"
+                ], "ans": "A", "exp": "熵增原理的严格适用条件为孤立系统；开放系统可与外界交换物质与能量，系统自身熵可以减小，因此熵增原理不适用于开放系统，A正确。" },
+            { "q": "从微观角度解释，熵是（    ）", "opt": ["系统内能的量度", "系统无序程度的量度", "系统温度的量度", "系统做功能力的量度"], "ans": "B",
+                "exp": "从微观统计物理角度，熵对应系统微观状态数的多少，本质是系统无序（混乱）程度的量度，故B正确。" },
+            { "q": "熵增原理在化学反应中的应用是（    ）", "opt": ["反应的速率", "反应的平衡", "反应的热力学性质", "反应的动力学性质"], "ans": "C",
+                "exp": "熵增原理是热力学第二定律的核心内容，用于判断化学反应的自发方向、反应限度等热力学性质，故C正确。" },
+            { "q": "熵增原理是由哪位科学家提出的？", "opt": ["牛顿", "爱因斯坦", "克劳修斯", "普朗克"], "ans": "C",
+                "exp": "熵的概念与熵增原理由德国物理学家克劳修斯提出，故C正确。" }
+        ];
+
+        var appleKeys = ['A', 'B', 'C', 'D'];
+        var appleColors = ['#FF4444', '#EE5555', '#DD6666', '#CC7777'];
+        var TOTAL_TIME = 30;
+        var FALL_DELAY = 1000;
+
+        var goldCount = 0;
+        var currentQuestion = 0;
+        var gameActive = false;
+        var gameRunning = false;
+        var W, H, groundY;
+        var particles = [];
+        var treeLeaves = [];
+        var applePositions = [];
+        var player = { x: 0, y: 0, targetX: 0 };
+        var apples = [];
+        var gameStartTime = 0;
+        var timerInterval = null;
+        var timeLeft = TOTAL_TIME;
+
+        function resize() {
+            W = window.innerWidth;
+            H = window.innerHeight;
+            canvas.width = W;
+            canvas.height = H;
+            groundY = H - 70;
+            player.x = W / 2;
+            player.y = groundY;
+            player.targetX = W / 2;
+            generateTree();
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        function drawTrunk() {
+            var cx = W / 2;
+            var tb = groundY + 5;
+            ctx.fillStyle = '#5D3A1A';
+            ctx.beginPath();
+            ctx.moveTo(cx - 26, tb);
+            ctx.lineTo(cx - 22, H * 0.72);
+            ctx.bezierCurveTo(cx - 28, H * 0.55, cx - 18, H * 0.4, cx - 14, H * 0.35);
+            ctx.lineTo(cx + 14, H * 0.35);
+            ctx.bezierCurveTo(cx + 18, H * 0.4, cx + 28, H * 0.55, cx + 22, H * 0.72);
+            ctx.lineTo(cx + 26, tb);
+            ctx.closePath();
+            ctx.fill();
+            ctx.strokeStyle = '#5D3A1A';
+            ctx.lineWidth = 6;
+            ctx.lineCap = 'round';
+            var roots = [
+                [-20, -50, -70, 3],
+                [20, 50, 70, 3],
+                [-10, -30, -30, 15],
+                [10, 30, 30, 15]
+            ];
+            for (var r = 0; r < roots.length; r++) {
+                var s = roots[r];
+                ctx.beginPath();
+                ctx.moveTo(cx + s[0], tb);
+                ctx.quadraticCurveTo(cx + s[1], tb + s[3] * 0.5, cx + s[2], tb + s[3] * 0.3);
+                ctx.stroke();
+            }
+        }
+
+        function generateTree() {
+            treeLeaves = [];
+            var cx = W / 2;
+            var layers = [
+                { cx: cx, cy: H * 0.16, r: W * 0.42 }, { cx: cx, cy: H * 0.2, r: W * 0.38 }, { cx: cx, cy: H * 0.26, r: W *
+                        0.35 },
+                { cx: cx - W * 0.22, cy: H * 0.22, r: W * 0.28 }, { cx: cx - W * 0.28, cy: H * 0.28, r: W * 0.22 },
+                { cx: cx + W * 0.22, cy: H * 0.22, r: W * 0.28 }, { cx: cx + W * 0.28, cy: H * 0.28, r: W * 0.22 },
+                { cx: cx - W * 0.12, cy: H * 0.1, r: W * 0.2 }, { cx: cx + W * 0.12, cy: H * 0.1, r: W * 0.2 },
+                { cx: cx - W * 0.35, cy: H * 0.24, r: W * 0.18 }, { cx: cx + W * 0.35, cy: H * 0.24, r: W * 0.18 }
+            ];
+            for (var l = 0; l < layers.length; l++) {
+                var ly = layers[l];
+                for (var i = 0; i < 4; i++) {
+                    treeLeaves.push({
+                        x: ly.cx + (Math.random() - 0.5) * 40,
+                        y: ly.cy + (Math.random() - 0.5) * 40,
+                        r: ly.r * (0.75 + Math.random() * 0.5),
+                        shade: Math.random() * 0.2
+                    });
+                }
+            }
+            var spacing = W / 4.6;
+            applePositions = [];
+            for (var j = 0; j < 4; j++) {
+                applePositions.push({ x: spacing * 0.6 + spacing * j, y: H * 0.34 + (j % 2) * 25 });
+            }
+        }
+
+        function drawTree() {
+            drawTrunk();
+            for (var t = 0; t < treeLeaves.length; t++) {
+                var leaf = treeLeaves[t];
+                ctx.beginPath();
+                ctx.arc(leaf.x, leaf.y, leaf.r, 0, Math.PI * 2);
+                var bg = 90 + leaf.shade * 80;
+                ctx.fillStyle = 'rgb(' + Math.floor(bg * 0.45) + ',' + bg + ',' + Math.floor(bg * 0.45) + ')';
+                ctx.fill();
+            }
+        }
+
+        function drawOptionsFixed() {
+            if (!gameRunning) return;
+            var q = questions[currentQuestion];
+            var lineHeight = 30;
+            var startY = 130;
+            var fontSize = Math.min(14, W * 0.032);
+            ctx.font = 'bold ' + fontSize + 'px PingFang SC,sans-serif';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'top';
+            ctx.shadowColor = 'rgba(0,0,0,0.6)';
+            ctx.shadowBlur = 4;
+            ctx.shadowOffsetX = 1;
+            ctx.shadowOffsetY = 1;
+            ctx.fillStyle = '#fff';
+            var leftX = Math.max(W * 0.04, 12);
+            for (var i = 0; i < 4; i++) {
+                var optText = appleKeys[i] + '. ' + q.opt[i];
+                ctx.fillText(optText, leftX, startY + i * lineHeight);
+            }
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+        }
+
+        function drawGround() {
+            var g = ctx.createLinearGradient(0, groundY, 0, H);
+            g.addColorStop(0, '#7CBA3D');
+            g.addColorStop(0.15, '#6B8E23');
+            g.addColorStop(0.4, '#556B2F');
+            g.addColorStop(1, '#3D6B4F');
+            ctx.fillStyle = g;
+            ctx.fillRect(0, groundY, W, H - groundY);
+            ctx.fillStyle = '#228B22';
+            for (var i = 0; i < W; i += 8) {
+                var h = 6 + Math.random() * 10;
+                ctx.beginPath();
+                ctx.moveTo(i, groundY);
+                ctx.quadraticCurveTo(i + 2, groundY - h, i + 5, groundY);
+                ctx.fill();
+            }
+        }
+
+        function drawQuestion() {
+            if (!gameRunning) return;
+            var q = questions[currentQuestion];
+            var qText = '第' + (currentQuestion + 1) + '题：' + q.q;
+            var fontSize = Math.min(14, W * 0.032);
+            ctx.font = 'bold ' + fontSize + 'px PingFang SC,sans-serif';
+            var maxChars = Math.floor(W / (fontSize * 0.7));
+            var lines = wrapText(qText, maxChars);
+            var lineH = fontSize * 2.2;
+            var totalH = lines.length * lineH;
+            var qBoxX = W * 0.04;
+            var qBoxW = W * 0.92;
+            var qBoxY = 70;
+            var qBoxH = totalH + 16;
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'top';
+            ctx.shadowColor = 'rgba(0,0,0,0.6)';
+            ctx.shadowBlur = 4;
+            ctx.shadowOffsetX = 1;
+            ctx.shadowOffsetY = 1;
+            ctx.fillStyle = '#fff';
+            for (var i = 0; i < lines.length; i++) {
+                ctx.fillText(lines[i], qBoxX, qBoxY + 8 + i * lineH);
+            }
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+        }
+
+        function wrapText(text, maxChars) {
+            if (text.length <= maxChars) return [text];
+            var lines = [];
+            var cur = '';
+            for (var c = 0; c < text.length; c++) {
+                if (cur.length >= maxChars) { lines.push(cur);
+                    cur = ''; }
+                cur += text[c];
+            }
+            if (cur) lines.push(cur);
+            return lines;
+        }
+
+        function drawApple(apple) {
+            ctx.save();
+            ctx.translate(apple.x, apple.y);
+            ctx.rotate(apple.rotation);
+            ctx.scale(apple.scale, apple.scale);
+            var r = apple.radius;
+            ctx.beginPath();
+            ctx.ellipse(0, r * 0.55, r * 0.8, r * 0.18, 0, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(0,0,0,0.1)';
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(0, 0, r, 0, Math.PI * 2);
+            ctx.fillStyle = apple.color;
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(0,0,0,0.12)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(-r * 0.28, -r * 0.28, r * 0.2, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255,255,255,0.38)';
+            ctx.fill();
+            ctx.fillStyle = '#228B22';
+            ctx.beginPath();
+            ctx.ellipse(0, -r - 3, 4, 8, Math.PI / 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#8B4513';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, -r);
+            ctx.lineTo(0, -r - 7);
+            ctx.stroke();
+            ctx.fillStyle = '#fff';
+            var fontSize = r * 0.75;
+            ctx.font = 'bold ' + fontSize + 'px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(apple.key, 0, 2);
+            ctx.restore();
+        }
+
+        function drawPlayer() {
+            var p = player;
+            ctx.save();
+            var px = p.x - 30;
+            var py = p.y;
+            ctx.translate(px, py);
+            ctx.beginPath();
+            ctx.ellipse(0, 0, 18, 5, 0, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(0,0,0,0.15)';
+            ctx.fill();
+            ctx.fillStyle = '#4169E1';
+            ctx.save();
+            ctx.rotate(-0.15);
+            ctx.fillRect(-9, -38, 9, 22);
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(-9, -16, 10, 6);
+            ctx.restore();
+            ctx.save();
+            ctx.rotate(0.15);
+            ctx.fillStyle = '#4169E1';
+            ctx.fillRect(0, -36, 9, 20);
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(0, -16, 10, 6);
+            ctx.restore();
+            ctx.fillStyle = '#E74C3C';
+            ctx.beginPath();
+            ctx.ellipse(0, -55, 15, 22, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#FFDBAC';
+            ctx.beginPath();
+            ctx.arc(0, -80, 14, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#3D2314';
+            ctx.beginPath();
+            ctx.ellipse(0, -86, 14, 8, 0, Math.PI, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#FFDBAC';
+            ctx.lineWidth = 7;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(-8, -60);
+            ctx.lineTo(20, -55);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(8, -58);
+            ctx.lineTo(22, -52);
+            ctx.stroke();
+            ctx.restore();
+
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.beginPath();
+            ctx.ellipse(0, -4, 40, 6, 0, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(0,0,0,0.15)';
+            ctx.fill();
+            ctx.fillStyle = '#8B6914';
+            ctx.beginPath();
+            ctx.moveTo(-38, -4);
+            ctx.lineTo(-32, -42);
+            ctx.lineTo(32, -42);
+            ctx.lineTo(38, -4);
+            ctx.closePath();
+            ctx.fill();
+            ctx.strokeStyle = '#5C4010';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.fillStyle = '#DAA520';
+            ctx.fillRect(-38, -42, 76, 5);
+            ctx.fillStyle = '#5D3A1A';
+            ctx.beginPath();
+            ctx.arc(-24, 0, 12, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#8B6914';
+            ctx.beginPath();
+            ctx.arc(-24, 0, 6, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#5D3A1A';
+            ctx.beginPath();
+            ctx.arc(24, 0, 12, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#8B6914';
+            ctx.beginPath();
+            ctx.arc(24, 0, 6, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#5D3A1A';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(-36, 0);
+            ctx.lineTo(36, 0);
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        function createParticles(x, y, color) {
+            for (var i = 0; i < 22; i++) {
+                particles.push({ x: x, y: y, vx: (Math.random() - 0.5) * 12, vy: (Math.random() - 0.5) * 12 - 3, r: 3 + Math
+                        .random() * 5, color: color, alpha: 1, gravity: 0.2 });
+            }
+        }
+
+        function updateParticles() {
+            particles = particles.filter(function(p) {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += p.gravity;
+                p.alpha -= 0.025;
+                p.r *= 0.97;
+                return p.alpha > 0;
+            });
+        }
+
+        function drawParticles() {
+            for (var i = 0; i < particles.length; i++) {
+                var p = particles[i];
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(' + p.color + ',' + p.alpha + ')';
+                ctx.fill();
+            }
+        }
+
+        function checkCollision(apple) {
+            var dx = apple.x - player.x;
+            var dy = apple.y - (player.y - 42);
+            return Math.sqrt(dx * dx + dy * dy) < 48 + apple.radius;
+        }
+
+        function spawnApples() {
+            apples = [];
+            var endY = groundY - 50;
+            for (var i = 0; i < appleKeys.length; i++) {
+                var sp = applePositions[i];
+                apples.push({
+                    key: appleKeys[i],
+                    x: sp.x,
+                    y: sp.y,
+                    startY: sp.y,
+                    endY: endY,
+                    radius: Math.min(26, W * 0.07),
+                    rotation: 0,
+                    rotSpeed: 0.012,
+                    collected: false,
+                    wrong: false,
+                    color: appleColors[i],
+                    isCorrect: questions[currentQuestion].ans === appleKeys[i],
+                    scale: 1
+                });
+            }
+        }
+
+        function selectAnswer(apple) {
+            if (apple.collected || !gameRunning) return;
+            apple.collected = true;
+            if (apple.isCorrect) {
+                apple.color = '#FFD700';
+                goldCount++;
+                document.getElementById('goldCount').textContent = goldCount;
+                showFeedback('✨', '#FFD700');
+                createParticles(apple.x, apple.y, '255, 215, 0');
+                showAnswerExplanation(questions[currentQuestion], questions[currentQuestion].ans, true);
+            } else {
+                apple.color = '#333';
+                apple.scale = 0.85;
+                showFeedback('☠️', '#333');
+                createParticles(apple.x, apple.y, '60, 60, 60');
+                showAnswerExplanation(questions[currentQuestion], apple.key, false);
+            }
+        }
+
+        function showAnswerExplanation(q, selectedKey, isCorrect) {
+            var ci = appleKeys.indexOf(q.ans);
+            var si = appleKeys.indexOf(selectedKey);
+            document.getElementById('answerIcon').textContent = isCorrect ? '✨' : '☠️';
+            document.getElementById('answerLabel').textContent = isCorrect ? '回答正确！' : '答错啦！';
+            document.getElementById('answerText').innerHTML =
+                '正确答案：<b style="color:#4ade80">' + q.ans + '. ' + q.opt[ci] + '</b><br><br>' +
+                '<span style="color:#facc15">📝 解析：</span>' + q.exp;
+            document.getElementById('answerOverlay').classList.add('show');
+            clearInterval(timerInterval);
+        }
+
+        function goNextQuestion() {
+            document.getElementById('answerOverlay').classList.remove('show');
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            clearInterval(timerInterval);
+            document.getElementById('answerOverlay').classList.remove('show');
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                spawnApples();
+                document.getElementById('currentQ').textContent = currentQuestion + 1;
+                startQuestionTimer();
+            } else {
+                showResult();
+            }
+        }
+
+        function startQuestionTimer() {
+            timeLeft = TOTAL_TIME;
+            gameStartTime = performance.now();
+            updateTimerUI();
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(function() {
+                if (!gameRunning) return;
+                var elapsed = (performance.now() - gameStartTime) / 1000;
+                timeLeft = Math.max(0, TOTAL_TIME - elapsed);
+                updateTimerUI();
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    var hasCorrect = apples.some(function(a) { return a.isCorrect && !a.collected; });
+                    if (hasCorrect) {
+                        showFeedback('⏱️', '#888');
+                        for (var i = 0; i < apples.length; i++) {
+                            var a = apples[i];
+                            if (!a.collected) { a.y = a.endY;
+                                a.color = a.isCorrect ? '#FFD700' : '#333';
+                                a.collected = true; }
+                        }
+                    }
+                    setTimeout(nextQuestion, 1500);
+                }
+            }, 100);
+        }
+
+        function updateTimerUI() {
+            var el = document.getElementById('timer');
+            var val = Math.ceil(timeLeft);
+            el.textContent = val;
+            if (val <= 5) {
+                el.classList.add('warning');
+            } else {
+                el.classList.remove('warning');
+            }
+        }
+
+        function showResult() {
+            gameRunning = false;
+            gameActive = false;
+            document.getElementById('finalScore').textContent = goldCount;
+            document.getElementById('resultGold').textContent = goldCount;
+            document.getElementById('resultScreen').classList.add('show');
+        }
+
+        function restartGame() {
+            goldCount = 0;
+            currentQuestion = 0;
+            document.getElementById('goldCount').textContent = 0;
+            document.getElementById('currentQ').textContent = 1;
+            document.getElementById('resultScreen').classList.remove('show');
+            document.getElementById('answerOverlay').classList.remove('show');
+            gameActive = true;
+            gameRunning = true;
+            generateTree();
+            spawnApples();
+            startQuestionTimer();
+        }
+
+        function startGame() {
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('topBar').style.display = 'flex';
+            document.getElementById('totalQ').textContent = questions.length;
+            goldCount = 0;
+            currentQuestion = 0;
+            document.getElementById('goldCount').textContent = 0;
+            document.getElementById('currentQ').textContent = 1;
+            gameActive = true;
+            gameRunning = true;
+            generateTree();
+            spawnApples();
+            startQuestionTimer();
+        }
+
+        function goToMainMenu() {
+            window.location.href = '2.html';
+        }
+
+        document.getElementById('startBtn').addEventListener('click', startGame);
+        document.getElementById('nextBtn').addEventListener('click', goNextQuestion);
+        document.getElementById('restartBtn').addEventListener('click', restartGame);
+        document.getElementById('topBackBtn').addEventListener('click', goToMainMenu);
+        document.getElementById('resultMenuBtn').addEventListener('click', goToMainMenu);
+
+        canvas.addEventListener('touchmove', function(e) {
+            e.preventDefault();
+            if (gameRunning) player.targetX = e.touches[0].clientX;
+        }, { passive: false });
+        canvas.addEventListener('touchstart', function(e) {
+            if (gameRunning) handleClick(e.touches[0].clientX, e.touches[0].clientY);
+        });
+        canvas.addEventListener('mousemove', function(e) {
+            if (gameRunning) player.targetX = e.clientX;
+        });
+        canvas.addEventListener('click', function(e) {
+            if (gameRunning) handleClick(e.clientX, e.clientY);
+        });
+
+        function handleClick(cx, cy) {
+            for (var i = 0; i < apples.length; i++) {
+                var apple = apples[i];
+                if (!apple.collected) {
+                    var dx = cx - apple.x;
+                    var dy = cy - apple.y;
+                    if (Math.sqrt(dx * dx + dy * dy) < apple.radius + 30) selectAnswer(apple);
+                }
+            }
+        }
+
+        function showFeedback(text, color) {
+            var el = document.getElementById('feedbackOverlay');
+            document.getElementById('feedbackText').textContent = text;
+            document.getElementById('feedbackText').style.color = color;
+            el.classList.add('show');
+            setTimeout(function() { el.classList.remove('show'); }, 1000);
+        }
+
+        function gameLoop() {
+            ctx.clearRect(0, 0, W, H);
+            drawTree();
+            drawGround();
+            drawQuestion();
+            drawOptionsFixed();
+            player.x += (player.targetX - player.x) * 0.15;
+            if (gameRunning) {
+                var elapsed = (performance.now() - gameStartTime) / 1000;
+                for (var i = 0; i < apples.length; i++) {
+                    var apple = apples[i];
+                    if (!apple.collected) {
+                        if (elapsed >= FALL_DELAY / 1000) {
+                            var progress = Math.min((elapsed - FALL_DELAY / 1000) / 5, 1);
+                            apple.y = apple.startY + (apple.endY - apple.startY) * progress;
+                            apple.rotation += apple.rotSpeed;
+                        }
+                        if (checkCollision(apple)) selectAnswer(apple);
+                    }
+                    drawApple(apple);
+                }
+            }
+            drawPlayer();
+            updateParticles();
+            drawParticles();
+            requestAnimationFrame(gameLoop);
+        }
+
+        gameLoop();
+    </script>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>🔬 熵增原理小游戏 · 启动器</title>
+    <title>熵增原理小游戏 · 启动器</title>
 
     <style>
         /* ===== 全局重置 & 基础 ===== */
@@ -173,14 +173,30 @@
         }
 
         .options-panel.open {
-            max-height: 800px;
+            max-height: 900px;
             opacity: 1;
             margin-top: 28px;
         }
 
+        /* ===== 视图容器 ===== */
+        .view {
+            transition: opacity 0.45s ease, transform 0.45s ease;
+        }
+        .view.hidden {
+            display: none;
+            opacity: 0;
+            transform: translateY(12px);
+        }
+        .view.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ===== 选项网格 ===== */
         .options-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 18px;
         }
 
@@ -236,6 +252,7 @@
             color: rgba(255, 255, 255, 0.55);
             line-height: 1.5;
             margin-bottom: 12px;
+            min-height: 38px;
         }
 
         .option-card .tag {
@@ -256,6 +273,21 @@
         }
 
         /* ---- 个性光晕 ---- */
+        .option-card.card-lab::after {
+            content: '';
+            position: absolute;
+            top: -60%;
+            left: -60%;
+            width: 220%;
+            height: 220%;
+            background: radial-gradient(circle at 40% 40%, rgba(0, 200, 255, 0.15), transparent 60%);
+            pointer-events: none;
+            transition: all 0.6s;
+        }
+        .option-card.card-lab:hover::after {
+            transform: scale(1.1);
+        }
+
         .option-card.card-hot::after {
             content: '';
             position: absolute;
@@ -286,7 +318,6 @@
             transform: scale(1.1);
         }
 
-        /* 新卡片：金色光晕 —— 智慧与判断 */
         .option-card.card-quiz::after {
             content: '';
             position: absolute;
@@ -300,6 +331,37 @@
         }
         .option-card.card-quiz:hover::after {
             transform: scale(1.1);
+        }
+
+        /* ---- 子视图专属：返回按钮 ---- */
+        .back-row {
+            text-align: center;
+            margin-top: 18px;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 10px 32px;
+            border-radius: 40px;
+            font-size: 15px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            letter-spacing: 0.5px;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.16);
+            color: #fff;
+            transform: scale(1.04);
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .back-btn:active {
+            transform: scale(0.96);
         }
 
         /* ===== 底部 ===== */
@@ -327,6 +389,7 @@
             }
             .option-card p {
                 font-size: 12px;
+                min-height: 32px;
             }
         }
 
@@ -365,6 +428,9 @@
             .option-card h3 {
                 font-size: 16px;
             }
+            .option-card p {
+                min-height: 28px;
+            }
         }
 
         @media (max-width: 400px) {
@@ -380,18 +446,15 @@
             }
         }
 
-        /* ===== 进入动画 ===== */
-        .options-panel.open .option-card {
+        /* ===== 进入动画（卡片逐个出现） ===== */
+        .view.active .option-card {
             animation: cardSlideIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
         }
-        .options-panel.open .option-card:nth-child(1) {
+        .view.active .option-card:nth-child(1) {
             animation-delay: 0.08s;
         }
-        .options-panel.open .option-card:nth-child(2) {
+        .view.active .option-card:nth-child(2) {
             animation-delay: 0.20s;
-        }
-        .options-panel.open .option-card:nth-child(3) {
-            animation-delay: 0.32s;
         }
 
         @keyframes cardSlideIn {
@@ -431,47 +494,72 @@
 
             <!-- 头部 -->
             <div class="header">
+                <span class="icon-big"></span>
                 <h1><span>熵增原理小游戏</span></h1>
-                <div class="sub">选择你的游戏项目 · 探索熵增原理的奥秘</div>
+                <div class="sub">选择你的实验项目 · 探索熵增原理的奥秘</div>
             </div>
 
             <!-- 开始按钮 -->
             <div class="btn-start-wrap">
                 <button class="btn-start" id="startBtn">
-                    <span class="icon">🚀</span> 开始游玩
+                    <span class="icon">🚀</span> 开始探索
                 </button>
             </div>
 
             <!-- 选项面板 -->
             <div class="options-panel" id="optionsPanel">
-                <div class="options-grid">
 
-                    <!-- 选项1：冷热水混合模拟 -->
-                    <div class="option-card card-hot" data-href="page1.html">
-                        <span class="emoji">🌡️</span>
-                        <h3>冷热水混合模拟</h3>
-                        <p>热力学和流体动力学</p>
-                        <span class="tag">进入游戏 →</span>
+                <!-- ===== 主视图 ===== -->
+                <div id="mainView" class="view active">
+                    <div class="options-grid">
+
+                        <!-- 虚拟仿真小实验（整合入口） -->
+                        <div class="option-card card-lab" data-action="openSub">
+                            <span class="emoji">🔬</span>
+                            <h3>虚拟仿真小实验</h3>
+                            <p>冷热水混合模拟 · 化学熵变计算</p>
+                            <span class="tag">点击展开 →</span>
+                        </div>
+
+                        <!-- 选择判断 -->
+                        <div class="option-card card-quiz" data-href="2.html">
+                            <span class="emoji">📝</span>
+                            <h3>选择判断</h3>
+                            <p>热力学选择、判断题</p>
+                            <span class="tag">进入游戏 →</span>
+                        </div>
+
                     </div>
-
-                    <!-- 选项2：化学熵变计算 -->
-                    <div class="option-card card-chem" data-href="page2.html">
-                        <span class="emoji">🧪</span>
-                        <h3>化学熵变计算</h3>
-                        <p>物理化学</p>
-                        <span class="tag">进入游戏 →</span>
-                    </div>
-
-                    <!-- ★ 新增：选择判断（选择题 + 判断题） -->
-                    <div class="option-card card-quiz" data-href="2.html">
-                        <span class="emoji">📝</span>
-                        <h3>选择判断</h3>
-                        <p>热力学选择、判断题</p>
-                        <span class="tag">进入游戏 →</span>
-                    </div>
-
+                    <div class="hint">点击「虚拟仿真小实验」展开子选项 · 或按 ESC 收起</div>
                 </div>
-                <div class="hint">点击卡片进入对应游戏 · 或按 ESC 收起</div>
+
+                <!-- ===== 子视图（虚拟仿真子选项） ===== -->
+                <div id="subView" class="view hidden">
+                    <div class="options-grid">
+
+                        <!-- 冷热水混合模拟 -->
+                        <div class="option-card card-hot" data-href="page1.html">
+                            <span class="emoji">🌡️</span>
+                            <h3>冷热水混合模拟</h3>
+                            <p>热力学和流体动力学</p>
+                            <span class="tag">进入实验 →</span>
+                        </div>
+
+                        <!-- 化学熵变计算 -->
+                        <div class="option-card card-chem" data-href="page2.html">
+                            <span class="emoji">🧪</span>
+                            <h3>化学熵变计算</h3>
+                            <p>物理化学</p>
+                            <span class="tag">进入实验 →</span>
+                        </div>
+
+                    </div>
+                    <div class="back-row">
+                        <button class="back-btn" id="backBtn">← 返回主菜单</button>
+                    </div>
+                    <div class="hint">选择上方实验进入 · 或点击返回</div>
+                </div>
+
             </div>
 
             <!-- 底部 -->
@@ -507,7 +595,7 @@
                     this.speedX = (Math.random() - 0.5) * 0.35;
                     this.speedY = (Math.random() - 0.5) * 0.35;
                     this.alpha = Math.random() * 0.5 + 0.2;
-                    this.hue = Math.random() * 60 + 200; // 蓝紫色系
+                    this.hue = Math.random() * 60 + 200;
                 }
                 update() {
                     this.x += this.speedX;
@@ -515,7 +603,6 @@
                     if (this.x < -10 || this.x > w + 10 || this.y < -10 || this.y > h + 10) {
                         this.reset();
                     }
-                    // 轻微闪烁
                     this.alpha = 0.2 + 0.35 * (0.5 + 0.5 * Math.sin(Date.now() / 2000 + this.x));
                 }
                 draw() {
@@ -585,29 +672,83 @@
         (function main() {
             const startBtn = document.getElementById('startBtn');
             const panel = document.getElementById('optionsPanel');
+            const mainView = document.getElementById('mainView');
+            const subView = document.getElementById('subView');
+            const backBtn = document.getElementById('backBtn');
             const cards = document.querySelectorAll('.option-card');
 
             let isOpen = false;
+            let currentView = 'main'; // 'main' | 'sub'
 
+            // ---- 视图切换 ----
+            function showView(viewName) {
+                if (viewName === 'main') {
+                    mainView.classList.remove('hidden');
+                    mainView.classList.add('active');
+                    subView.classList.remove('active');
+                    subView.classList.add('hidden');
+                    currentView = 'main';
+                } else {
+                    subView.classList.remove('hidden');
+                    subView.classList.add('active');
+                    mainView.classList.remove('active');
+                    mainView.classList.add('hidden');
+                    currentView = 'sub';
+                }
+                // 重新触发卡片动画
+                const activeView = viewName === 'main' ? mainView : subView;
+                const cardsInView = activeView.querySelectorAll('.option-card');
+                cardsInView.forEach(card => {
+                    card.style.animation = 'none';
+                    void card.offsetHeight;
+                    card.style.animation = '';
+                });
+            }
+
+            // ---- 面板展开/收起 ----
             function togglePanel(open) {
                 isOpen = (open !== undefined) ? open : !isOpen;
                 if (isOpen) {
                     panel.classList.add('open');
-                    startBtn.innerHTML = '<span class="icon">🎯</span> 选择游戏';
+                    // 默认显示主视图
+                    if (currentView !== 'main') {
+                        showView('main');
+                    }
+                    startBtn.innerHTML = '<span class="icon">🎯</span> 选择项目';
                 } else {
                     panel.classList.remove('open');
-                    startBtn.innerHTML = '<span class="icon">🚀</span> 开始游戏';
+                    // 收起时重置到主视图
+                    if (currentView !== 'main') {
+                        showView('main');
+                    }
+                    startBtn.innerHTML = '<span class="icon">🚀</span> 开始探索';
                 }
             }
 
+            // ---- 事件绑定 ----
+
+            // 开始按钮
             startBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 togglePanel();
             });
 
+            // 卡片点击
             cards.forEach(card => {
                 card.addEventListener('click', () => {
                     const href = card.getAttribute('data-href');
+                    const action = card.getAttribute('data-action');
+
+                    if (action === 'openSub') {
+                        // 进入子视图
+                        showView('sub');
+                        // 确保面板是展开的
+                        if (!isOpen) {
+                            togglePanel(true);
+                        }
+                        return;
+                    }
+
                     if (href) {
                         card.style.transform = 'scale(0.94)';
                         setTimeout(() => {
@@ -617,12 +758,20 @@
                 });
             });
 
+            // 返回按钮
+            backBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                showView('main');
+            });
+
+            // ESC 收起
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape' && isOpen) {
                     togglePanel(false);
                 }
             });
 
+            // 点击外部收起
             document.addEventListener('click', (e) => {
                 const container = document.querySelector('.container');
                 if (isOpen && !container.contains(e.target)) {
@@ -630,12 +779,54 @@
                 }
             });
 
-            // 初始状态：面板关闭
+            // ---- 初始状态 ----
             panel.classList.remove('open');
             isOpen = false;
-            startBtn.innerHTML = '<span class="icon">🚀</span> 开始游戏';
+            currentView = 'main';
+            mainView.classList.remove('hidden');
+            mainView.classList.add('active');
+            subView.classList.add('hidden');
+            subView.classList.remove('active');
+            startBtn.innerHTML = '<span class="icon">🚀</span> 开始探索';
 
-            console.log('✅ 小游戏启动器已加载 · 新增「选择判断」入口');
+            // ============================================================
+            //  ★★★ 新增：检测从子页面返回并自动展开面板 ★★★
+            // ============================================================
+            function autoOpenPanel() {
+                // 1) 检查 URL 参数：?panel=open 或 ?open=true
+                const urlParams = new URLSearchParams(window.location.search);
+                const hasPanelOpen = urlParams.get('panel') === 'open';
+                const hasOpenTrue = urlParams.get('open') === 'true';
+
+                // 2) 检查 sessionStorage（来自 page2.html）
+                const returnFromPage2 = sessionStorage.getItem('returnFromPage2') === 'true';
+
+                const shouldOpen = hasPanelOpen || hasOpenTrue || returnFromPage2;
+
+                if (shouldOpen) {
+                    // 清除 sessionStorage 标志，防止后续重复触发
+                    if (returnFromPage2) {
+                        sessionStorage.removeItem('returnFromPage2');
+                    }
+
+                    // 延迟一小段时间，等待 DOM 完全就绪，然后展开面板
+                    setTimeout(() => {
+                        if (!isOpen) {
+                            togglePanel(true);
+                        }
+                        // 清除 URL 参数，让地址栏恢复干净，避免刷新后再次自动展开
+                        if (hasPanelOpen || hasOpenTrue) {
+                            const cleanUrl = window.location.pathname + window.location.hash;
+                            window.history.replaceState({}, '', cleanUrl);
+                        }
+                    }, 350);
+                }
+            }
+
+            // 执行自动展开检测
+            autoOpenPanel();
+
+            console.log('✅ 启动器已加载 · 自动展开检测已启用');
         })();
     </script>
 

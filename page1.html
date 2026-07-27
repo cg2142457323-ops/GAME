@@ -5,50 +5,300 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>冷热水混合模拟 · 方向倒转</title>
     <style>
-        * { box-sizing: border-box; user-select: none; }
-        body { background: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; font-family: 'Microsoft YaHei', 'Segoe UI', Arial, sans-serif; }
-        .container { background: #ffffff; border-radius: 18px; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15); padding: 24px 30px 30px 30px; width: 1080px; max-width: 98vw; transition: all 0.2s; }
-        h1 { text-align: center; font-size: 26px; font-weight: 700; margin: 0 0 14px 0; color: #1a2a3a; letter-spacing: 2px; }
-        .main-row { display: flex; gap: 18px; flex-wrap: wrap; }
-        .canvas-wrapper { position: relative; flex: 2; min-width: 520px; }
-        #mainCanvas { width: 100%; height: auto; aspect-ratio: 2 / 1; display: block; border-radius: 10px; border: 2px solid #d0d7e0; background: #fff; cursor: default; image-rendering: pixelated; }
-        .colorbar-container { position: absolute; right: 20px; top: 20px; bottom: 20px; width: 28px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.6); background: #fff; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15); pointer-events: none; }
-        #colorbarCanvas { width: 100%; height: 100%; border-radius: 5px; display: block; }
-        
-        /* 【修改点1】调整温度标签的上下位置，让它们不靠边 */
-        .colorbar-labels { position: absolute; right: 58px; top: 15px; bottom: 15px; display: flex; flex-direction: column; justify-content: space-between; font-size: 13px; font-weight: 600; color: #1a2a3a; pointer-events: none; padding: 0; }
-        
-        .colorbar-labels span { background: rgba(255, 255, 255, 0.85); padding: 1px 6px; border-radius: 4px; font-size: 12px; white-space: nowrap; }
-        .curve-panel { flex: 1; min-width: 280px; background: #fafbfc; border-radius: 10px; border: 2px solid #e4e9f0; padding: 10px 12px 12px 12px; display: flex; flex-direction: column; }
-        .curve-panel .title { font-size: 14px; font-weight: 700; color: #1a2a3a; margin-bottom: 6px; text-align: center; }
-        #curveCanvas { width: 100%; height: auto; aspect-ratio: 1.2 / 1; display: block; border-radius: 6px; background: #ffffff; flex: 1; }
-        .info-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 6px 4px 6px; flex-wrap: wrap; gap: 6px 16px; }
-        .info-row .time-label { font-size: 18px; font-weight: 700; color: #0b1a2a; }
-        .info-row .final-temp { font-size: 16px; font-weight: 600; color: #2c5a7a; }
-        .controls { display: flex; flex-wrap: wrap; gap: 12px 20px; padding: 12px 6px 0 6px; border-top: 1px solid #e4e9f0; margin-top: 6px; align-items: center; }
-        .control-group { display: flex; align-items: center; gap: 4px 10px; flex-wrap: wrap; }
-        .control-group label { font-size: 13px; font-weight: 500; color: #2a3a4a; white-space: nowrap; }
-        .control-group input[type="text"], .control-group input[type="number"] { width: 58px; height: 30px; border: 1.5px solid #c8d0d8; border-radius: 6px; padding: 0 6px; font-size: 14px; font-weight: 500; text-align: center; background: #fff; transition: border 0.2s; font-family: 'Arial', sans-serif; }
-        .control-group input:focus { border-color: #4a8fc0; outline: none; box-shadow: 0 0 0 3px rgba(74, 143, 192, 0.2); }
-        .control-group .unit { font-size: 13px; color: #4a5a6a; font-weight: 500; }
-        .btn { height: 34px; padding: 0 18px; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: 'Microsoft YaHei', Arial, sans-serif; white-space: nowrap; }
-        .btn-primary { background: #2c7fb8; color: #fff; }
-        .btn-primary:hover { background: #1f6a9e; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(44, 127, 184, 0.35); }
-        .btn-primary:active { transform: translateY(0); }
-        .btn-secondary { background: #6c7a8a; color: #fff; }
-        .btn-secondary:hover { background: #5a6878; }
-        .btn-success { background: #2a9d6e; color: #fff; }
-        .btn-success:hover { background: #1f855c; }
-        .btn-danger { background: #c0392b; color: #fff; }
-        .btn-danger:hover { background: #a93226; }
-        .btn-outline { background: transparent; color: #2a3a4a; border: 2px solid #c8d0d8; }
-        .btn-outline:hover { background: #eef2f6; }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
-        .checkbox-group { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: #2a3a4a; }
-        .checkbox-group input[type="checkbox"] { width: 17px; height: 17px; accent-color: #2c7fb8; cursor: pointer; }
-        .speed-slider { width: 90px; accent-color: #2c7fb8; cursor: pointer; }
-        .speed-display { font-weight: 700; color: #1a2a3a; min-width: 40px; text-align: center; }
-        @media (max-width: 780px) { .container { padding: 14px 12px; } .main-row { flex-direction: column; } .canvas-wrapper { min-width: unset; } .curve-panel { min-width: unset; } .controls { gap: 8px 12px; } .control-group input[type="text"], .control-group input[type="number"] { width: 48px; height: 28px; font-size: 13px; } .btn { height: 30px; padding: 0 12px; font-size: 13px; } }
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+        body {
+            background: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Microsoft YaHei', 'Segoe UI', Arial, sans-serif;
+        }
+        .container {
+            background: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+            padding: 24px 30px 30px 30px;
+            width: 1080px;
+            max-width: 98vw;
+            transition: all 0.2s;
+        }
+        h1 {
+            text-align: center;
+            font-size: 26px;
+            font-weight: 700;
+            margin: 0 0 14px 0;
+            color: #1a2a3a;
+            letter-spacing: 2px;
+        }
+        .main-row {
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+        .canvas-wrapper {
+            position: relative;
+            flex: 2;
+            min-width: 520px;
+        }
+        #mainCanvas {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 2 / 1;
+            display: block;
+            border-radius: 10px;
+            border: 2px solid #d0d7e0;
+            background: #fff;
+            cursor: default;
+            image-rendering: pixelated;
+        }
+        .colorbar-container {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            bottom: 20px;
+            width: 28px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            background: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+            pointer-events: none;
+        }
+        #colorbarCanvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 5px;
+            display: block;
+        }
+
+        /* 温度标签位置调整 */
+        .colorbar-labels {
+            position: absolute;
+            right: 58px;
+            top: 15px;
+            bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            font-size: 13px;
+            font-weight: 600;
+            color: #1a2a3a;
+            pointer-events: none;
+            padding: 0;
+        }
+
+        .colorbar-labels span {
+            background: rgba(255, 255, 255, 0.85);
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        .curve-panel {
+            flex: 1;
+            min-width: 280px;
+            background: #fafbfc;
+            border-radius: 10px;
+            border: 2px solid #e4e9f0;
+            padding: 10px 12px 12px 12px;
+            display: flex;
+            flex-direction: column;
+        }
+        .curve-panel .title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1a2a3a;
+            margin-bottom: 6px;
+            text-align: center;
+        }
+        #curveCanvas {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 1.2 / 1;
+            display: block;
+            border-radius: 6px;
+            background: #ffffff;
+            flex: 1;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 6px 4px 6px;
+            flex-wrap: wrap;
+            gap: 6px 16px;
+        }
+        .info-row .time-label {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0b1a2a;
+        }
+        .info-row .final-temp {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c5a7a;
+        }
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px 20px;
+            padding: 12px 6px 0 6px;
+            border-top: 1px solid #e4e9f0;
+            margin-top: 6px;
+            align-items: center;
+        }
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 4px 10px;
+            flex-wrap: wrap;
+        }
+        .control-group label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #2a3a4a;
+            white-space: nowrap;
+        }
+        .control-group input[type="text"],
+        .control-group input[type="number"] {
+            width: 58px;
+            height: 30px;
+            border: 1.5px solid #c8d0d8;
+            border-radius: 6px;
+            padding: 0 6px;
+            font-size: 14px;
+            font-weight: 500;
+            text-align: center;
+            background: #fff;
+            transition: border 0.2s;
+            font-family: 'Arial', sans-serif;
+        }
+        .control-group input:focus {
+            border-color: #4a8fc0;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74, 143, 192, 0.2);
+        }
+        .control-group .unit {
+            font-size: 13px;
+            color: #4a5a6a;
+            font-weight: 500;
+        }
+        .btn {
+            height: 34px;
+            padding: 0 18px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            white-space: nowrap;
+        }
+        .btn-primary {
+            background: #2c7fb8;
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background: #1f6a9e;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(44, 127, 184, 0.35);
+        }
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+        .btn-secondary {
+            background: #6c7a8a;
+            color: #fff;
+        }
+        .btn-secondary:hover {
+            background: #5a6878;
+        }
+        .btn-success {
+            background: #2a9d6e;
+            color: #fff;
+        }
+        .btn-success:hover {
+            background: #1f855c;
+        }
+        .btn-danger {
+            background: #c0392b;
+            color: #fff;
+        }
+        .btn-danger:hover {
+            background: #a93226;
+        }
+        .btn-outline {
+            background: transparent;
+            color: #2a3a4a;
+            border: 2px solid #c8d0d8;
+        }
+        .btn-outline:hover {
+            background: #eef2f6;
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #2a3a4a;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: 17px;
+            height: 17px;
+            accent-color: #2c7fb8;
+            cursor: pointer;
+        }
+        .speed-slider {
+            width: 90px;
+            accent-color: #2c7fb8;
+            cursor: pointer;
+        }
+        .speed-display {
+            font-weight: 700;
+            color: #1a2a3a;
+            min-width: 40px;
+            text-align: center;
+        }
+        @media (max-width: 780px) {
+            .container {
+                padding: 14px 12px;
+            }
+            .main-row {
+                flex-direction: column;
+            }
+            .canvas-wrapper {
+                min-width: unset;
+            }
+            .curve-panel {
+                min-width: unset;
+            }
+            .controls {
+                gap: 8px 12px;
+            }
+            .control-group input[type="text"],
+            .control-group input[type="number"] {
+                width: 48px;
+                height: 28px;
+                font-size: 13px;
+            }
+            .btn {
+                height: 30px;
+                padding: 0 12px;
+                font-size: 13px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -142,9 +392,12 @@
         // ============================================================
         //  1. 参数与状态
         // ============================================================
-        const Lx = 2.0, Ly = 1.0;
-        const nx = 200, ny = 100;
-        const dx = Lx / nx, dy = Ly / ny;
+        const Lx = 2.0,
+            Ly = 1.0;
+        const nx = 200,
+            ny = 100;
+        const dx = Lx / nx,
+            dy = Ly / ny;
 
         const D = 0.006;
         const U0 = 0.8;
@@ -152,8 +405,10 @@
         const plot_interval = 0.04;
         const t_max = 60.0;
 
-        let Th_default = 80, Tc_default = 0;
-        let m_left_default = 1, m_right_default = 1;
+        let Th_default = 80,
+            Tc_default = 0;
+        let m_left_default = 1,
+            m_right_default = 1;
 
         // 物理时间步
         const steps_per_frame = 4;
@@ -221,12 +476,19 @@
             const x = c * (1 - Math.abs((h / 60) % 2 - 1));
             const m = v - c;
             let r, g, b;
-            if (h < 60) { r = c; g = x; b = 0; } 
-            else if (h < 120) { r = x; g = c; b = 0; } 
-            else if (h < 180) { r = 0; g = c; b = x; } 
-            else if (h < 240) { r = 0; g = x; b = c; } 
-            else if (h < 300) { r = x; g = 0; b = c; } 
-            else { r = c; g = 0; b = x; }
+            if (h < 60) { r = c;
+                g = x;
+                b = 0; } else if (h < 120) { r = x;
+                g = c;
+                b = 0; } else if (h < 180) { r = 0;
+                g = c;
+                b = x; } else if (h < 240) { r = 0;
+                g = x;
+                b = c; } else if (h < 300) { r = x;
+                g = 0;
+                b = c; } else { r = c;
+                g = 0;
+                b = x; }
             return [r + m, g + m, b + m];
         }
 
@@ -279,7 +541,10 @@
 
         function computeLeftRightAvg() {
             const sep = Math.round(alpha * nx);
-            let sumL = 0, sumR = 0, cntL = 0, cntR = 0;
+            let sumL = 0,
+                sumR = 0,
+                cntL = 0,
+                cntR = 0;
             for (let j = 0; j < ny; j++) {
                 for (let i = 0; i < sep && i < nx; i++) {
                     sumL += c[j][i];
@@ -409,7 +674,8 @@
         //  4. 渲染
         // ============================================================
         function renderMain() {
-            const W = mainCanvas.width, H = mainCanvas.height;
+            const W = mainCanvas.width,
+                H = mainCanvas.height;
             const imgData = ctx.createImageData(W, H);
 
             const deltaT = Math.abs(Th - Tc);
@@ -425,8 +691,10 @@
                     const py = Math.round(j / ny * H);
                     const pxNext = Math.round((i + 1) / nx * W);
                     const pyNext = Math.round((j + 1) / ny * H);
-                    const x0 = px, x1 = Math.max(px + 1, pxNext);
-                    const y0 = py, y1 = Math.max(py + 1, pyNext);
+                    const x0 = px,
+                        x1 = Math.max(px + 1, pxNext);
+                    const y0 = py,
+                        y1 = Math.max(py + 1, pyNext);
                     for (let yy = y0; yy < y1; yy++) {
                         for (let xx = x0; xx < x1; xx++) {
                             const idx2 = (yy * W + xx) * 4;
@@ -455,7 +723,8 @@
         }
 
         function renderColorbar() {
-            const W = colorbarCanvas.width, H = colorbarCanvas.height;
+            const W = colorbarCanvas.width,
+                H = colorbarCanvas.height;
             const ctx2 = cbCtx;
             const deltaT = Math.abs(Th - Tc);
             const cmap = buildColorMap(256, deltaT);
@@ -475,7 +744,8 @@
         }
 
         function renderCurve() {
-            const W = curveCanvas.width, H = curveCanvas.height;
+            const W = curveCanvas.width,
+                H = curveCanvas.height;
             const ctx2 = curveCtx;
             ctx2.clearRect(0, 0, W, H);
 
@@ -513,14 +783,14 @@
             ctx2.font = '11px Arial';
             ctx2.textAlign = 'center';
             ctx2.textBaseline = 'top';
-            
-            // 【修改点2】横轴标签“时间 (s)”位置上移，确保显示完全
+
+            // 横轴标签 "时间 (s)" 位置上移
             ctx2.fillText('时间 (s)', pad.left + plotW / 2, pad.top + plotH + 18);
-            
-            // 【修改点3】纵轴标签变为“温度 (℃)”，移动到40℃到60℃之间空白处，且远离刻度数字
-            const yLabelPos = pad.top + plotH * 0.625; // 对应纵轴约50℃的位置
+
+            // 纵轴标签 "温度 (℃)" 移动到40℃~60℃之间的空白处
+            const yLabelPos = pad.top + plotH * 0.625;
             ctx2.save();
-            ctx2.translate(16, yLabelPos); // 水平位置左移，避免与数字重叠
+            ctx2.translate(16, yLabelPos);
             ctx2.rotate(-Math.PI / 2);
             ctx2.textAlign = 'center';
             ctx2.textBaseline = 'middle';
@@ -634,7 +904,8 @@
         }
 
         function computeVariance() {
-            let mean = 0, count = 0;
+            let mean = 0,
+                count = 0;
             for (let j = 0; j < ny; j++) {
                 for (let i = 0; i < nx; i++) {
                     mean += c[j][i];
@@ -844,11 +1115,12 @@
 
         btnExport.addEventListener('click', exportScreenshot);
 
-        // 退出按钮
+        // ★★★ 修改点：退出按钮跳转到 index.html?open=true ★★★
         btnExit.addEventListener('click', () => {
             if (isRunning) stopSimulation();
             if (confirm('确定要退出并返回主菜单吗？')) {
-                window.location.href = 'index.html';  // 这里指向启动器文件
+                // 跳转到主菜单，并带上参数让主菜单自动展开选择面板
+                window.location.href = 'index.html?open=true';
             }
         });
 
@@ -899,7 +1171,7 @@
         }
 
         init();
-        console.log('✅ 冷热水混合模拟 (方向倒转 · 无平衡虚线 · 可变速) 已加载');
+        console.log('✅ 冷热水混合模拟已加载');
     </script>
 </body>
 </html>

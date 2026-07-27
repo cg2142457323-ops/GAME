@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>熵增知识小游戏 - 选择判断</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🌽 打地鼠 · 熵变闯关</title>
 
     <style>
         /* ===== 全局重置 & 基础 ===== */
@@ -14,11 +14,15 @@
         }
 
         body {
-            font-family: 'Segoe UI', 'Microsoft YaHei', system-ui, sans-serif;
+            font-family: 'Segoe UI', 'Comic Sans MS', 'Chalkboard SE', cursive, sans-serif;
             min-height: 100vh;
             background: #0b1424;
-            overflow-x: hidden;
+            background-image: radial-gradient(ellipse at 20% 30%, #1a2a3a, #0b1424);
+            overflow: hidden;
             user-select: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         /* ===== 粒子画布 ===== */
@@ -30,292 +34,98 @@
             z-index: 0;
             pointer-events: none;
         }
-        /* ===== 答题烟花画布 ===== */
-        #fxCanvas {
-            position: fixed;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 9999;
-            pointer-events: none;
-        }
 
         /* ===== 主容器 ===== */
-        .container {
+        .game-wrapper {
             position: relative;
             z-index: 1;
-            width: 90%;
-            max-width: 820px;
-            margin: 0 auto;
-            padding: 20px 0 40px;
-        }
-
-        /* ===== 玻璃态卡片 ===== */
-        .glass-card, .game-panel {
+            width: 1100px;
+            max-width: 96vw;
+            height: auto;
+            min-height: 600px;
+            max-height: 92vh;
             background: rgba(255, 255, 255, 0.06);
             backdrop-filter: blur(18px) saturate(1.4);
             -webkit-backdrop-filter: blur(18px) saturate(1.4);
-            border-radius: 40px;
-            padding: 40px 32px 36px;
+            border-radius: 60px 60px 40px 40px;
             border: 1px solid rgba(255, 255, 255, 0.12);
             box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-            margin-bottom: 24px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding: 30px 30px 25px;
         }
 
         /* ===== 工具类 ===== */
-        .hidden { display: none !important; }
+        .hidden {
+            display: none !important;
+        }
 
         /* ================================================================
-           选择判断子菜单样式
+           选择判断菜单界面（横排 + 底部返回）
            ================================================================ */
-        .submenu-header {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-        .submenu-header h2 {
-            color: #fff;
-            font-size: 26px;
-            font-weight: 700;
-            text-align: center;
-            flex: 1;
-            margin: 0;
-            letter-spacing: 1px;
-            text-shadow: 0 2px 16px rgba(100, 180, 255, 0.2);
-        }
-        .module-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        .module-card {
-            border-radius: 24px;
-            padding: 32px 24px 28px;
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            cursor: pointer;
-            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-            position: relative;
-            overflow: hidden;
-            animation: cardSlideIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-        }
-        .module-card:nth-child(1) { animation-delay: 0.08s; }
-        .module-card:nth-child(2) { animation-delay: 0.20s; }
-
-        @keyframes cardSlideIn {
-            0% { opacity: 0; transform: translateY(30px) scale(0.94); }
-            100% { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
-        .module-card::before {
-            content: '';
+        #menuPanel {
             position: absolute;
             inset: 0;
-            border-radius: 24px;
-            background: linear-gradient(135deg, rgba(255,255,255,0.05), transparent);
-            pointer-events: none;
-        }
-        .module-card:hover {
-            transform: translateY(-6px) scale(1.03);
-            border-color: rgba(255, 255, 255, 0.25);
-            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
-        }
-        .module-card:active { transform: scale(0.96); }
-
-        .module-card.card-simple {
-            background: rgba(80, 200, 120, 0.12);
-        }
-        .module-card.card-simple::after {
-            content: '';
-            position: absolute;
-            top: -50%; left: -50%;
-            width: 200%; height: 200%;
-            background: radial-gradient(circle at 30% 40%, rgba(80, 200, 120, 0.22), transparent 60%);
-            pointer-events: none;
-        }
-        .module-card.card-hard {
-            background: rgba(255, 90, 90, 0.12);
-        }
-        .module-card.card-hard::after {
-            content: '';
-            position: absolute;
-            top: -50%; left: -50%;
-            width: 200%; height: 200%;
-            background: radial-gradient(circle at 70% 60%, rgba(255, 90, 90, 0.22), transparent 60%);
-            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            padding: 25px 30px 20px;
+            z-index: 10;
+            background: inherit;
+            border-radius: inherit;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .module-emoji {
-            font-size: 52px;
-            display: block;
-            margin-bottom: 10px;
-            animation: floatIcon 3s ease-in-out infinite;
-        }
-        @keyframes floatIcon {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-8px); }
-        }
-
-        .module-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: #fff;
-            margin-bottom: 8px;
-        }
-        .module-desc {
-            font-size: 13px;
-            color: rgba(255, 255, 255, 0.55);
-            line-height: 1.6;
-            margin-bottom: 16px;
-        }
-        .module-tag {
-            display: inline-block;
-            font-size: 13px;
-            font-weight: 600;
-            padding: 5px 18px;
-            border-radius: 30px;
-            background: rgba(255, 255, 255, 0.1);
-            color: rgba(255, 255, 255, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s;
-        }
-        .module-card:hover .module-tag {
-            background: rgba(255, 255, 255, 0.2);
-            color: #fff;
-        }
-
-        /* ===== 题目样式 ===== */
-        .game-panel h2 {
+        /* 头部区域 */
+        .menu-header-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             text-align: center;
+            width: 100%;
+            margin-bottom: 15px;
+            flex-shrink: 0;
+        }
+        .menu-header-area h2 {
             color: #fff;
             font-size: 28px;
             font-weight: 700;
-            margin-bottom: 28px;
+            margin: 0 0 4px 0;
             letter-spacing: 1px;
             text-shadow: 0 2px 16px rgba(100, 180, 255, 0.2);
         }
-        .question-block { margin-bottom: 36px; position: relative; }
-        .q-title {
-            font-size: 22px;
-            color: #fff;
-            margin-bottom: 16px;
-            line-height: 1.4;
-            text-shadow: 0 1px 8px rgba(100, 180, 255, 0.15);
+        .menu-header-area .menu-subtitle {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.5);
+            margin: 0 0 12px 0;
         }
-        .opt-item {
-            width: 100%;
-            padding: 16px 18px;
-            margin: 10px 0;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 12px;
-            font-size: 18px;
-            text-align: left;
-            background: rgba(255, 255, 255, 0.05);
-            color: rgba(255, 255, 255, 0.85);
-            cursor: pointer;
-            transition: all 0.2s;
-            font-family: 'Microsoft YaHei', sans-serif;
-        }
-        .opt-item:hover {
-            border-color: rgba(255, 255, 255, 0.3);
-            background: rgba(255, 255, 255, 0.1);
-        }
-        .opt-right {
-            border-color: #2a9d6e;
-            background: rgba(42, 157, 110, 0.2);
-            color: #4ade80;
-            animation: correctPop 0.5s ease, correctGlow 2s ease-in-out 0.5s infinite;
-        }
-        .opt-wrong {
-            border-color: rgba(231, 76, 60, 0.7);
-            background: rgba(231, 76, 60, 0.15);
-            color: #f87171;
-            animation: wrongShake 0.45s ease, wrongFlash 0.6s ease;
-        }
-        .tip-text { margin-top: 8px; font-size: 16px; padding-left: 4px; }
-        .right-tip { color: #4ade80; font-weight: 600; animation: tipIn 0.35s ease; }
-        .wrong-tip { color: #f87171; font-weight: 600; animation: tipIn 0.35s ease; }
-        /* ===== 答题特效动画 ===== */
-        @keyframes correctPop {
-            0%   { transform: scale(1); }
-            35%  { transform: scale(1.05); }
-            70%  { transform: scale(0.98); }
-            100% { transform: scale(1); }
-        }
-        @keyframes correctGlow {
-            0%, 100% { box-shadow: 0 0 10px 1px rgba(74, 222, 128, 0.25); }
-            50%      { box-shadow: 0 0 20px 3px rgba(74, 222, 128, 0.5); }
-        }
-        @keyframes wrongShake {
-            0%, 100% { transform: translateX(0); }
-            15% { transform: translateX(-9px); }
-            30% { transform: translateX(8px); }
-            45% { transform: translateX(-7px); }
-            60% { transform: translateX(5px); }
-            75% { transform: translateX(-3px); }
-        }
-        @keyframes wrongFlash {
-            0%   { box-shadow: 0 0 0 0 rgba(248, 113, 113, 0); }
-            30%  { box-shadow: 0 0 22px 4px rgba(248, 113, 113, 0.7); }
-            100% { box-shadow: 0 0 12px 1px rgba(248, 113, 113, 0.3); }
-        }
-        @keyframes tipIn {
-            0%   { opacity: 0; transform: translateY(-6px); }
-            100% { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes floatScore {
-            0%   { opacity: 0; transform: translateY(0) scale(0.8); }
-            20%  { opacity: 1; transform: translateY(-12px) scale(1.15); }
-            100% { opacity: 0; transform: translateY(-52px) scale(1); }
-        }
-        .float-score {
-            position: absolute;
-            right: 20px;
-            top: 10px;
-            font-size: 22px;
-            font-weight: 800;
-            pointer-events: none;
-            z-index: 6;
-            animation: floatScore 1s ease forwards;
-        }
-        .float-score.plus { color: #4ade80; text-shadow: 0 0 10px rgba(74, 222, 128, 0.7); }
-        .float-score.minus { color: #f87171; text-shadow: 0 0 10px rgba(248, 113, 113, 0.7); }
-        .explain-box {
-            margin-top: 12px;
-            padding: 12px 16px;
-            border-radius: 10px;
-            font-size: 15px;
-            line-height: 1.6;
-            color: rgba(255, 255, 255, 0.85);
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .explain-box::before {
-            content: '💡 解析：';
-            font-weight: 700;
-            color: #f0c27f;
-        }
-        .score-text {
-            font-size: 19px;
-            text-align: center;
-            margin: 20px 0;
-            color: #f0c27f;
-            font-weight: 500;
+        .menu-header-area .choice-btn {
+            background: rgba(0, 220, 255, 0.15);
+            border: 1px solid rgba(0, 220, 255, 0.3);
+            padding: 8px 24px;
+            border-radius: 30px;
+            color: #a0e0ff;
+            font-weight: 600;
+            font-size: 13px;
+            letter-spacing: 2px;
+            display: inline-block;
+            box-shadow: 0 0 20px rgba(0, 200, 255, 0.08);
+            cursor: default;
         }
 
-        /* ===== 返回按钮 ===== */
         .back-btn {
-            padding: 8px 16px;
+            padding: 6px 14px;
             border-radius: 14px;
             border: 1px solid rgba(255, 255, 255, 0.15);
             background: rgba(255, 255, 255, 0.06);
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 14px;
-            font-family: 'Microsoft YaHei', sans-serif;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 13px;
+            font-family: 'Microsoft YaHei', 'Segoe UI', sans-serif;
             cursor: pointer;
             transition: all 0.2s;
             font-weight: 500;
+            white-space: nowrap;
         }
         .back-btn:hover {
             background: rgba(255, 255, 255, 0.12);
@@ -323,17 +133,762 @@
             color: #fff;
         }
 
+        /* 卡片区域（横排布局） */
+        .menu-cards {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 30px;
+            flex: 1;
+            padding: 5px 0;
+            width: 100%;
+        }
+
+        .menu-card {
+            flex: 0 0 260px;
+            max-width: 320px;
+            width: 100%;
+            min-height: 180px;
+            border-radius: 24px;
+            padding: 25px 20px 22px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .menu-card:hover {
+            transform: translateY(-6px) scale(1.02);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        .menu-card:active {
+            transform: scale(0.96);
+        }
+
+        .card-apple {
+            background: rgba(100, 140, 160, 0.15);
+            backdrop-filter: blur(8px);
+        }
+        .card-mole {
+            background: rgba(140, 80, 200, 0.12);
+            backdrop-filter: blur(8px);
+        }
+
+        .menu-card .card-emoji {
+            font-size: 46px;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 4px 12px rgba(255, 255, 255, 0.1));
+        }
+        .menu-card .card-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            letter-spacing: 1px;
+        }
+        .menu-card .card-desc {
+            font-size: 12px;
+            opacity: 0.7;
+            line-height: 1.5;
+            margin-bottom: 14px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        .menu-card .card-btn {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 6px 20px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 13px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            transition: all 0.3s;
+            color: rgba(255, 255, 255, 0.9);
+            white-space: nowrap;
+        }
+        .menu-card:hover .card-btn {
+            background: rgba(255, 255, 255, 0.18);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* 底部区域 */
+        .menu-footer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            margin-top: 15px;
+            flex-shrink: 0;
+        }
+        .menu-footer .bottom-back-btn {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.08);
+            font-size: 12px;
+            padding: 6px 20px;
+        }
+        .menu-footer .bottom-back-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .menu-footer .footer-text {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.25);
+        }
+        .menu-footer .footer-sub {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.15);
+            letter-spacing: 2px;
+        }
+
+        /* ================================================================
+           游戏界面
+           ================================================================ */
+        #gamePanel {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            position: relative;
+        }
+
+        /* ===== 顶部栏 ===== */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 10px 14px 10px;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .top-bar .left-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .top-bar .left-group .back-btn {
+            font-size: 13px;
+            padding: 6px 14px;
+        }
+
+        .top-bar .corn-display {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 28px;
+            font-weight: 700;
+            color: #ffdd77;
+            text-shadow: 0 0 20px rgba(255, 200, 50, 0.3);
+            background: rgba(0, 0, 0, 0.25);
+            padding: 6px 22px 6px 16px;
+            border-radius: 40px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .top-bar .corn-display .corn-icon {
+            font-size: 34px;
+            line-height: 1;
+        }
+        .top-bar .corn-display .corn-num {
+            min-width: 36px;
+            text-align: center;
+            font-size: 30px;
+        }
+
+        .top-bar .timer-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 26px;
+            font-weight: 700;
+            color: #aad0ff;
+            text-shadow: 0 0 16px rgba(100, 180, 255, 0.25);
+            background: rgba(0, 0, 0, 0.2);
+            padding: 6px 22px 6px 16px;
+            border-radius: 40px;
+            border: 1px solid rgba(100, 180, 255, 0.15);
+        }
+        .top-bar .timer-display .timer-icon {
+            font-size: 28px;
+        }
+        .top-bar .timer-display .timer-num {
+            min-width: 44px;
+            text-align: center;
+            font-variant-numeric: tabular-nums;
+        }
+        .top-bar .timer-display .timer-num.warning {
+            color: #ff8a7a;
+            animation: pulseWarn 0.6s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulseWarn {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0.5; transform: scale(1.06); }
+        }
+
+        .top-bar .progress-display {
+            font-size: 20px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.7);
+            background: rgba(0, 0, 0, 0.2);
+            padding: 6px 20px;
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* ===== 主体：左右布局 ===== */
+        .main-area {
+            display: flex;
+            flex: 1;
+            gap: 28px;
+            min-height: 0;
+            height: 100%;
+        }
+
+        /* ---- 左侧：地鼠洞 ---- */
+        .holes-area {
+            flex: 0 0 420px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 10px 0;
+            position: relative;
+        }
+
+        .holes-row {
+            display: flex;
+            gap: 50px;
+            justify-content: center;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            position: relative;
+            width: 100%;
+        }
+
+        .hole-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: transform 0.15s;
+            position: relative;
+            z-index: 1;
+        }
+        .hole-wrapper:active {
+            transform: scale(0.94);
+        }
+        .hole-wrapper.disabled {
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        .hole-container {
+            position: relative;
+            width: 160px;
+            height: 150px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .hole {
+            position: relative;
+            width: 140px;
+            height: 60px;
+            background: radial-gradient(ellipse at center, #1a0e08 10%, #2d1a10 50%, #3d281c 90%);
+            border-radius: 50%;
+            box-shadow: inset 0 -12px 20px rgba(0, 0, 0, 0.8), 0 8px 20px rgba(0, 0, 0, 0.5), 0 0 0 6px #4d3522, 0 0 0 10px #2d4a2d;
+            z-index: 2;
+            transition: box-shadow 0.2s;
+        }
+        .hole-wrapper:hover .hole {
+            box-shadow: inset 0 -12px 20px rgba(0, 0, 0, 0.8), 0 8px 30px rgba(0, 0, 0, 0.6), 0 0 0 6px #5d4532, 0 0 0 10px #3d5a3d;
+        }
+        .hole::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: -24px;
+            right: -24px;
+            height: 30px;
+            background: radial-gradient(ellipse at 30% 50%, #5a8a4a, #3d6a2d 70%, transparent);
+            border-radius: 50%;
+            z-index: -1;
+            opacity: 0.6;
+            filter: blur(3px);
+        }
+
+        /* 地鼠 */
+        .hole-container .mole {
+            position: absolute;
+            bottom: 6px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            width: 88px;
+            height: 88px;
+            z-index: 10;
+            transition: transform 0.35s cubic-bezier(0.34, 1.2, 0.64, 1), opacity 0.2s;
+            pointer-events: none;
+            opacity: 0;
+        }
+        .hole-container .mole.active {
+            opacity: 1;
+            transform: translateX(-50%) translateY(6px);
+        }
+
+        .mole-body {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(ellipse at 40% 35%, #c99a7a, #9a7a5a 60%, #7a5a3f);
+            box-shadow: inset -8px -8px 20px rgba(0, 0, 0, 0.25), inset 8px 8px 30px rgba(255, 200, 150, 0.15);
+            overflow: visible;
+            transition: all 0.2s;
+        }
+        .mole-body .ear {
+            position: absolute;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: radial-gradient(ellipse at 40% 30%, #d9aa8a, #9a7a5a);
+            top: -6px;
+            box-shadow: inset -3px -3px 8px rgba(0, 0, 0, 0.2);
+            z-index: 0;
+        }
+        .mole-body .ear.left { left: 2px; }
+        .mole-body .ear.right { right: 2px; }
+        .mole-body .ear::after {
+            content: '';
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: radial-gradient(ellipse at center, #e8b8a0, #c08a7a);
+            opacity: 0.6;
+        }
+        .mole-face {
+            position: absolute;
+            inset: 8px 8px 10px 8px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            z-index: 1;
+            background: radial-gradient(ellipse at 50% 40%, #e8c8a8, #c8a888 70%);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .hole-container .mole.active .mole-face { opacity: 1; }
+        .mole-eyes { display: flex; gap: 18px; margin-top: 2px; }
+        .mole-eyes .eye {
+            width: 20px;
+            height: 22px;
+            background: #f5f0ec;
+            border-radius: 50%;
+            position: relative;
+            box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.25s;
+        }
+        .mole-eyes .eye .pupil {
+            position: absolute;
+            width: 10px;
+            height: 12px;
+            background: radial-gradient(ellipse at center, #2a1a0a, #0a0500);
+            border-radius: 50%;
+            bottom: 2px;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: all 0.25s;
+        }
+        .mole-eyes .eye .pupil::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 3px;
+            width: 4px;
+            height: 4px;
+            background: #fff;
+            border-radius: 50%;
+            opacity: 0.7;
+        }
+        .mole-nose {
+            width: 12px;
+            height: 10px;
+            background: radial-gradient(ellipse at center, #f09080, #d07060);
+            border-radius: 50%;
+            margin-top: -2px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        }
+        .mole-mouth {
+            width: 20px;
+            height: 10px;
+            border-bottom: 3px solid #5a3a2a;
+            border-radius: 0 0 20px 20px;
+            margin-top: -2px;
+            transition: all 0.3s;
+            background: transparent;
+        }
+
+        /* 晕眩 */
+        .hole-container .mole.dizzy .mole-eyes .eye {
+            background: transparent;
+            box-shadow: none;
+            width: 22px;
+            height: 22px;
+            animation: spinEye 0.7s linear infinite;
+            border: 3px solid #4a3a2a;
+            border-radius: 50%;
+        }
+        .hole-container .mole.dizzy .mole-eyes .eye .pupil { display: none; }
+        .hole-container .mole.dizzy .mole-eyes .eye::after {
+            content: '×';
+            font-size: 22px;
+            font-weight: 900;
+            color: #4a3a2a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            line-height: 1;
+        }
+        .hole-container .mole.dizzy .mole-mouth {
+            width: 24px;
+            height: 14px;
+            border: 3px solid #4a2a1a;
+            border-radius: 50%;
+            background: #2a1a0a;
+            border-top: none;
+            margin-top: -4px;
+            animation: dizzyMouth 0.4s ease-in-out infinite alternate;
+        }
+        .hole-container .mole.dizzy .mole-nose { opacity: 0.6; }
+
+        @keyframes spinEye {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes dizzyMouth {
+            0% { transform: scaleY(1); }
+            100% { transform: scaleY(1.4); }
+        }
+
+        /* 晕眩星星 */
+        .hole-container .mole.dizzy .stars {
+            display: block !important;
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            right: -20px;
+            bottom: -20px;
+            pointer-events: none;
+            z-index: 5;
+        }
+        .hole-container .mole.dizzy .stars span {
+            position: absolute;
+            font-size: 22px;
+            animation: starFloat 1.2s ease-in-out infinite alternate;
+            opacity: 0.9;
+            text-shadow: 0 0 12px rgba(255, 255, 100, 0.6);
+        }
+        .hole-container .mole.dizzy .stars span:nth-child(1) { top: -12px; left: 4px; animation-delay: 0s; font-size: 28px; }
+        .hole-container .mole.dizzy .stars span:nth-child(2) { top: -6px; right: 0px; animation-delay: 0.3s; font-size: 20px; }
+        .hole-container .mole.dizzy .stars span:nth-child(3) { bottom: -6px; left: -10px; animation-delay: 0.6s; font-size: 18px; }
+        .hole-container .mole.dizzy .stars span:nth-child(4) { bottom: 0px; right: -6px; animation-delay: 0.9s; font-size: 24px; }
+
+        @keyframes starFloat {
+            0% { transform: translateY(0) rotate(0deg) scale(0.8); opacity: 0.6; }
+            100% { transform: translateY(-14px) rotate(30deg) scale(1.2); opacity: 1; }
+        }
+
+        /* 嘲笑 */
+        .hole-container .mole.laugh .mole-eyes .eye {
+            height: 10px;
+            border-radius: 0;
+            background: transparent;
+            box-shadow: none;
+            border-bottom: 4px solid #4a3a2a;
+            width: 24px;
+            transform: translateY(8px);
+        }
+        .hole-container .mole.laugh .mole-eyes .eye .pupil { display: none; }
+        .hole-container .mole.laugh .mole-mouth {
+            width: 28px;
+            height: 12px;
+            border: none;
+            border-bottom: 4px solid #4a2a1a;
+            border-radius: 0 0 12px 12px;
+            transform: translateX(4px) rotate(-6deg);
+            margin-top: -4px;
+            background: transparent;
+        }
+        .hole-container .mole.laugh .mole-nose { opacity: 0.6; }
+        .hole-container .mole.laugh .mole-eyes { gap: 20px; }
+
+        .hole-label {
+            font-size: 24px;
+            font-weight: 800;
+            color: #fff;
+            background: rgba(0, 0, 0, 0.35);
+            padding: 4px 18px;
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(4px);
+            margin-top: 4px;
+            letter-spacing: 2px;
+            font-family: 'Comic Sans MS', cursive;
+        }
+        .hole-label .label-icon { margin-right: 6px; }
+
+        /* ---- 右侧：题目区 ---- */
+        .question-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 10px 20px 10px 10px;
+            min-width: 0;
+        }
+
+        .question-card {
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 36px;
+            padding: 28px 30px 26px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            transition: all 0.3s;
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .question-number {
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.4);
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        .question-text {
+            font-size: 24px;
+            font-weight: 600;
+            color: #f0f4ff;
+            line-height: 1.5;
+            text-shadow: 0 2px 12px rgba(100, 180, 255, 0.08);
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            word-break: break-word;
+        }
+
+        .question-hint {
+            margin-top: 14px;
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.35);
+            font-style: italic;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            align-items: flex-start;
+        }
+        .question-hint .hint-icon { font-size: 20px; margin-right: 6px; }
+
+        /* ===== 结果弹窗 ===== */
+        .result-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 60px 60px 40px 40px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 40px;
+        }
+        .result-overlay.show { display: flex; }
+
+        .result-box {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(16px);
+            border-radius: 48px;
+            padding: 48px 56px 44px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 480px;
+            width: 100%;
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
+            animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.8) translateY(30px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .result-box .big-corn {
+            font-size: 72px;
+            display: block;
+            margin-bottom: 6px;
+            animation: floatIcon 2.5s ease-in-out infinite;
+        }
+        @keyframes floatIcon {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .result-box .result-title {
+            font-size: 32px;
+            font-weight: 800;
+            color: #ffdd77;
+            margin: 8px 0 4px;
+            text-shadow: 0 0 30px rgba(255, 200, 50, 0.2);
+        }
+        .result-box .result-sub {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 12px;
+        }
+        .result-box .result-score {
+            font-size: 60px;
+            font-weight: 900;
+            color: #ffdd77;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 4px 30px;
+            border-radius: 60px;
+            display: inline-block;
+            margin: 8px 0 16px;
+            border: 1px solid rgba(255, 215, 0, 0.15);
+        }
+        .result-box .result-detail {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 20px;
+        }
+        .result-box .result-btn-group {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+        .result-box .result-btn {
+            padding: 14px 34px;
+            border-radius: 40px;
+            border: none;
+            background: linear-gradient(135deg, #ffb347, #f59e0b);
+            color: #1a1a2e;
+            font-size: 18px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.25s;
+            box-shadow: 0 8px 30px rgba(255, 180, 50, 0.25);
+            font-family: 'Comic Sans MS', cursive;
+            flex: 1;
+            min-width: 120px;
+        }
+        .result-box .result-btn:hover {
+            transform: scale(1.05) translateY(-3px);
+            box-shadow: 0 12px 40px rgba(255, 180, 50, 0.4);
+        }
+        .result-box .result-btn:active { transform: scale(0.94); }
+        .result-box .result-btn.menu-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+        }
+        .result-box .result-btn.menu-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        /* ===== 玉米弹出动画 ===== */
+        .corn-fly {
+            position: fixed;
+            font-size: 48px;
+            z-index: 999;
+            pointer-events: none;
+            animation: cornFlyUp 0.9s cubic-bezier(0.34, 1.0, 0.64, 1) forwards;
+        }
+        @keyframes cornFlyUp {
+            0% { opacity: 0; transform: translateY(0) scale(0.4) rotate(-20deg); }
+            30% { opacity: 1; transform: translateY(-40px) scale(1.2) rotate(10deg); }
+            70% { opacity: 1; transform: translateY(-100px) scale(1) rotate(-5deg); }
+            100% { opacity: 0; transform: translateY(-180px) scale(0.8) rotate(8deg); }
+        }
+
         /* ===== 响应式 ===== */
-        @media (max-width: 640px) {
-            .glass-card { padding: 24px 16px 20px; border-radius: 28px; }
-            .submenu-header h2 { font-size: 20px; }
-            .module-grid { grid-template-columns: 1fr; gap: 14px; }
-            .module-card { padding: 18px 14px 16px; }
-            .module-emoji { font-size: 34px; }
-            .module-title { font-size: 16px; }
-            .game-panel h2 { font-size: 24px; }
-            .q-title { font-size: 18px; }
-            .opt-item { font-size: 16px; padding: 14px; }
+        @media (max-width: 820px) {
+            .game-wrapper {
+                height: auto;
+                max-height: 98vh;
+                padding: 14px 16px 20px;
+                border-radius: 40px;
+            }
+            #menuPanel { padding: 20px 16px; }
+            .menu-header-area h2 { font-size: 22px; }
+            .menu-cards { gap: 20px; flex-direction: row; }
+            .menu-card { flex: 0 1 200px; min-height: 150px; padding: 20px 14px; }
+            .menu-card .card-emoji { font-size: 34px; }
+            .main-area { flex-direction: column; gap: 12px; height: auto; }
+            .holes-area { flex: 0 0 auto; padding: 4px 0; }
+            .holes-row { gap: 24px; }
+            .hole-container { width: 130px; height: 120px; }
+            .hole { width: 110px; height: 48px; }
+            .hole-container .mole { width: 70px; height: 70px; }
+            .mole-body .ear { width: 20px; height: 20px; }
+            .mole-eyes .eye { width: 16px; height: 18px; }
+            .mole-eyes { gap: 12px; }
+            .mole-mouth { width: 16px; height: 8px; }
+            .hole-label { font-size: 18px; padding: 2px 12px; }
+            .question-area { padding: 4px 6px; }
+            .question-card { padding: 18px 16px 16px; min-height: 120px; border-radius: 28px; }
+            .question-text { font-size: 18px; }
+            .top-bar .corn-display { font-size: 20px; padding: 4px 14px 4px 10px; }
+            .top-bar .corn-display .corn-icon { font-size: 26px; }
+            .top-bar .timer-display { font-size: 20px; padding: 4px 14px 4px 10px; }
+            .top-bar .progress-display { font-size: 16px; padding: 4px 14px; }
+            .result-box { padding: 32px 24px 28px; }
+            .result-box .result-score { font-size: 40px; padding: 2px 20px; }
+            .result-box .big-corn { font-size: 52px; }
+            .result-box .result-btn { font-size: 16px; padding: 12px 24px; min-width: 80px; }
+        }
+
+        @media (max-width: 480px) {
+            .holes-row { gap: 12px; }
+            .hole-container { width: 100px; height: 100px; }
+            .hole { width: 88px; height: 38px; }
+            .hole-container .mole { width: 56px; height: 56px; }
+            .mole-body .ear { width: 16px; height: 16px; top: -4px; }
+            .mole-face { inset: 6px 6px 8px 6px; }
+            .mole-eyes .eye { width: 12px; height: 14px; }
+            .mole-eyes { gap: 8px; }
+            .mole-mouth { width: 12px; height: 6px; }
+            .mole-nose { width: 8px; height: 7px; }
+            .hole-label { font-size: 14px; padding: 2px 8px; }
+            .question-text { font-size: 15px; }
+            .top-bar { gap: 6px; }
+            .top-bar .corn-display { font-size: 16px; padding: 3px 10px 3px 8px; }
+            .top-bar .timer-display { font-size: 16px; padding: 3px 10px 3px 8px; }
+            .top-bar .progress-display { font-size: 13px; padding: 3px 10px; }
+            .result-box .result-title { font-size: 24px; }
+            .result-box .result-score { font-size: 32px; }
+            .result-box .result-btn { font-size: 14px; padding: 10px 16px; min-width: 60px; }
         }
     </style>
 </head>
@@ -343,371 +898,666 @@
     <canvas id="particleCanvas"></canvas>
 
     <!-- ===== 主容器 ===== -->
-    <div class="container">
+    <div class="game-wrapper">
 
-        <!-- 选择判断子菜单（默认显示） -->
-        <div class="game-panel" id="judgeTypePanel">
-            <div class="submenu-header">
-                <button class="back-btn" onclick="location.href='index.html'">← 返回主菜单</button>
-                <h2>📋 选择判断</h2>
+        <!-- ============================================================
+        菜单面板（横排 + 底部返回按钮布局）
+        ============================================================ -->
+        <div id="menuPanel">
+            <!-- 头部引导区域 -->
+            <div class="menu-header-area">
+                <h2>熵增原理小游戏</h2>
+                <p class="menu-subtitle">选择你的实验项目 · 探索熵增原理的奥秘</p>
+                <div class="choice-btn">🎯 选择项目</div>
             </div>
-            <div class="module-grid">
-                <div class="module-card card-simple" onclick="showSimple()">
-                    <div class="module-emoji">📝</div>
-                    <div class="module-title">简单 | 热力学选择题</div>
-                    <div class="module-desc">热学基础 · 4道精选热力学选择题<br/>每题含详细解析</div>
-                    <div class="module-tag">开始答题 →</div>
+
+            <!-- 横排卡片区域 -->
+            <div class="menu-cards">
+                <!-- 卡1：接苹果（跳转到 1.html） -->
+                <div class="menu-card card-apple" onclick="window.location.href='1.html'">
+                    <div class="card-emoji">🍎</div>
+                    <div class="card-title">接苹果</div>
+                    <div class="card-desc">简单有趣 · 快速反应<br />用手势接住掉落的水果</div>
+                    <div class="card-btn">开始体验 →</div>
                 </div>
-                <div class="module-card card-hard" onclick="showHard()">
-                    <div class="module-emoji">⚡</div>
-                    <div class="module-title">有点难 | 熵变判断题</div>
-                    <div class="module-desc">深入理解 · 熵增原理与宏观表述<br/>真假判断，含完整解析</div>
-                    <div class="module-tag">挑战自我 →</div>
+                <!-- 卡2：打地鼠（保持内部游戏） -->
+                <div class="menu-card card-mole" onclick="startGame()">
+                    <div class="card-emoji">🔨</div>
+                    <div class="card-title">打地鼠</div>
+                    <div class="card-desc">深度体验 · 策略与反应<br />快速击打，获取高分</div>
+                    <div class="card-btn">开始游戏 →</div>
                 </div>
+            </div>
+
+            <!-- 底部按钮区域 -->
+            <div class="menu-footer">
+                <button class="back-btn bottom-back-btn" onclick="window.location.href='index.html?panel=open'">← 返回主菜单</button>
+                <p class="footer-text">选择上方实验进入 · 或点击返回</p>
+                <p class="footer-sub">✧ 每一个探索都是一次发现 ✧</p>
             </div>
         </div>
 
-        <!-- 简单模式：热力学选择题 -->
-        <div class="game-panel hidden" id="simplePanel">
-            <h2>热力学选择题</h2>
-            <div id="selectList"></div>
-            <div class="score-text" id="selectScore">当前总分：0/4</div>
-            <button class="back-btn" style="width:100%; margin-top:16px;" onclick="showJudgeType()">← 返回选择判断</button>
-        </div>
+        <!-- ============================================================
+        游戏面板
+        ============================================================ -->
+        <div id="gamePanel" class="hidden">
+            <!-- 顶部栏 -->
+            <div class="top-bar">
+                <div class="left-group">
+                    <button class="back-btn" onclick="goToMenu()">← 主菜单</button>
+                    <div class="corn-display">
+                        <span class="corn-icon">🌽</span>
+                        <span class="corn-num" id="cornCount">0</span>
+                    </div>
+                </div>
+                <div class="timer-display">
+                    <span class="timer-icon">⏱️</span>
+                    <span class="timer-num" id="timerDisplay">30</span><span style="font-size:18px;opacity:0.6;">s</span>
+                </div>
+                <div class="progress-display">
+                    <span id="progressText">1 / 5</span>
+                </div>
+            </div>
 
-        <!-- 有点难模式：熵变判断题 -->
-        <div class="game-panel hidden" id="hardPanel">
-            <h2>熵变判断题</h2>
-            <div id="judgeList"></div>
-            <div class="score-text" id="judgeScore">当前总分：0/100</div>
-            <button class="back-btn" style="width:100%; margin-top:16px;" onclick="showJudgeType()">← 返回选择判断</button>
-        </div>
+            <!-- 主体 -->
+            <div class="main-area">
+                <!-- 左侧：地鼠洞 -->
+                <div class="holes-area">
+                    <div class="holes-row">
+                        <!-- 洞：对 -->
+                        <div class="hole-wrapper" id="wrapperCorrect">
+                            <div class="hole-container" id="holeCorrectContainer">
+                                <div class="hole"></div>
+                                <div class="mole" id="moleCorrect">
+                                    <div class="mole-body">
+                                        <div class="ear left"></div>
+                                        <div class="ear right"></div>
+                                        <div class="mole-face">
+                                            <div class="mole-eyes">
+                                                <div class="eye"><div class="pupil"></div></div>
+                                                <div class="eye"><div class="pupil"></div></div>
+                                            </div>
+                                            <div class="mole-nose"></div>
+                                            <div class="mole-mouth"></div>
+                                        </div>
+                                        <div class="stars" style="display:none;">
+                                            <span>✨</span><span>⭐</span><span>🌟</span><span>✨</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="hole-label"><span class="label-icon">✅</span> 对</div>
+                        </div>
+                        <!-- 洞：错 -->
+                        <div class="hole-wrapper" id="wrapperWrong">
+                            <div class="hole-container" id="holeWrongContainer">
+                                <div class="hole"></div>
+                                <div class="mole" id="moleWrong">
+                                    <div class="mole-body">
+                                        <div class="ear left"></div>
+                                        <div class="ear right"></div>
+                                        <div class="mole-face">
+                                            <div class="mole-eyes">
+                                                <div class="eye"><div class="pupil"></div></div>
+                                                <div class="eye"><div class="pupil"></div></div>
+                                            </div>
+                                            <div class="mole-nose"></div>
+                                            <div class="mole-mouth"></div>
+                                        </div>
+                                        <div class="stars" style="display:none;">
+                                            <span>✨</span><span>⭐</span><span>🌟</span><span>✨</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="hole-label"><span class="label-icon">❌</span> 错</div>
+                        </div>
+                    </div>
+                    <div style="margin-top:6px;font-size:14px;color:rgba(255,255,255,0.25);text-align:center;letter-spacing:1px;">
+                        👆 点击地鼠洞选择答案
+                    </div>
+                </div>
 
+                <!-- 右侧：题目 -->
+                <div class="question-area">
+                    <div class="question-card">
+                        <div class="question-number" id="qNumber">第 1 题</div>
+                        <div class="question-text" id="qText">加载题目...</div>
+                        <div class="question-hint" id="qHint">
+                            <span><span class="hint-icon">⏳</span>点击对应的地鼠洞</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 结果弹窗 -->
+            <div class="result-overlay" id="resultOverlay">
+                <div class="result-box">
+                    <span class="big-corn">🌽</span>
+                    <div class="result-title">闯关完成！</div>
+                    <div class="result-sub">你一共收获了</div>
+                    <div class="result-score" id="finalCornCount">0</div>
+                    <div class="result-detail" id="finalDetail">🌽 玉米</div>
+                    <div class="result-btn-group">
+                        <button class="result-btn" onclick="restartGame()">🔄 再来一局</button>
+                        <button class="result-btn menu-btn" onclick="goToMenu()">🏠 返回主菜单</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-<script>
-/* ================================================================
-   粒子背景
-   ================================================================ */
-(function initParticles() {
-    const canvas = document.getElementById('particleCanvas');
-    const ctx = canvas.getContext('2d');
-    let w, h;
-    const particles = [];
-    const COUNT = 110;
-    const MAX_R = 2.8;
+    <script>
+        /* ================================================================
+           粒子背景
+           ================================================================ */
+        (function initParticles() {
+            const canvas = document.getElementById('particleCanvas');
+            const ctx = canvas.getContext('2d');
+            let w, h;
+            const particles = [];
+            const COUNT = 110;
+            const MAX_R = 2.8;
 
-    function resize() {
-        w = canvas.width = window.innerWidth;
-        h = canvas.height = window.innerHeight;
-    }
-    window.addEventListener('resize', resize);
-    resize();
-
-    class Particle {
-        constructor() { this.reset(); }
-        reset() {
-            this.x = Math.random() * w;
-            this.y = Math.random() * h;
-            this.r = Math.random() * MAX_R + 0.6;
-            this.speedX = (Math.random() - 0.5) * 0.35;
-            this.speedY = (Math.random() - 0.5) * 0.35;
-            this.alpha = Math.random() * 0.5 + 0.2;
-            this.hue = Math.random() * 60 + 200;
-        }
-        update() {
-            this.x += this.speedX;
-            this.y += this.speedY;
-            if (this.x < -10 || this.x > w + 10 || this.y < -10 || this.y > h + 10) {
-                this.reset();
+            function resize() {
+                w = canvas.width = window.innerWidth;
+                h = canvas.height = window.innerHeight;
             }
-            this.alpha = 0.2 + 0.35 * (0.5 + 0.5 * Math.sin(Date.now() / 2000 + this.x));
-        }
-        draw() {
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
-            ctx.fillStyle = `hsla(${this.hue}, 70%, 70%, ${this.alpha})`;
-            ctx.fill();
-            if (this.r > 1.5) {
-                ctx.shadowColor = `hsla(${this.hue}, 80%, 70%, 0.15)`;
-                ctx.shadowBlur = 12;
-                ctx.fill();
-                ctx.shadowBlur = 0;
-            }
-        }
-    }
+            window.addEventListener('resize', resize);
+            resize();
 
-    for (let i = 0; i < COUNT; i++) {
-        const p = new Particle();
-        p.x = Math.random() * w;
-        p.y = Math.random() * h;
-        particles.push(p);
-    }
-
-    function drawLines() {
-        for (let i = 0; i < particles.length; i++) {
-            for (let j = i + 1; j < particles.length; j++) {
-                const a = particles[i], b = particles[j];
-                const dx = a.x - b.x, dy = a.y - b.y;
-                const dist = Math.sqrt(dx * dx + dy * dy);
-                if (dist < 120) {
-                    const alpha = (1 - dist / 120) * 0.12;
+            class Particle {
+                constructor() { this.reset(); }
+                reset() {
+                    this.x = Math.random() * w;
+                    this.y = Math.random() * h;
+                    this.r = Math.random() * MAX_R + 0.6;
+                    this.speedX = (Math.random() - 0.5) * 0.35;
+                    this.speedY = (Math.random() - 0.5) * 0.35;
+                    this.alpha = Math.random() * 0.5 + 0.2;
+                    this.hue = Math.random() * 60 + 200;
+                }
+                update() {
+                    this.x += this.speedX;
+                    this.y += this.speedY;
+                    if (this.x < -10 || this.x > w + 10 || this.y < -10 || this.y > h + 10) { this.reset(); }
+                    this.alpha = 0.2 + 0.35 * (0.5 + 0.5 * Math.sin(Date.now() / 2000 + this.x));
+                }
+                draw() {
                     ctx.beginPath();
-                    ctx.moveTo(a.x, a.y);
-                    ctx.lineTo(b.x, b.y);
-                    ctx.strokeStyle = `rgba(180, 210, 255, ${alpha})`;
-                    ctx.lineWidth = 0.6;
-                    ctx.stroke();
+                    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+                    ctx.fillStyle = `hsla(${this.hue}, 70%, 70%, ${this.alpha})`;
+                    ctx.fill();
+                    if (this.r > 1.5) {
+                        ctx.shadowColor = `hsla(${this.hue}, 80%, 70%, 0.15)`;
+                        ctx.shadowBlur = 12;
+                        ctx.fill();
+                        ctx.shadowBlur = 0;
+                    }
                 }
             }
+
+            for (let i = 0; i < COUNT; i++) {
+                const p = new Particle();
+                p.x = Math.random() * w;
+                p.y = Math.random() * h;
+                particles.push(p);
+            }
+
+            function drawLines() {
+                for (let i = 0; i < particles.length; i++) {
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const a = particles[i], b = particles[j];
+                        const dx = a.x - b.x, dy = a.y - b.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < 120) {
+                            const alpha = (1 - dist / 120) * 0.12;
+                            ctx.beginPath();
+                            ctx.moveTo(a.x, a.y);
+                            ctx.lineTo(b.x, b.y);
+                            ctx.strokeStyle = `rgba(180, 210, 255, ${alpha})`;
+                            ctx.lineWidth = 0.6;
+                            ctx.stroke();
+                        }
+                    }
+                }
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, w, h);
+                const grad = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, Math.max(w, h) * 0.7);
+                grad.addColorStop(0, '#13203a');
+                grad.addColorStop(0.5, '#0b1424');
+                grad.addColorStop(1, '#060a14');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, w, h);
+
+                for (const p of particles) { p.update(); p.draw(); }
+                drawLines();
+                requestAnimationFrame(animate);
+            }
+            animate();
+        })();
+
+        /* ================================================================
+           游戏数据（包含解析）
+           ================================================================ */
+        const questionData = [{
+            q: "1. 对于恒温热源，熵变的计算公式为 ΔS＝Q/T，热源温度恒定，无论过程是否可逆，都可以用该式计算熵变。",
+            ans: "对",
+            explain: "恒温热源的温度始终不变，无论过程可逆与否，其熵变都等于系统吸收或释放的热量除以热源温度（即 ΔS＝Q/T）。"
+        }, {
+            q: "2. 熵增原理的宏观微分形式为 dS≥0。",
+            ans: "对",
+            explain: "对于孤立系统，其熵永远不会减少，这就是熵增原理。其微分形式 dS≥0 表达了系统状态变化的不可逆性。"
+        }, {
+            q: "3. 系统的熵越大，其能量品质越高。",
+            ans: "错",
+            explain: "熵越大意味着系统的混乱度（无序度）越高，其能量的可利用程度就越低，因此能量品质是越低的。"
+        }, {
+            q: "4. 熵增原理是热力学第二定律的宏观表述之一。",
+            ans: "对",
+            explain: "熵增原理（热力学第二定律的熵表述）与克劳修斯表述、开尔文表述是等价的，都是从宏观上描述热过程方向性的表述。"
+        }, {
+            q: "5. 电冰箱工作时，其内部的熵减少，但环境的熵增加，且总熵增加。",
+            ans: "对",
+            explain: "冰箱内部温度降低，熵减少；但压缩机工作时排出的热量释放到环境中，使得环境的熵大幅增加。将冰箱与环境看作一个大的孤立系统，总熵是增加的，符合熵增原理。"
+        }];
+
+        /* ================================================================
+           游戏状态
+           ================================================================ */
+        let currentIndex = 0;
+        let cornCount = 0;
+        let timer = 30;
+        let timerInterval = null;
+        let isGameActive = false;
+        let isAnswering = false;
+        let altInterval = null;
+        let isLeftActive = false;
+        let totalQuestions = questionData.length;
+        let shuffledQuestions = [];
+
+        /* ================================================================
+           DOM 引用
+           ================================================================ */
+        const menuPanel = document.getElementById('menuPanel');
+        const gamePanel = document.getElementById('gamePanel');
+        const moleCorrect = document.getElementById('moleCorrect');
+        const moleWrong = document.getElementById('moleWrong');
+        const wrapperCorrect = document.getElementById('wrapperCorrect');
+        const wrapperWrong = document.getElementById('wrapperWrong');
+        const qText = document.getElementById('qText');
+        const qNumber = document.getElementById('qNumber');
+        const qHint = document.getElementById('qHint');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const cornCountEl = document.getElementById('cornCount');
+        const progressText = document.getElementById('progressText');
+        const resultOverlay = document.getElementById('resultOverlay');
+        const finalCornCount = document.getElementById('finalCornCount');
+        const finalDetail = document.getElementById('finalDetail');
+
+        /* ================================================================
+           工具函数
+           ================================================================ */
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
         }
-    }
 
-    function animate() {
-        ctx.clearRect(0, 0, w, h);
-        const grad = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, Math.max(w, h) * 0.7);
-        grad.addColorStop(0, '#13203a');
-        grad.addColorStop(0.5, '#0b1424');
-        grad.addColorStop(1, '#060a14');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, w, h);
+        function initQuestions() {
+            shuffledQuestions = questionData.map((item, idx) => ({ ...item, originalIdx: idx + 1 }));
+            shuffleArray(shuffledQuestions);
+        }
 
-        for (const p of particles) { p.update(); p.draw(); }
-        drawLines();
-        requestAnimationFrame(animate);
-    }
-    animate();
-})();
+        /* ================================================================
+           界面切换控制
+           ================================================================ */
+        function showMenu() {
+            menuPanel.classList.remove('hidden');
+            gamePanel.classList.add('hidden');
+            // 确保完全停止游戏逻辑
+            stopTimer();
+            stopAlternatingMoles();
+            isGameActive = false;
+            isAnswering = false;
+        }
 
-/* ================================================================
-   页面切换控制
-   ================================================================ */
-function hideAll(){
-    document.getElementById("judgeTypePanel").classList.add("hidden");
-    document.getElementById("simplePanel").classList.add("hidden");
-    document.getElementById("hardPanel").classList.add("hidden");
-}
-function showJudgeType(){
-    hideAll();
-    document.getElementById("judgeTypePanel").classList.remove("hidden");
-}
-function showSimple(){
-    hideAll();
-    document.getElementById("simplePanel").classList.remove("hidden");
-    renderSelect();
-}
-function showHard(){
-    hideAll();
-    document.getElementById("hardPanel").classList.remove("hidden");
-    renderJudge();
-}
+        function startGame() {
+            menuPanel.classList.add('hidden');
+            gamePanel.classList.remove('hidden');
+            // 重置游戏状态
+            cornCount = 0;
+            currentIndex = 0;
+            cornCountEl.textContent = '0';
+            resultOverlay.classList.remove('show');
+            initQuestions();
+            resetMoles();
+            wrapperCorrect.classList.remove('disabled');
+            wrapperWrong.classList.remove('disabled');
+            isAnswering = false;
+            isGameActive = false;
+            stopTimer();
+            stopAlternatingMoles();
+            timerDisplay.textContent = '30';
+            timerDisplay.classList.remove('warning');
+            loadQuestion(0);
+        }
 
-/* ================================================================
-   选择题逻辑
-   ================================================================ */
-const selectData = [
-    { q:"第1题：熵增加原理只适用于（）。", opt:["A. 封闭系统","B. 孤立系统","C. 均匀系统","D. 开放系统"], ans:"B",
-      explain:"熵增加原理的定义是：在孤立系统中，一切自发过程的熵永不减少，因此选B。" },
-    { q:"第2题：下列说法中正确的是（）。", opt:["A. 不可能把热量从高温物体传给低温物体而不引起其他变化；","B. 功不可能全部转化为热而不引起其他变化；","C. 不可能制造一部机器，在循环过程中把一重物升高而同时使一热库冷却；","D. 可以从一热源吸收热量使它全部变成有用的功而不产生其他影响。"], ans:"C",
-      explain:"循环过程中把重物升高（做功）同时使热库冷却（从单一热库吸热），相当于从单一热源吸热并全部转化为功，这直接违反了热力学第二定律的开尔文表述，选C。" },
-    { q:"第3题：下列说法中正确的是（）。", opt:["A. 热力学系统经可逆绝热过程后熵减少；","B. 孤立系统中所发生的可逆过程总是朝着混乱度增加的方向进行；","C. 孤立系统中所发生的不可逆过程总是朝着熵增加的方向进行；","D. 熵函数是个广延量，其变化跟过程有关系，因而也是个过程量。"], ans:"C",
-      explain:"根据熵增原理，孤立系统中发生的不可逆过程，总是朝着熵增加的方向进行，直到系统达到平衡态，选C。" },
-    { q:"第4题：一绝热容器被隔板分成两半，一半是真空，另一半是理想气体，若把隔板抽出气体将进行自由膨胀，达到平衡后，则（）", opt:["A. 温度不变，熵增加","B. 温度升高，熵增加","C. 温度降低，熵增加","D. 温度不变，熵不变"], ans:"A",
-      explain:"首先，理想气体的内能仅与温度有关，内能不变则温度不变。其次，气体自由膨胀是不可逆的绝热过程，根据熵增原理：不可逆绝热过程的熵总是增加的，故选A。" }
-];
-let selectScore = 0;
-function renderSelect(){
-    selectScore = 0;
-    let html = "";
-    selectData.forEach((item, idx) => {
-        html += `<div class="question-block" id="qBlock${idx}">
-            <div class="q-title">${item.q}</div>
-            <div id="optWrap${idx}">`;
-        item.opt.forEach(optText => {
-            html += `<button class="opt-item" onclick="clickOption(${idx}, '${optText[0]}')">${optText}</button>`;
-        });
-        html += `</div><div class="tip-text" id="tip${idx}"></div></div>`;
-    });
-    document.getElementById("selectList").innerHTML = html;
-    document.getElementById("selectScore").innerText = "当前总分：0/4";
-}
-function clickOption(qIdx, selectKey){
-    const item = selectData[qIdx];
-    const wrapDom = document.getElementById(`optWrap${qIdx}`);
-    const tipDom = document.getElementById(`tip${qIdx}`);
-    wrapDom.querySelectorAll(".opt-item").forEach(btn => { btn.classList.remove("opt-right", "opt-wrong"); btn.disabled = true; });
-    if(selectKey === item.ans){
-        event.target.classList.add("opt-right");
-        spawnFloatScore(document.getElementById('qBlock'+qIdx), '+1分', 'plus');
-        fireworkAt(event.target);
-        tipDom.innerHTML = `<span class="right-tip">✓ 回答正确 +1分</span><div class="explain-box">${item.explain}</div>`;
-        selectScore += 1;
-    } else {
-        event.target.classList.add("opt-wrong");
-        tipDom.innerHTML = `<span class="wrong-tip">✗ 回答错误，正确答案已标绿</span><div class="explain-box">${item.explain}</div>`;
-        wrapDom.querySelectorAll(".opt-item").forEach(btn => { if(btn.innerText.startsWith(item.ans)){ btn.classList.add("opt-right"); } });
-    }
-    document.getElementById("selectScore").innerText = `当前总分：${selectScore}/4`;
-}
+        function goToMenu() {
+            // 清理游戏状态并返回菜单
+            stopTimer();
+            stopAlternatingMoles();
+            isGameActive = false;
+            isAnswering = false;
+            resultOverlay.classList.remove('show');
+            showMenu();
+        }
 
-/* ================================================================
-   判断题逻辑
-   ================================================================ */
-const judgeData = [
-    {q:"1.对于恒温热源，熵变的计算公式为 ΔS＝Q/T，热源温度恒定，无论过程是否可逆，都可以用该式计算熵变。",ans:"对",explain:"对于恒温热源，熵变的计算公式为△S＝Q/T，热源温度恒定，无论过程是否可逆，都可以用该式计算熵变。"},
-    {q:"2.熵增原理的宏观微分形式为 dS≥0",ans:"对",explain:"熵增原理的宏观微分形式为dS≥0。"}
-];
-let judgeScore = 0;
-function renderJudge(){
-    judgeScore = 0;
-    let html = "";
-    judgeData.forEach((item, i) => {
-        html += `<div class="question-block">
-            <div class="q-title">${item.q}</div>
-            <div>
-                <button class="opt-item" onclick="clickJudge(${i},'对')">对</button>
-                <button class="opt-item" onclick="clickJudge(${i},'错')">错</button>
-            </div>
-            <div class="tip-text" id="judgeTip${i}"></div>
-        </div>`;
-    });
-    document.getElementById("judgeList").innerHTML = html;
-    document.getElementById("judgeScore").innerText = "当前总分：0/100";
-}
-function clickJudge(i, val){
-    const item = judgeData[i];
-    const tipDom = document.getElementById(`judgeTip${i}`);
-    const blockDom = tipDom.closest('.question-block');
-    const buttons = tipDom.parentElement.querySelectorAll('.opt-item');
-    buttons.forEach(b => b.disabled = true);
-    if(val === item.ans){
-        const rightBtn = [...buttons].find(b => b.innerText.startsWith(item.ans));
-        if(rightBtn) rightBtn.classList.add('opt-right');
-        spawnFloatScore(blockDom, '+50分', 'plus');
-        fireworkAt(rightBtn);
-        tipDom.innerHTML = `<span class="right-tip">答对 +50分</span><div class="explain-box">💡 ${item.explain}</div>`;
-        judgeScore += 50;
-    } else {
-        const wrongBtn = [...buttons].find(b => b.innerText.startsWith(val));
-        if(wrongBtn) wrongBtn.classList.add('opt-wrong');
-        buttons.forEach(b => { if(b.innerText.startsWith(item.ans)){ b.classList.add('opt-right'); } });
-        spawnFloatScore(blockDom, '✗', 'minus');
-        tipDom.innerHTML = `<span class="wrong-tip">答错，标准答案：${item.ans}</span><div class="explain-box">💡 ${item.explain}</div>`;
-    }
-    document.getElementById("judgeScore").innerText = `当前总分：${judgeScore}/100`;
-}
-
-/* ================================================================
-   初始化（默认进入选择判断模块）
-   ================================================================ */
-window.onload = function() {
-    showJudgeType();
-};
-
-/* ================================================================
-   答题正确烟花特效引擎 + 答题特效辅助
-   ================================================================ */
-(function initFireworks() {
-    let fx = null, ctx = null;
-    const DPR = Math.min(window.devicePixelRatio || 1, 2);
-    let fw = 0, fh = 0;
-    function ensureCanvas() {
-        if (fx) return true;
-        fx = document.getElementById('fxCanvas');
-        if (!fx) return false;
-        ctx = fx.getContext('2d');
-        resizeFx();
-        return true;
-    }
-    function resizeFx() {
-        if (!fx) return;
-        fw = window.innerWidth; fh = window.innerHeight;
-        fx.width = fw * DPR; fx.height = fh * DPR;
-        fx.style.width = fw + 'px'; fx.style.height = fh + 'px';
-        ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-    }
-    window.addEventListener('resize', resizeFx);
-
-    const particles = [];
-    let running = false;
-
-    function launchFirework(cx, cy) {
-        if (!ensureCanvas()) return;
-        particles.push({ flash: true, x: cx, y: cy, size: 5, alpha: 1, decay: 0.07 });
-        const count = 40 + Math.floor(Math.random() * 16);
-        const hueBase = Math.floor(Math.random() * 360);
-        for (let i = 0; i < count; i++) {
-            const ang = (Math.PI * 2 * i) / count + Math.random() * 0.35;
-            const speed = 2.4 + Math.random() * 4.8;
-            particles.push({
-                flash: false,
-                x: cx, y: cy,
-                vx: Math.cos(ang) * speed,
-                vy: Math.sin(ang) * speed,
-                size: 2 + Math.random() * 2.2,
-                hue: (hueBase + Math.random() * 50) % 360,
-                alpha: 1,
-                decay: 0.012 + Math.random() * 0.016,
-                gravity: 0.05
+        /* ================================================================
+           地鼠交替伸头控制
+           ================================================================ */
+        function resetMoles() {
+            const moles = [moleCorrect, moleWrong];
+            moles.forEach(mole => {
+                mole.classList.remove('active', 'dizzy', 'laugh');
+                const stars = mole.querySelector('.stars');
+                if (stars) stars.style.display = 'none';
+                const pupils = mole.querySelectorAll('.eye .pupil');
+                pupils.forEach(el => el.style.display = 'block');
+                const eyes = mole.querySelectorAll('.eye');
+                eyes.forEach(el => {
+                    el.style.background = '#f5f0ec';
+                    el.style.border = 'none';
+                    el.style.borderRadius = '50%';
+                    el.style.width = '';
+                    el.style.height = '';
+                    el.style.transform = '';
+                    el.style.boxShadow = '';
+                });
+                const mouths = mole.querySelectorAll('.mole-mouth');
+                mouths.forEach(el => {
+                    el.style.border = 'none';
+                    el.style.borderBottom = '3px solid #5a3a2a';
+                    el.style.borderRadius = '0 0 20px 20px';
+                    el.style.width = '20px';
+                    el.style.height = '10px';
+                    el.style.transform = '';
+                    el.style.background = 'transparent';
+                });
+                const noses = mole.querySelectorAll('.mole-nose');
+                noses.forEach(el => { el.style.opacity = '1'; });
+                const ears = mole.querySelectorAll('.ear');
+                ears.forEach(el => { el.style.opacity = '1'; });
             });
         }
-        if (!running) { running = true; requestAnimationFrame(tick); }
-    }
 
-    function tick() {
-        ctx.clearRect(0, 0, fw, fh);
-        ctx.globalCompositeOperation = 'lighter';
-        for (let i = particles.length - 1; i >= 0; i--) {
-            const p = particles[i];
-            if (p.flash) {
-                p.alpha -= p.decay;
-                if (p.alpha <= 0) { particles.splice(i, 1); continue; }
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.size * (1 + (1 - p.alpha) * 5), 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(255,255,255,' + p.alpha + ')';
-                ctx.fill();
-                continue;
-            }
-            p.vx *= 0.985; p.vy *= 0.985; p.vy += p.gravity;
-            p.x += p.vx; p.y += p.vy; p.alpha -= p.decay;
-            if (p.alpha <= 0) { particles.splice(i, 1); continue; }
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-            ctx.fillStyle = 'hsla(' + p.hue + ', 100%, ' + (60 + p.alpha * 20) + '%, ' + p.alpha + ')';
-            ctx.shadowColor = 'hsla(' + p.hue + ', 100%, 65%, ' + p.alpha + ')';
-            ctx.shadowBlur = 8;
-            ctx.fill();
+        function startAlternatingMoles() {
+            stopAlternatingMoles();
+            isLeftActive = false;
+            resetMoles();
+            isLeftActive = true;
+            moleCorrect.classList.add('active');
+            altInterval = setInterval(() => {
+                resetMoles();
+                isLeftActive = !isLeftActive;
+                const target = isLeftActive ? moleCorrect : moleWrong;
+                target.classList.add('active');
+            }, 1000);
         }
-        ctx.shadowBlur = 0;
-        ctx.globalCompositeOperation = 'source-over';
-        if (particles.length > 0) { requestAnimationFrame(tick); }
-        else { running = false; ctx.clearRect(0, 0, fw, fh); }
-    }
 
-    window.launchFirework = launchFirework;
-})();
+        function stopAlternatingMoles() {
+            if (altInterval) {
+                clearInterval(altInterval);
+                altInterval = null;
+            }
+            resetMoles();
+        }
 
-function fireworkAt(el) {
-    if (!el || !window.launchFirework) return;
-    const r = el.getBoundingClientRect();
-    window.launchFirework(r.left + r.width / 2, r.top + r.height / 2);
-    const x2 = window.innerWidth * (0.2 + Math.random() * 0.6);
-    const y2 = window.innerHeight * (0.15 + Math.random() * 0.25);
-    setTimeout(() => { if (window.launchFirework) window.launchFirework(x2, y2); }, 200);
-}
+        /* ================================================================
+           计时器
+           ================================================================ */
+        function startTimer() {
+            clearInterval(timerInterval);
+            timer = 30;
+            timerDisplay.textContent = timer;
+            timerDisplay.classList.remove('warning');
+            timerInterval = setInterval(() => {
+                timer--;
+                timerDisplay.textContent = timer;
+                if (timer <= 5) { timerDisplay.classList.add('warning'); }
+                if (timer <= 0) {
+                    clearInterval(timerInterval);
+                    handleTimeout();
+                }
+            }, 1000);
+        }
 
-function spawnFloatScore(blockEl, text, type){
-    if(!blockEl) return;
-    const el = document.createElement('div');
-    el.className = 'float-score ' + type;
-    el.textContent = text;
-    blockEl.appendChild(el);
-    setTimeout(() => { if(el.parentNode){ el.parentNode.removeChild(el); } }, 1000);
-}
+        function stopTimer() {
+            clearInterval(timerInterval);
+            timerDisplay.classList.remove('warning');
+        }
 
-</script>
+        /* ================================================================
+           核心游戏逻辑
+           ================================================================ */
+        function loadQuestion(index) {
+            if (index >= shuffledQuestions.length) {
+                endGame();
+                return;
+            }
+            const data = shuffledQuestions[index];
+            qText.textContent = data.q;
+            qNumber.textContent = `第 ${index + 1} 题`;
+            progressText.textContent = `${index + 1} / ${shuffledQuestions.length}`;
+            qHint.innerHTML = `<span><span class="hint-icon">⏳</span>点击对应的地鼠洞</span>`;
+            resetMoles();
+            wrapperCorrect.classList.remove('disabled');
+            wrapperWrong.classList.remove('disabled');
+            isAnswering = false;
+            isGameActive = true;
+            startTimer();
+            startAlternatingMoles();
+        }
 
-    <!-- 答题正确烟花特效层 -->
-    <canvas id="fxCanvas"></canvas>
+        function placeMoleState(mole, state) {
+            stopAlternatingMoles();
+            resetMoles();
+            mole.classList.add('active');
+            if (state === 'dizzy') {
+                mole.classList.add('dizzy');
+                const stars = mole.querySelector('.stars');
+                if (stars) stars.style.display = 'block';
+                const pupils = mole.querySelectorAll('.eye .pupil');
+                pupils.forEach(el => el.style.display = 'none');
+                const eyes = mole.querySelectorAll('.eye');
+                eyes.forEach(el => {
+                    el.style.background = 'transparent';
+                    el.style.boxShadow = 'none';
+                    el.style.border = '3px solid #4a3a2a';
+                    el.style.borderRadius = '50%';
+                    el.style.width = '22px';
+                    el.style.height = '22px';
+                });
+                const mouth = mole.querySelector('.mole-mouth');
+                if (mouth) {
+                    mouth.style.border = '3px solid #4a2a1a';
+                    mouth.style.borderRadius = '50%';
+                    mouth.style.borderTop = 'none';
+                    mouth.style.background = '#2a1a0a';
+                    mouth.style.width = '24px';
+                    mouth.style.height = '14px';
+                    mouth.style.transform = '';
+                }
+            } else if (state === 'laugh') {
+                mole.classList.add('laugh');
+                const pupils = mole.querySelectorAll('.eye .pupil');
+                pupils.forEach(el => el.style.display = 'none');
+                const eyes = mole.querySelectorAll('.eye');
+                eyes.forEach(el => {
+                    el.style.background = 'transparent';
+                    el.style.boxShadow = 'none';
+                    el.style.border = 'none';
+                    el.style.borderBottom = '4px solid #4a3a2a';
+                    el.style.borderRadius = '0';
+                    el.style.width = '24px';
+                    el.style.height = '10px';
+                    el.style.transform = 'translateY(8px)';
+                });
+                const mouth = mole.querySelector('.mole-mouth');
+                if (mouth) {
+                    mouth.style.border = 'none';
+                    mouth.style.borderBottom = '4px solid #4a2a1a';
+                    mouth.style.borderRadius = '0 0 12px 12px';
+                    mouth.style.width = '28px';
+                    mouth.style.height = '12px';
+                    mouth.style.transform = 'translateX(4px) rotate(-6deg)';
+                    mouth.style.background = 'transparent';
+                }
+                const nose = mole.querySelector('.mole-nose');
+                if (nose) nose.style.opacity = '0.6';
+            }
+        }
+
+        function handleAnswer(selected) {
+            if (!isGameActive || isAnswering) return;
+            if (currentIndex >= shuffledQuestions.length) return;
+
+            const data = shuffledQuestions[currentIndex];
+            const correct = data.ans;
+            const isCorrect = (selected === correct);
+
+            isAnswering = true;
+            stopTimer();
+            isGameActive = false;
+
+            wrapperCorrect.classList.add('disabled');
+            wrapperWrong.classList.add('disabled');
+
+            const targetMole = correct === '对' ? moleCorrect : moleWrong;
+
+            if (isCorrect) {
+                placeMoleState(targetMole, 'dizzy');
+                cornCount++;
+                cornCountEl.textContent = cornCount;
+                const container = targetMole.closest('.hole-container');
+                spawnCornFly(container);
+                qHint.innerHTML = `<span style="color:#4ade80;">🎉 答对了！ +1 🌽</span>`;
+            } else {
+                placeMoleState(targetMole, 'laugh');
+                qHint.innerHTML = `
+                    <span style="color:#f87171;">😅 正确答案是 "<strong>${correct}</strong>"</span>
+                    <span style="display:block;margin-top:6px;color:#c8d6e5;font-size:14px;line-height:1.5;">💡 解析：${data.explain}</span>
+                `;
+            }
+
+            setTimeout(() => {
+                currentIndex++;
+                if (currentIndex < shuffledQuestions.length) {
+                    loadQuestion(currentIndex);
+                } else {
+                    endGame();
+                }
+            }, isCorrect ? 1800 : 2500);
+        }
+
+        function handleTimeout() {
+            if (!isGameActive || isAnswering) return;
+            if (currentIndex >= shuffledQuestions.length) return;
+
+            const data = shuffledQuestions[currentIndex];
+            const correct = data.ans;
+
+            isAnswering = true;
+            stopTimer();
+            isGameActive = false;
+
+            wrapperCorrect.classList.add('disabled');
+            wrapperWrong.classList.add('disabled');
+
+            const targetMole = correct === '对' ? moleCorrect : moleWrong;
+            placeMoleState(targetMole, 'laugh');
+            qHint.innerHTML = `
+                <span style="color:#f87171;">⏰ 时间到！正确答案是 "<strong>${correct}</strong>"</span>
+                <span style="display:block;margin-top:6px;color:#c8d6e5;font-size:14px;line-height:1.5;">💡 解析：${data.explain}</span>
+            `;
+
+            setTimeout(() => {
+                currentIndex++;
+                if (currentIndex < shuffledQuestions.length) {
+                    loadQuestion(currentIndex);
+                } else {
+                    endGame();
+                }
+            }, 2500);
+        }
+
+        /* ================================================================
+           结束 & 重启
+           ================================================================ */
+        function endGame() {
+            stopTimer();
+            stopAlternatingMoles();
+            isGameActive = false;
+            isAnswering = true;
+            resetMoles();
+            wrapperCorrect.classList.add('disabled');
+            wrapperWrong.classList.add('disabled');
+
+            finalCornCount.textContent = cornCount;
+            const total = shuffledQuestions.length;
+            finalDetail.textContent = `🌽 共 ${total} 题，获得 ${cornCount} 个玉米`;
+            resultOverlay.classList.add('show');
+        }
+
+        function restartGame() {
+            resultOverlay.classList.remove('show');
+            cornCount = 0;
+            cornCountEl.textContent = '0';
+            currentIndex = 0;
+            initQuestions();
+            resetMoles();
+            wrapperCorrect.classList.remove('disabled');
+            wrapperWrong.classList.remove('disabled');
+            isAnswering = false;
+            isGameActive = false;
+            stopTimer();
+            stopAlternatingMoles();
+            timerDisplay.textContent = '30';
+            timerDisplay.classList.remove('warning');
+            loadQuestion(0);
+        }
+
+        /* ================================================================
+           玉米飞特效
+           ================================================================ */
+        function spawnCornFly(anchorEl) {
+            const rect = anchorEl.getBoundingClientRect();
+            const el = document.createElement('div');
+            el.className = 'corn-fly';
+            el.textContent = '🌽';
+            el.style.left = (rect.left + rect.width / 2 - 24) + 'px';
+            el.style.top = (rect.top - 20) + 'px';
+            document.body.appendChild(el);
+            setTimeout(() => {
+                if (el.parentNode) el.parentNode.removeChild(el);
+            }, 1000);
+        }
+
+        /* ================================================================
+           事件绑定 & 启动
+           ================================================================ */
+        wrapperCorrect.addEventListener('click', () => { handleAnswer('对'); });
+        wrapperWrong.addEventListener('click', () => { handleAnswer('错'); });
+
+        // 页面加载默认显示菜单
+        window.onload = function() {
+            showMenu();
+            initQuestions();
+        };
+    </script>
 </body>
 </html>
