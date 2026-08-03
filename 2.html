@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>🌽 打地鼠 · 熵变闯关</title>
+    <title>⭐ 打地鼠 · 熵变闯关</title>
 
     <style>
         /* ===== 全局重置 & 基础 ===== */
@@ -341,23 +341,80 @@
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
-        /* ===== 主体：左右布局 ===== */
+        /* ===== 主体：上下布局（题目在上，苹果在下） ===== */
         .main-area {
             display: flex;
             flex: 1;
-            gap: 28px;
+            flex-direction: column;
+            gap: 20px;
             min-height: 0;
             height: 100%;
         }
 
-        /* ---- 左侧：地鼠洞 ---- */
+        /* ---- 上方：题目区 ---- */
+        .question-area {
+            flex: 0 0 auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 0;
+            min-height: 120px;
+        }
+
+        .question-card {
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 36px;
+            padding: 24px 28px 22px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            transition: all 0.3s;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .question-number {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.4);
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .question-text {
+            font-size: 22px;
+            font-weight: 600;
+            color: #f0f4ff;
+            line-height: 1.6;
+            text-shadow: 0 2px 12px rgba(100, 180, 255, 0.08);
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            word-break: break-word;
+        }
+
+        .question-hint {
+            margin-top: 12px;
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.3);
+            font-style: italic;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            align-items: flex-start;
+        }
+        .question-hint .hint-icon { font-size: 18px; margin-right: 6px; }
+
+        /* ---- 下方：苹果选择区 ---- */
         .holes-area {
-            flex: 0 0 420px;
+            flex: 1;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 10px 0;
+            padding: 6px 0;
             position: relative;
         }
 
@@ -365,7 +422,7 @@
             display: flex;
             gap: 50px;
             justify-content: center;
-            align-items: flex-end;
+            align-items: center;
             flex-wrap: wrap;
             position: relative;
             width: 100%;
@@ -392,250 +449,191 @@
         .hole-container {
             position: relative;
             width: 160px;
-            height: 150px;
+            height: 170px;
             display: flex;
-            align-items: flex-end;
-            justify-content: center;
-        }
-
-        .hole {
-            position: relative;
-            width: 140px;
-            height: 60px;
-            background: radial-gradient(ellipse at center, #1a0e08 10%, #2d1a10 50%, #3d281c 90%);
-            border-radius: 50%;
-            box-shadow: inset 0 -12px 20px rgba(0, 0, 0, 0.8), 0 8px 20px rgba(0, 0, 0, 0.5), 0 0 0 6px #4d3522, 0 0 0 10px #2d4a2d;
-            z-index: 2;
-            transition: box-shadow 0.2s;
-        }
-        .hole-wrapper:hover .hole {
-            box-shadow: inset 0 -12px 20px rgba(0, 0, 0, 0.8), 0 8px 30px rgba(0, 0, 0, 0.6), 0 0 0 6px #5d4532, 0 0 0 10px #3d5a3d;
-        }
-        .hole::before {
-            content: '';
-            position: absolute;
-            top: -20px;
-            left: -24px;
-            right: -24px;
-            height: 30px;
-            background: radial-gradient(ellipse at 30% 50%, #5a8a4a, #3d6a2d 70%, transparent);
-            border-radius: 50%;
-            z-index: -1;
-            opacity: 0.6;
-            filter: blur(3px);
-        }
-
-        /* 地鼠 */
-        .hole-container .mole {
-            position: absolute;
-            bottom: 6px;
-            left: 50%;
-            transform: translateX(-50%) translateY(80px);
-            width: 88px;
-            height: 88px;
-            z-index: 10;
-            transition: transform 0.35s cubic-bezier(0.34, 1.2, 0.64, 1), opacity 0.2s;
-            pointer-events: none;
-            opacity: 0;
-        }
-        .hole-container .mole.active {
-            opacity: 1;
-            transform: translateX(-50%) translateY(6px);
-        }
-
-        .mole-body {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background: radial-gradient(ellipse at 40% 35%, #c99a7a, #9a7a5a 60%, #7a5a3f);
-            box-shadow: inset -8px -8px 20px rgba(0, 0, 0, 0.25), inset 8px 8px 30px rgba(255, 200, 150, 0.15);
-            overflow: visible;
-            transition: all 0.2s;
-        }
-        .mole-body .ear {
-            position: absolute;
-            width: 26px;
-            height: 26px;
-            border-radius: 50%;
-            background: radial-gradient(ellipse at 40% 30%, #d9aa8a, #9a7a5a);
-            top: -6px;
-            box-shadow: inset -3px -3px 8px rgba(0, 0, 0, 0.2);
-            z-index: 0;
-        }
-        .mole-body .ear.left { left: 2px; }
-        .mole-body .ear.right { right: 2px; }
-        .mole-body .ear::after {
-            content: '';
-            position: absolute;
-            top: 6px;
-            left: 6px;
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            background: radial-gradient(ellipse at center, #e8b8a0, #c08a7a);
-            opacity: 0.6;
-        }
-        .mole-face {
-            position: absolute;
-            inset: 8px 8px 10px 8px;
-            border-radius: 50%;
-            display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 2px;
-            z-index: 1;
-            background: radial-gradient(ellipse at 50% 40%, #e8c8a8, #c8a888 70%);
-            opacity: 0;
-            transition: opacity 0.2s;
         }
-        .hole-container .mole.active .mole-face { opacity: 1; }
-        .mole-eyes { display: flex; gap: 18px; margin-top: 2px; }
-        .mole-eyes .eye {
-            width: 20px;
-            height: 22px;
-            background: #f5f0ec;
-            border-radius: 50%;
+
+        /* 苹果 */
+        .hole-container .apple {
             position: relative;
-            box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.1);
-            transition: all 0.25s;
+            width: 120px;
+            height: 120px;
+            z-index: 10;
+            transition: all 0.35s cubic-bezier(0.34, 1.2, 0.64, 1);
+            transform-origin: center center;
         }
-        .mole-eyes .eye .pupil {
+        .hole-container .apple .apple-stem {
+            position: absolute;
+            top: -14px;
+            left: 50%;
+            transform: translateX(-50%) rotate(-15deg);
+            width: 8px;
+            height: 22px;
+            background: linear-gradient(to right, #8B6914, #5a4510);
+            border-radius: 4px 4px 2px 2px;
+            z-index: 2;
+        }
+        .hole-container .apple .apple-leaf {
+            position: absolute;
+            top: -6px;
+            left: calc(50% + 4px);
+            width: 28px;
+            height: 16px;
+            background: linear-gradient(135deg, #56c445, #3a9a2e);
+            border-radius: 50% 0 50% 50%;
+            z-index: 3;
+            transform: rotate(25deg);
+            box-shadow: 1px 2px 4px rgba(0,0,0,0.2);
+        }
+        .hole-container .apple .apple-body {
+            position: absolute;
+            inset: 0;
+            border-radius: 42% 42% 48% 48% / 35% 35% 65% 65%;
+            background: radial-gradient(ellipse at 35% 25%, #ff5a5a 5%, #e02020 30%, #c01010 70%, #8a0000 100%);
+            box-shadow: inset -10px -10px 30px rgba(0,0,0,0.3), inset 10px 8px 30px rgba(255,150,150,0.2), 0 8px 20px rgba(0,0,0,0.35);
+            overflow: hidden;
+        }
+        /* 苹果高光 */
+        .hole-container .apple .apple-body::before {
+            content: '';
+            position: absolute;
+            top: 12%;
+            left: 20%;
+            width: 35%;
+            height: 28%;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            filter: blur(4px);
+            transform: rotate(-30deg);
+        }
+        /* 坏苹果斑点 */
+        .hole-container .apple .apple-body .bad-spots {
+            display: none;
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+        }
+        .hole-container .apple .apple-body .bad-spots::before,
+        .hole-container .apple .apple-body .bad-spots::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(60, 30, 0, 0.55);
+        }
+        .hole-container .apple .apple-body .bad-spots::before {
+            width: 30px; height: 22px;
+            top: 30%; left: 20%;
+            transform: rotate(15deg);
+        }
+        .hole-container .apple .apple-body .bad-spots::after {
+            width: 24px; height: 18px;
+            top: 55%; left: 50%;
+            transform: rotate(-20deg);
+        }
+
+        /* 好苹果内瓤（切面） */
+        .hole-container .apple .apple-inner {
+            display: none;
+            position: absolute;
+            inset: 0;
+            border-radius: 42% 42% 48% 48% / 35% 35% 65% 65%;
+            background: radial-gradient(ellipse at center, #fffbe6, #fff3c0 60%, #ffe080 100%);
+            box-shadow: inset 0 0 30px rgba(255,220,50,0.3), 0 8px 20px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .hole-container .apple .apple-inner::before {
+            content: '';
+            position: absolute;
+            inset: 8px;
+            border-radius: inherit;
+            border: 3px solid rgba(200,170,50,0.3);
+        }
+        /* 种子 */
+        .hole-container .apple .apple-inner .seed {
             position: absolute;
             width: 10px;
-            height: 12px;
-            background: radial-gradient(ellipse at center, #2a1a0a, #0a0500);
+            height: 6px;
+            background: radial-gradient(ellipse, #8B6914, #5a4010);
             border-radius: 50%;
-            bottom: 2px;
-            left: 50%;
-            transform: translateX(-50%);
-            transition: all 0.25s;
+            transform: rotate(25deg);
         }
-        .mole-eyes .eye .pupil::after {
-            content: '';
-            position: absolute;
-            top: 2px;
-            left: 3px;
-            width: 4px;
-            height: 4px;
-            background: #fff;
-            border-radius: 50%;
-            opacity: 0.7;
+        .hole-container .apple .apple-inner .seed:nth-child(1) { top: 38%; left: 32%; transform: rotate(20deg); }
+        .hole-container .apple .apple-inner .seed:nth-child(2) { top: 38%; right: 32%; transform: rotate(-20deg); }
+        .hole-container .apple .apple-inner .seed:nth-child(3) { top: 52%; left: 44%; transform: rotate(0deg); }
+
+        /* 切苹果动画 */
+        @keyframes cutApple {
+            0% { transform: scale(1) rotateY(0deg); }
+            50% { transform: scale(1.1) rotateY(20deg); }
+            100% { transform: scale(1) rotateY(0deg); }
         }
-        .mole-nose {
-            width: 12px;
-            height: 10px;
-            background: radial-gradient(ellipse at center, #f09080, #d07060);
-            border-radius: 50%;
-            margin-top: -2px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-        }
-        .mole-mouth {
-            width: 20px;
-            height: 10px;
-            border-bottom: 3px solid #5a3a2a;
-            border-radius: 0 0 20px 20px;
-            margin-top: -2px;
-            transition: all 0.3s;
-            background: transparent;
+        @keyframes cutWrongApple {
+            0% { transform: scale(1) rotate(0deg); }
+            30% { transform: scale(0.9) rotate(-5deg); }
+            60% { transform: scale(0.85) rotate(5deg); }
+            100% { transform: scale(1) rotate(0deg); }
         }
 
-        /* 晕眩 */
-        .hole-container .mole.dizzy .mole-eyes .eye {
-            background: transparent;
-            box-shadow: none;
-            width: 22px;
-            height: 22px;
-            animation: spinEye 0.7s linear infinite;
-            border: 3px solid #4a3a2a;
-            border-radius: 50%;
+        /* 好苹果状态 */
+        .hole-container .apple.cut-good {
+            animation: cutApple 0.6s cubic-bezier(0.34, 1.2, 0.64, 1) forwards;
         }
-        .hole-container .mole.dizzy .mole-eyes .eye .pupil { display: none; }
-        .hole-container .mole.dizzy .mole-eyes .eye::after {
-            content: '×';
-            font-size: 22px;
-            font-weight: 900;
-            color: #4a3a2a;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            height: 100%;
-            line-height: 1;
+        .hole-container .apple.cut-good .apple-body {
+            display: none;
         }
-        .hole-container .mole.dizzy .mole-mouth {
-            width: 24px;
-            height: 14px;
-            border: 3px solid #4a2a1a;
-            border-radius: 50%;
-            background: #2a1a0a;
-            border-top: none;
-            margin-top: -4px;
-            animation: dizzyMouth 0.4s ease-in-out infinite alternate;
+        .hole-container .apple.cut-good .apple-stem,
+        .hole-container .apple.cut-good .apple-leaf {
+            z-index: 20;
         }
-        .hole-container .mole.dizzy .mole-nose { opacity: 0.6; }
-
-        @keyframes spinEye {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        @keyframes dizzyMouth {
-            0% { transform: scaleY(1); }
-            100% { transform: scaleY(1.4); }
+        .hole-container .apple.cut-good .apple-inner {
+            display: block;
         }
 
-        /* 晕眩星星 */
-        .hole-container .mole.dizzy .stars {
+        /* 坏苹果状态 */
+        .hole-container .apple.cut-bad {
+            animation: cutWrongApple 0.5s ease-out forwards;
+        }
+        .hole-container .apple.cut-bad .apple-body {
+            background: radial-gradient(ellipse at 35% 25%, #a08050 5%, #7a5a20 30%, #5a3a10 70%, #3a2000 100%);
+            box-shadow: inset -10px -10px 30px rgba(0,0,0,0.4), inset 10px 8px 30px rgba(100,80,50,0.15), 0 8px 20px rgba(0,0,0,0.4);
+        }
+        .hole-container .apple.cut-bad .apple-body .bad-spots {
+            display: block;
+        }
+        .hole-container .apple.cut-bad .apple-stem {
+            opacity: 0.6;
+        }
+        .hole-container .apple.cut-bad .apple-leaf {
+            opacity: 0.5;
+            background: linear-gradient(135deg, #888, #555);
+        }
+
+        /* 晕眩星星（切对时） */
+        .hole-container .apple.cut-good .stars {
             display: block !important;
             position: absolute;
-            top: -20px;
-            left: -20px;
-            right: -20px;
-            bottom: -20px;
+            inset: -20px;
             pointer-events: none;
-            z-index: 5;
+            z-index: 30;
         }
-        .hole-container .mole.dizzy .stars span {
+        .hole-container .apple.cut-good .stars span {
             position: absolute;
             font-size: 22px;
             animation: starFloat 1.2s ease-in-out infinite alternate;
             opacity: 0.9;
             text-shadow: 0 0 12px rgba(255, 255, 100, 0.6);
         }
-        .hole-container .mole.dizzy .stars span:nth-child(1) { top: -12px; left: 4px; animation-delay: 0s; font-size: 28px; }
-        .hole-container .mole.dizzy .stars span:nth-child(2) { top: -6px; right: 0px; animation-delay: 0.3s; font-size: 20px; }
-        .hole-container .mole.dizzy .stars span:nth-child(3) { bottom: -6px; left: -10px; animation-delay: 0.6s; font-size: 18px; }
-        .hole-container .mole.dizzy .stars span:nth-child(4) { bottom: 0px; right: -6px; animation-delay: 0.9s; font-size: 24px; }
+        .hole-container .apple.cut-good .stars span:nth-child(1) { top: -12px; left: 4px; animation-delay: 0s; font-size: 28px; }
+        .hole-container .apple.cut-good .stars span:nth-child(2) { top: -6px; right: 0px; animation-delay: 0.3s; font-size: 20px; }
+        .hole-container .apple.cut-good .stars span:nth-child(3) { bottom: -6px; left: -10px; animation-delay: 0.6s; font-size: 18px; }
+        .hole-container .apple.cut-good .stars span:nth-child(4) { bottom: 0px; right: -6px; animation-delay: 0.9s; font-size: 24px; }
 
         @keyframes starFloat {
             0% { transform: translateY(0) rotate(0deg) scale(0.8); opacity: 0.6; }
             100% { transform: translateY(-14px) rotate(30deg) scale(1.2); opacity: 1; }
         }
-
-        /* 嘲笑 */
-        .hole-container .mole.laugh .mole-eyes .eye {
-            height: 10px;
-            border-radius: 0;
-            background: transparent;
-            box-shadow: none;
-            border-bottom: 4px solid #4a3a2a;
-            width: 24px;
-            transform: translateY(8px);
-        }
-        .hole-container .mole.laugh .mole-eyes .eye .pupil { display: none; }
-        .hole-container .mole.laugh .mole-mouth {
-            width: 28px;
-            height: 12px;
-            border: none;
-            border-bottom: 4px solid #4a2a1a;
-            border-radius: 0 0 12px 12px;
-            transform: translateX(4px) rotate(-6deg);
-            margin-top: -4px;
-            background: transparent;
-        }
-        .hole-container .mole.laugh .mole-nose { opacity: 0.6; }
-        .hole-container .mole.laugh .mole-eyes { gap: 20px; }
 
         .hole-label {
             font-size: 24px;
@@ -652,61 +650,7 @@
         }
         .hole-label .label-icon { margin-right: 6px; }
 
-        /* ---- 右侧：题目区 ---- */
-        .question-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 10px 20px 10px 10px;
-            min-width: 0;
-        }
 
-        .question-card {
-            background: rgba(255, 255, 255, 0.07);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border-radius: 36px;
-            padding: 28px 30px 26px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
-            transition: all 0.3s;
-            min-height: 180px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .question-number {
-            font-size: 15px;
-            color: rgba(255, 255, 255, 0.4);
-            font-weight: 600;
-            letter-spacing: 1px;
-            margin-bottom: 12px;
-            text-transform: uppercase;
-        }
-
-        .question-text {
-            font-size: 24px;
-            font-weight: 600;
-            color: #f0f4ff;
-            line-height: 1.5;
-            text-shadow: 0 2px 12px rgba(100, 180, 255, 0.08);
-            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
-            word-break: break-word;
-        }
-
-        .question-hint {
-            margin-top: 14px;
-            font-size: 16px;
-            color: rgba(255, 255, 255, 0.35);
-            font-style: italic;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            align-items: flex-start;
-        }
-        .question-hint .hint-icon { font-size: 20px; margin-right: 6px; }
 
         /* ===== 结果弹窗 ===== */
         .result-overlay {
@@ -816,6 +760,27 @@
             background: rgba(255, 255, 255, 0.25);
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
         }
+        .next-btn {
+            display: none;
+            margin-top: 16px;
+            padding: 12px 44px;
+            border: 1px solid rgba(160, 215, 255, 0.55);
+            border-radius: 40px;
+            background: linear-gradient(135deg, #4aa3ff, #2563eb);
+            color: #fff;
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.25s;
+            box-shadow: 0 8px 30px rgba(37, 99, 235, 0.4);
+            font-family: 'Comic Sans MS', cursive;
+        }
+        .next-btn:hover {
+            transform: scale(1.05) translateY(-3px);
+            box-shadow: 0 12px 40px rgba(37, 99, 235, 0.55);
+        }
+        .next-btn:active { transform: scale(0.94); }
 
         /* ===== 玉米弹出动画 ===== */
         .corn-fly {
@@ -845,20 +810,16 @@
             .menu-cards { gap: 20px; flex-direction: row; }
             .menu-card { flex: 0 1 200px; min-height: 150px; padding: 20px 14px; }
             .menu-card .card-emoji { font-size: 34px; }
-            .main-area { flex-direction: column; gap: 12px; height: auto; }
-            .holes-area { flex: 0 0 auto; padding: 4px 0; }
+            .main-area { flex-direction: column; gap: 12px; }
+            .question-area { padding: 0; }
+            .question-card { padding: 16px 16px 14px; min-height: 90px; border-radius: 28px; }
+            .question-text { font-size: 18px; line-height: 1.55; }
+            .question-hint { font-size: 14px; }
+            .holes-area { flex: 1; padding: 6px 0; }
             .holes-row { gap: 24px; }
-            .hole-container { width: 130px; height: 120px; }
-            .hole { width: 110px; height: 48px; }
-            .hole-container .mole { width: 70px; height: 70px; }
-            .mole-body .ear { width: 20px; height: 20px; }
-            .mole-eyes .eye { width: 16px; height: 18px; }
-            .mole-eyes { gap: 12px; }
-            .mole-mouth { width: 16px; height: 8px; }
+            .hole-container { width: 130px; height: 140px; }
+            .hole-container .apple { width: 100px; height: 100px; }
             .hole-label { font-size: 18px; padding: 2px 12px; }
-            .question-area { padding: 4px 6px; }
-            .question-card { padding: 18px 16px 16px; min-height: 120px; border-radius: 28px; }
-            .question-text { font-size: 18px; }
             .top-bar .corn-display { font-size: 20px; padding: 4px 14px 4px 10px; }
             .top-bar .corn-display .corn-icon { font-size: 26px; }
             .top-bar .timer-display { font-size: 20px; padding: 4px 14px 4px 10px; }
@@ -870,18 +831,14 @@
         }
 
         @media (max-width: 480px) {
+            .main-area { gap: 10px; }
+            .question-card { padding: 14px 14px 12px; min-height: 80px; }
+            .question-text { font-size: 15px; line-height: 1.55; }
+            .question-hint { font-size: 13px; margin-top: 8px; }
             .holes-row { gap: 12px; }
-            .hole-container { width: 100px; height: 100px; }
-            .hole { width: 88px; height: 38px; }
-            .hole-container .mole { width: 56px; height: 56px; }
-            .mole-body .ear { width: 16px; height: 16px; top: -4px; }
-            .mole-face { inset: 6px 6px 8px 6px; }
-            .mole-eyes .eye { width: 12px; height: 14px; }
-            .mole-eyes { gap: 8px; }
-            .mole-mouth { width: 12px; height: 6px; }
-            .mole-nose { width: 8px; height: 7px; }
+            .hole-container { width: 100px; height: 110px; }
+            .hole-container .apple { width: 80px; height: 80px; }
             .hole-label { font-size: 14px; padding: 2px 8px; }
-            .question-text { font-size: 15px; }
             .top-bar { gap: 6px; }
             .top-bar .corn-display { font-size: 16px; padding: 3px 10px 3px 8px; }
             .top-bar .timer-display { font-size: 16px; padding: 3px 10px 3px 8px; }
@@ -920,11 +877,11 @@
                     <div class="card-desc">简单有趣 · 快速反应<br />用小推车接住掉落的苹果</div>
                     <div class="card-btn">开始体验 →</div>
                 </div>
-                <!-- 卡2：打地鼠（保持内部游戏） -->
+                <!-- 卡2：切苹果（判断题） -->
                 <div class="menu-card card-mole" onclick="startGame()">
-                    <div class="card-emoji">🔨</div>
-                    <div class="card-title">打地鼠</div>
-                    <div class="card-desc">深度体验 · 策略与反应<br />快速击打，获取玉米</div>
+                    <div class="card-emoji">🍎</div>
+                    <div class="card-title">切苹果</div>
+                    <div class="card-desc">深度体验 · 判断对错<br />切开苹果揭晓答案</div>
                     <div class="card-btn">开始游戏 →</div>
                 </div>
             </div>
@@ -946,8 +903,7 @@
                 <div class="left-group">
                     <button class="back-btn" onclick="goToMenu()">← 主菜单</button>
                     <div class="corn-display">
-                        <span class="corn-icon">🌽</span>
-                        <span class="corn-num" id="cornCount">0</span>
+                        <span class="corn-num" id="cornCount">0分</span>
                     </div>
                 </div>
                 <div class="timer-display">
@@ -961,52 +917,57 @@
 
             <!-- 主体 -->
             <div class="main-area">
-                <!-- 左侧：地鼠洞 -->
+                <!-- 上方：题目 -->
+                <div class="question-area">
+                    <div class="question-card">
+                        <div class="question-number" id="qNumber">第 1 题</div>
+                        <div class="question-text" id="qText">加载题目...</div>
+                        <div class="question-hint" id="qHint">
+                            <span><span class="hint-icon">🍎</span>读完题目后，点击下方苹果选择答案</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 下方：苹果选择区 -->
                 <div class="holes-area">
                     <div class="holes-row">
-                        <!-- 洞：对 -->
+                        <!-- 苹果：对 -->
                         <div class="hole-wrapper" id="wrapperCorrect">
                             <div class="hole-container" id="holeCorrectContainer">
-                                <div class="hole"></div>
-                                <div class="mole" id="moleCorrect">
-                                    <div class="mole-body">
-                                        <div class="ear left"></div>
-                                        <div class="ear right"></div>
-                                        <div class="mole-face">
-                                            <div class="mole-eyes">
-                                                <div class="eye"><div class="pupil"></div></div>
-                                                <div class="eye"><div class="pupil"></div></div>
-                                            </div>
-                                            <div class="mole-nose"></div>
-                                            <div class="mole-mouth"></div>
-                                        </div>
-                                        <div class="stars" style="display:none;">
-                                            <span>✨</span><span>⭐</span><span>🌟</span><span>✨</span>
-                                        </div>
+                                <div class="apple" id="moleCorrect">
+                                    <div class="apple-stem"></div>
+                                    <div class="apple-leaf"></div>
+                                    <div class="apple-body">
+                                        <div class="bad-spots"></div>
+                                    </div>
+                                    <div class="apple-inner">
+                                        <div class="seed"></div>
+                                        <div class="seed"></div>
+                                        <div class="seed"></div>
+                                    </div>
+                                    <div class="stars" style="display:none;">
+                                        <span>✨</span><span>⭐</span><span>🌟</span><span>✨</span>
                                     </div>
                                 </div>
                             </div>
                             <div class="hole-label"><span class="label-icon">✅</span> 对</div>
                         </div>
-                        <!-- 洞：错 -->
+                        <!-- 苹果：错 -->
                         <div class="hole-wrapper" id="wrapperWrong">
                             <div class="hole-container" id="holeWrongContainer">
-                                <div class="hole"></div>
-                                <div class="mole" id="moleWrong">
-                                    <div class="mole-body">
-                                        <div class="ear left"></div>
-                                        <div class="ear right"></div>
-                                        <div class="mole-face">
-                                            <div class="mole-eyes">
-                                                <div class="eye"><div class="pupil"></div></div>
-                                                <div class="eye"><div class="pupil"></div></div>
-                                            </div>
-                                            <div class="mole-nose"></div>
-                                            <div class="mole-mouth"></div>
-                                        </div>
-                                        <div class="stars" style="display:none;">
-                                            <span>✨</span><span>⭐</span><span>🌟</span><span>✨</span>
-                                        </div>
+                                <div class="apple" id="moleWrong">
+                                    <div class="apple-stem"></div>
+                                    <div class="apple-leaf"></div>
+                                    <div class="apple-body">
+                                        <div class="bad-spots"></div>
+                                    </div>
+                                    <div class="apple-inner">
+                                        <div class="seed"></div>
+                                        <div class="seed"></div>
+                                        <div class="seed"></div>
+                                    </div>
+                                    <div class="stars" style="display:none;">
+                                        <span>✨</span><span>⭐</span><span>🌟</span><span>✨</span>
                                     </div>
                                 </div>
                             </div>
@@ -1014,30 +975,20 @@
                         </div>
                     </div>
                     <div style="margin-top:6px;font-size:14px;color:rgba(255,255,255,0.25);text-align:center;letter-spacing:1px;">
-                        👆 点击地鼠洞选择答案
+                        👆 点击苹果切开选择答案
                     </div>
-                </div>
-
-                <!-- 右侧：题目 -->
-                <div class="question-area">
-                    <div class="question-card">
-                        <div class="question-number" id="qNumber">第 1 题</div>
-                        <div class="question-text" id="qText">加载题目...</div>
-                        <div class="question-hint" id="qHint">
-                            <span><span class="hint-icon">⏳</span>点击对应的地鼠洞</span>
-                        </div>
-                    </div>
+                    <button class="next-btn" id="nextBtn" style="display:none;" onclick="goNext()">下一题 →</button>
                 </div>
             </div>
 
             <!-- 结果弹窗 -->
             <div class="result-overlay" id="resultOverlay">
                 <div class="result-box">
-                    <span class="big-corn">🌽</span>
+                    <span class="big-corn">⭐</span>
                     <div class="result-title">闯关完成！</div>
                     <div class="result-sub">你一共收获了</div>
                     <div class="result-score" id="finalCornCount">0</div>
-                    <div class="result-detail" id="finalDetail">🌽 玉米</div>
+                    <div class="result-detail" id="finalDetail">⭐ 玉米</div>
                     <div class="result-btn-group">
                         <button class="result-btn" onclick="restartGame()">🔄 再来一局</button>
                         <button class="result-btn menu-btn" onclick="goToMenu()">🏠 返回主菜单</button>
@@ -1173,8 +1124,6 @@
         let timerInterval = null;
         let isGameActive = false;
         let isAnswering = false;
-        let altInterval = null;
-        let isLeftActive = false;
         let totalQuestions = questionData.length;
         let shuffledQuestions = [];
 
@@ -1183,8 +1132,8 @@
            ================================================================ */
         const menuPanel = document.getElementById('menuPanel');
         const gamePanel = document.getElementById('gamePanel');
-        const moleCorrect = document.getElementById('moleCorrect');
-        const moleWrong = document.getElementById('moleWrong');
+        const appleCorrect = document.getElementById('moleCorrect');
+        const appleWrong = document.getElementById('moleWrong');
         const wrapperCorrect = document.getElementById('wrapperCorrect');
         const wrapperWrong = document.getElementById('wrapperWrong');
         const qText = document.getElementById('qText');
@@ -1192,6 +1141,7 @@
         const qHint = document.getElementById('qHint');
         const timerDisplay = document.getElementById('timerDisplay');
         const cornCountEl = document.getElementById('cornCount');
+        const nextBtn = document.getElementById('nextBtn');
         const progressText = document.getElementById('progressText');
         const resultOverlay = document.getElementById('resultOverlay');
         const finalCornCount = document.getElementById('finalCornCount');
@@ -1208,6 +1158,10 @@
             return arr;
         }
 
+        function randInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
         function initQuestions() {
             shuffledQuestions = questionData.map((item, idx) => ({ ...item, originalIdx: idx + 1 }));
             shuffleArray(shuffledQuestions);
@@ -1221,7 +1175,6 @@
             gamePanel.classList.add('hidden');
             // 确保完全停止游戏逻辑
             stopTimer();
-            stopAlternatingMoles();
             isGameActive = false;
             isAnswering = false;
         }
@@ -1229,10 +1182,9 @@
         function startGame() {
             menuPanel.classList.add('hidden');
             gamePanel.classList.remove('hidden');
-            // 重置游戏状态
             cornCount = 0;
             currentIndex = 0;
-            cornCountEl.textContent = '0';
+            cornCountEl.textContent = '0分';
             resultOverlay.classList.remove('show');
             initQuestions();
             resetMoles();
@@ -1241,16 +1193,13 @@
             isAnswering = false;
             isGameActive = false;
             stopTimer();
-            stopAlternatingMoles();
             timerDisplay.textContent = '30';
             timerDisplay.classList.remove('warning');
             loadQuestion(0);
         }
 
         function goToMenu() {
-            // 清理游戏状态并返回菜单
             stopTimer();
-            stopAlternatingMoles();
             isGameActive = false;
             isAnswering = false;
             resultOverlay.classList.remove('show');
@@ -1258,63 +1207,23 @@
         }
 
         /* ================================================================
-           地鼠交替伸头控制
+           苹果重置
            ================================================================ */
         function resetMoles() {
-            const moles = [moleCorrect, moleWrong];
-            moles.forEach(mole => {
-                mole.classList.remove('active', 'dizzy', 'laugh');
-                const stars = mole.querySelector('.stars');
+            [appleCorrect, appleWrong].forEach(apple => {
+                apple.classList.remove('cut-good', 'cut-bad');
+                const stars = apple.querySelector('.stars');
                 if (stars) stars.style.display = 'none';
-                const pupils = mole.querySelectorAll('.eye .pupil');
-                pupils.forEach(el => el.style.display = 'block');
-                const eyes = mole.querySelectorAll('.eye');
-                eyes.forEach(el => {
-                    el.style.background = '#f5f0ec';
-                    el.style.border = 'none';
-                    el.style.borderRadius = '50%';
-                    el.style.width = '';
-                    el.style.height = '';
-                    el.style.transform = '';
-                    el.style.boxShadow = '';
-                });
-                const mouths = mole.querySelectorAll('.mole-mouth');
-                mouths.forEach(el => {
-                    el.style.border = 'none';
-                    el.style.borderBottom = '3px solid #5a3a2a';
-                    el.style.borderRadius = '0 0 20px 20px';
-                    el.style.width = '20px';
-                    el.style.height = '10px';
-                    el.style.transform = '';
-                    el.style.background = 'transparent';
-                });
-                const noses = mole.querySelectorAll('.mole-nose');
-                noses.forEach(el => { el.style.opacity = '1'; });
-                const ears = mole.querySelectorAll('.ear');
-                ears.forEach(el => { el.style.opacity = '1'; });
+                const body = apple.querySelector('.apple-body');
+                if (body) {
+                    body.style.background = '';
+                    body.style.boxShadow = '';
+                }
+                const leaf = apple.querySelector('.apple-leaf');
+                if (leaf) { leaf.style.opacity = '1'; leaf.style.background = ''; }
+                const stem = apple.querySelector('.apple-stem');
+                if (stem) stem.style.opacity = '1';
             });
-        }
-
-        function startAlternatingMoles() {
-            stopAlternatingMoles();
-            isLeftActive = false;
-            resetMoles();
-            isLeftActive = true;
-            moleCorrect.classList.add('active');
-            altInterval = setInterval(() => {
-                resetMoles();
-                isLeftActive = !isLeftActive;
-                const target = isLeftActive ? moleCorrect : moleWrong;
-                target.classList.add('active');
-            }, 1000);
-        }
-
-        function stopAlternatingMoles() {
-            if (altInterval) {
-                clearInterval(altInterval);
-                altInterval = null;
-            }
-            resetMoles();
         }
 
         /* ================================================================
@@ -1353,72 +1262,24 @@
             qText.textContent = data.q;
             qNumber.textContent = `第 ${index + 1} 题`;
             progressText.textContent = `${index + 1} / ${shuffledQuestions.length}`;
-            qHint.innerHTML = `<span><span class="hint-icon">⏳</span>点击对应的地鼠洞</span>`;
+            qHint.innerHTML = `<span><span class="hint-icon">🍎</span>点击苹果切开选择答案</span>`;
             resetMoles();
             wrapperCorrect.classList.remove('disabled');
             wrapperWrong.classList.remove('disabled');
+            nextBtn.style.display = 'none';
             isAnswering = false;
             isGameActive = true;
             startTimer();
-            startAlternatingMoles();
         }
 
-        function placeMoleState(mole, state) {
-            stopAlternatingMoles();
+        function showAppleState(apple, state) {
             resetMoles();
-            mole.classList.add('active');
-            if (state === 'dizzy') {
-                mole.classList.add('dizzy');
-                const stars = mole.querySelector('.stars');
+            if (state === 'good') {
+                apple.classList.add('cut-good');
+                const stars = apple.querySelector('.stars');
                 if (stars) stars.style.display = 'block';
-                const pupils = mole.querySelectorAll('.eye .pupil');
-                pupils.forEach(el => el.style.display = 'none');
-                const eyes = mole.querySelectorAll('.eye');
-                eyes.forEach(el => {
-                    el.style.background = 'transparent';
-                    el.style.boxShadow = 'none';
-                    el.style.border = '3px solid #4a3a2a';
-                    el.style.borderRadius = '50%';
-                    el.style.width = '22px';
-                    el.style.height = '22px';
-                });
-                const mouth = mole.querySelector('.mole-mouth');
-                if (mouth) {
-                    mouth.style.border = '3px solid #4a2a1a';
-                    mouth.style.borderRadius = '50%';
-                    mouth.style.borderTop = 'none';
-                    mouth.style.background = '#2a1a0a';
-                    mouth.style.width = '24px';
-                    mouth.style.height = '14px';
-                    mouth.style.transform = '';
-                }
-            } else if (state === 'laugh') {
-                mole.classList.add('laugh');
-                const pupils = mole.querySelectorAll('.eye .pupil');
-                pupils.forEach(el => el.style.display = 'none');
-                const eyes = mole.querySelectorAll('.eye');
-                eyes.forEach(el => {
-                    el.style.background = 'transparent';
-                    el.style.boxShadow = 'none';
-                    el.style.border = 'none';
-                    el.style.borderBottom = '4px solid #4a3a2a';
-                    el.style.borderRadius = '0';
-                    el.style.width = '24px';
-                    el.style.height = '10px';
-                    el.style.transform = 'translateY(8px)';
-                });
-                const mouth = mole.querySelector('.mole-mouth');
-                if (mouth) {
-                    mouth.style.border = 'none';
-                    mouth.style.borderBottom = '4px solid #4a2a1a';
-                    mouth.style.borderRadius = '0 0 12px 12px';
-                    mouth.style.width = '28px';
-                    mouth.style.height = '12px';
-                    mouth.style.transform = 'translateX(4px) rotate(-6deg)';
-                    mouth.style.background = 'transparent';
-                }
-                const nose = mole.querySelector('.mole-nose');
-                if (nose) nose.style.opacity = '0.6';
+            } else if (state === 'bad') {
+                apple.classList.add('cut-bad');
             }
         }
 
@@ -1437,31 +1298,32 @@
             wrapperCorrect.classList.add('disabled');
             wrapperWrong.classList.add('disabled');
 
-            const targetMole = correct === '对' ? moleCorrect : moleWrong;
+            const correctApple = correct === '对' ? appleCorrect : appleWrong;
+            const wrongApple = correct === '对' ? appleWrong : appleCorrect;
 
             if (isCorrect) {
-                placeMoleState(targetMole, 'dizzy');
-                cornCount++;
-                cornCountEl.textContent = cornCount;
-                const container = targetMole.closest('.hole-container');
+                const gain = randInt(5, 15);
+                showAppleState(correctApple, 'good');
+                cornCount += gain;
+                cornCountEl.textContent = cornCount + '分';
+                const container = correctApple.closest('.hole-container');
                 spawnCornFly(container);
-                qHint.innerHTML = `<span style="color:#4ade80;">🎉 答对了！ +1 🌽</span>`;
+                qHint.innerHTML = `<span style="color:#4ade80;">🎉 答对了！ +${gain} 分</span>`;
             } else {
-                placeMoleState(targetMole, 'laugh');
+                const loss = randInt(3, 10);
+                showAppleState(wrongApple, 'bad');
+                setTimeout(() => showAppleState(correctApple, 'good'), 600);
+                cornCount -= loss;
+                cornCountEl.textContent = cornCount + '分';
                 qHint.innerHTML = `
-                    <span style="color:#f87171;">😅 正确答案是 "<strong>${correct}</strong>"</span>
+                    <span style="color:#f87171;">😅 答错了！ -${loss} 分　正确答案是 "<strong>${correct}</strong>"</span>
                     <span style="display:block;margin-top:6px;color:#c8d6e5;font-size:14px;line-height:1.5;">💡 解析：${data.explain}</span>
                 `;
             }
 
-            setTimeout(() => {
-                currentIndex++;
-                if (currentIndex < shuffledQuestions.length) {
-                    loadQuestion(currentIndex);
-                } else {
-                    endGame();
-                }
-            }, isCorrect ? 1800 : 2500);
+            const isLast = (currentIndex + 1 >= shuffledQuestions.length);
+            nextBtn.textContent = isLast ? '查看结果 🏁' : '下一题 →';
+            nextBtn.style.display = 'block';
         }
 
         function handleTimeout() {
@@ -1478,21 +1340,27 @@
             wrapperCorrect.classList.add('disabled');
             wrapperWrong.classList.add('disabled');
 
-            const targetMole = correct === '对' ? moleCorrect : moleWrong;
-            placeMoleState(targetMole, 'laugh');
+            const correctApple = correct === '对' ? appleCorrect : appleWrong;
+            showAppleState(correctApple, 'good');
             qHint.innerHTML = `
                 <span style="color:#f87171;">⏰ 时间到！正确答案是 "<strong>${correct}</strong>"</span>
                 <span style="display:block;margin-top:6px;color:#c8d6e5;font-size:14px;line-height:1.5;">💡 解析：${data.explain}</span>
             `;
 
-            setTimeout(() => {
-                currentIndex++;
-                if (currentIndex < shuffledQuestions.length) {
-                    loadQuestion(currentIndex);
-                } else {
-                    endGame();
-                }
-            }, 2500);
+            const isLast = (currentIndex + 1 >= shuffledQuestions.length);
+            nextBtn.textContent = isLast ? '查看结果 🏁' : '下一题 →';
+            nextBtn.style.display = 'block';
+        }
+
+        function goNext() {
+            if (nextBtn.style.display === 'none') return;
+            nextBtn.style.display = 'none';
+            currentIndex++;
+            if (currentIndex < shuffledQuestions.length) {
+                loadQuestion(currentIndex);
+            } else {
+                endGame();
+            }
         }
 
         /* ================================================================
@@ -1500,23 +1368,22 @@
            ================================================================ */
         function endGame() {
             stopTimer();
-            stopAlternatingMoles();
             isGameActive = false;
             isAnswering = true;
             resetMoles();
             wrapperCorrect.classList.add('disabled');
             wrapperWrong.classList.add('disabled');
 
-            finalCornCount.textContent = cornCount;
+            finalCornCount.textContent = cornCount + '分';
             const total = shuffledQuestions.length;
-            finalDetail.textContent = `🌽 共 ${total} 题，获得 ${cornCount} 个玉米`;
+            finalDetail.textContent = `共 ${total} 题，获得 ${cornCount} 分`;
             resultOverlay.classList.add('show');
         }
 
         function restartGame() {
             resultOverlay.classList.remove('show');
             cornCount = 0;
-            cornCountEl.textContent = '0';
+            cornCountEl.textContent = '0分';
             currentIndex = 0;
             initQuestions();
             resetMoles();
@@ -1525,7 +1392,6 @@
             isAnswering = false;
             isGameActive = false;
             stopTimer();
-            stopAlternatingMoles();
             timerDisplay.textContent = '30';
             timerDisplay.classList.remove('warning');
             loadQuestion(0);
@@ -1538,7 +1404,7 @@
             const rect = anchorEl.getBoundingClientRect();
             const el = document.createElement('div');
             el.className = 'corn-fly';
-            el.textContent = '🌽';
+            el.textContent = '⭐';
             el.style.left = (rect.left + rect.width / 2 - 24) + 'px';
             el.style.top = (rect.top - 20) + 'px';
             document.body.appendChild(el);
