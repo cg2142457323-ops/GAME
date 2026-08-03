@@ -2,110 +2,139 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>热力学熵变计算器</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes" />
+    <title>化学反应熵变计算器</title>
 
-    <!-- 仅依赖 Chart.js 核心库，移除不稳定的注解插件 -->
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
     </script>
 
     <style>
-        /* ── 全局样式 ── */
+        /* ── 全局重置 ── */
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
+
         body {
             background: #f0f4f8;
-            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
-            padding: 24px;
+            font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+            padding: 16px;
             color: #1e293b;
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
         }
+
         .app-container {
             max-width: 1300px;
+            width: 100%;
             margin: 0 auto;
             background: #ffffff;
             border-radius: 24px;
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
-            padding: 28px 32px 36px;
+            padding: 20px 24px 32px;
         }
 
         /* ── 标题 ── */
         .app-header {
             display: flex;
+            flex-wrap: wrap;
             align-items: center;
-            gap: 10px;
+            gap: 8px 12px;
             border-bottom: 2px solid #e9eef3;
-            padding-bottom: 16px;
-            margin-bottom: 24px;
+            padding-bottom: 14px;
+            margin-bottom: 20px;
         }
         .app-header h1 {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 600;
             letter-spacing: 0.3px;
             color: #0b2b4a;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
         .app-header .badge {
             background: #d0e2f2;
             color: #1a4b6d;
-            font-size: 13px;
-            padding: 4px 14px;
+            font-size: 12px;
+            padding: 3px 14px;
             border-radius: 30px;
             font-weight: 500;
-            margin-left: 8px;
+            white-space: nowrap;
         }
 
-        /* ── 输入行 ── */
-        .input-row {
+        /* ── 选择行 ── */
+        .selector-row {
             display: flex;
             flex-wrap: wrap;
-            gap: 16px 24px;
+            gap: 12px 18px;
             align-items: flex-end;
             background: #f8fafc;
-            padding: 20px 24px;
+            padding: 16px 20px;
             border-radius: 16px;
-            margin-bottom: 20px;
+            margin-bottom: 18px;
         }
-        .input-group {
+        .sel-group {
             display: flex;
             flex-direction: column;
-            flex: 1 1 160px;
-            min-width: 140px;
+            flex: 1 1 150px;
+            min-width: 120px;
         }
-        .input-group label {
+        .sel-group label {
             font-size: 13px;
             font-weight: 600;
             color: #475569;
             margin-bottom: 4px;
         }
-        .input-group input {
-            padding: 10px 14px;
+        .sel-group select,
+        .sel-group input {
+            padding: 9px 12px;
             border: 1.5px solid #d1d9e6;
             border-radius: 10px;
             font-size: 15px;
             background: #fff;
             transition: border 0.2s;
             width: 100%;
+            appearance: auto;
+            -webkit-appearance: auto;
         }
-        .input-group input:focus {
+        .sel-group select:focus,
+        .sel-group input:focus {
             outline: none;
             border-color: #2a7de1;
-            box-shadow: 0 0 0 3px rgba(42, 125, 225, 0.15);
+            box-shadow: 0 0 0 3px rgba(42, 125, 225, 0.12);
+        }
+        .sel-group select {
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 36px;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            flex: 0 0 auto;
         }
         .btn-calc {
             background: #1a5f9e;
             color: #fff;
             border: none;
-            padding: 10px 32px;
+            padding: 9px 28px;
             border-radius: 10px;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
             transition: background 0.2s, transform 0.1s;
-            flex: 0 0 auto;
             height: 44px;
-            align-self: flex-end;
+            white-space: nowrap;
         }
         .btn-calc:hover {
             background: #134a7a;
@@ -113,22 +142,24 @@
         .btn-calc:active {
             transform: scale(0.97);
         }
+        .btn-calc:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
 
-        /* ── 退出按钮样式（修改为返回游戏） ── */
         .btn-exit {
             background: #6b7280;
             color: #fff;
             border: none;
-            padding: 10px 24px;
+            padding: 9px 20px;
             border-radius: 10px;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
             transition: background 0.2s, transform 0.1s;
-            flex: 0 0 auto;
             height: 44px;
-            align-self: flex-end;
-            margin-left: 4px;
+            white-space: nowrap;
         }
         .btn-exit:hover {
             background: #4b5563;
@@ -137,19 +168,57 @@
             transform: scale(0.97);
         }
 
+        /* ── 反应信息卡 ── */
+        .reaction-info {
+            background: #f8fafc;
+            border-radius: 14px;
+            padding: 16px 20px;
+            margin-bottom: 18px;
+            border-left: 5px solid #2a7de1;
+            min-height: 70px;
+            transition: all 0.2s;
+        }
+        .reaction-info .eq {
+            font-size: 17px;
+            font-weight: 600;
+            color: #0b2b4a;
+            margin-bottom: 4px;
+            font-family: 'Courier New', monospace;
+        }
+        .reaction-info .desc {
+            font-size: 14px;
+            color: #334155;
+            line-height: 1.6;
+        }
+        .reaction-info .prod-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #475569;
+            margin-top: 6px;
+        }
+        .reaction-info .prod-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a4b6d;
+        }
+        .reaction-info .placeholder {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
         /* ── 结果卡片 ── */
         .result-cards {
             display: flex;
             flex-wrap: wrap;
-            gap: 14px;
-            margin-bottom: 24px;
+            gap: 12px;
+            margin-bottom: 18px;
         }
         .result-card {
-            flex: 1 1 180px;
+            flex: 1 1 160px;
             background: #f8fafc;
             border-radius: 14px;
-            padding: 14px 20px;
-            border-left: 5px solid #2a7de1;
+            padding: 12px 18px;
+            border-left: 5px solid #2563eb;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
         }
         .result-card .label {
@@ -165,7 +234,7 @@
             font-family: 'Courier New', monospace;
         }
         .result-card .unit {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 400;
             color: #64748b;
         }
@@ -179,17 +248,19 @@
             border-left-color: #1e293b;
         }
 
-        /* ── 消息 ── */
+        /* ── 消息栏 ── */
         .msg-bar {
-            padding: 10px 18px;
+            padding: 10px 16px;
             border-radius: 12px;
             font-size: 14px;
-            margin-bottom: 20px;
+            margin-bottom: 18px;
             background: #f1f5f9;
             color: #334155;
-            min-height: 44px;
+            min-height: 42px;
             display: flex;
             align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
         }
         .msg-bar.success {
             background: #e6f7e6;
@@ -204,18 +275,114 @@
             color: #1a4b6d;
         }
 
+        /* ── 计算思路 (动态展示数值) ── */
+        .theory-box {
+            background: #fafcfe;
+            border: 1px solid #e9edf2;
+            border-radius: 14px;
+            padding: 16px 20px;
+            margin-bottom: 18px;
+        }
+        .theory-box h3 {
+            font-size: 15px;
+            font-weight: 600;
+            color: #0b2b4a;
+            margin-bottom: 8px;
+        }
+        .theory-box .step {
+            margin: 6px 0;
+            padding: 6px 0;
+            border-bottom: 1px dashed #e9edf2;
+        }
+        .theory-box .step:last-child {
+            border-bottom: none;
+        }
+        .theory-box .formula {
+            font-family: 'Courier New', monospace;
+            background: #f1f5f9;
+            padding: 4px 12px;
+            border-radius: 6px;
+            display: inline-block;
+            margin: 2px 0;
+            font-size: 14px;
+        }
+        .theory-box .calc-value {
+            font-family: 'Courier New', monospace;
+            color: #0b2b4a;
+            font-weight: 600;
+            font-size: 14px;
+            margin-left: 4px;
+        }
+        .theory-box .highlight {
+            background: #fef9c3;
+            padding: 0 6px;
+            border-radius: 4px;
+        }
+        .theory-box .key-conclusion {
+            background: #e6f0fa;
+            padding: 10px 14px;
+            border-radius: 8px;
+            margin-top: 10px;
+            border-left: 4px solid #2a7de1;
+            font-weight: 500;
+        }
+        .theory-box .key-conclusion .spontaneous {
+            color: #0a6b3a;
+            font-weight: 700;
+        }
+        .theory-box .key-conclusion .non-spontaneous {
+            color: #b91c1c;
+            font-weight: 700;
+        }
+
+        /* ── 表格 ── */
+        .table-wrap {
+            overflow-x: auto;
+            margin-bottom: 18px;
+            border-radius: 12px;
+            border: 1px solid #e9edf2;
+        }
+        .table-wrap table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            min-width: 420px;
+        }
+        .table-wrap th {
+            background: #f1f5f9;
+            color: #1e293b;
+            font-weight: 600;
+            padding: 10px 14px;
+            text-align: center;
+            border-bottom: 2px solid #d1d9e6;
+        }
+        .table-wrap td {
+            padding: 8px 14px;
+            text-align: center;
+            border-bottom: 1px solid #e9edf2;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+        .table-wrap tr:hover td {
+            background: #f8fafc;
+        }
+        .table-wrap .highlight-row td {
+            background: #e6f0fa;
+            font-weight: 600;
+            border-bottom: 2px solid #2a7de1;
+        }
+
         /* ── 图表区 ── */
         .charts-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            margin-top: 6px;
+            gap: 16px;
+            margin-top: 4px;
         }
         .chart-box {
             background: #fafcfe;
-            border-radius: 16px;
-            padding: 16px 12px 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border-radius: 14px;
+            padding: 12px 10px 6px;
             border: 1px solid #e9edf2;
         }
         .chart-box h3 {
@@ -223,12 +390,12 @@
             font-weight: 600;
             color: #1e293b;
             text-align: center;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
         .chart-box canvas {
             width: 100% !important;
             height: auto !important;
-            max-height: 240px;
+            max-height: 200px;
         }
 
         /* ── 模态框 ── */
@@ -248,9 +415,9 @@
         .modal-box {
             background: #fff;
             border-radius: 20px;
-            padding: 28px 34px 24px;
-            max-width: 420px;
-            width: 90%;
+            padding: 24px 28px 20px;
+            max-width: 400px;
+            width: 92%;
             box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
             animation: modalIn 0.2s ease;
         }
@@ -268,15 +435,15 @@
             font-size: 18px;
             font-weight: 600;
             color: #0b2b4a;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
         .modal-box .sub {
             color: #64748b;
             font-size: 14px;
-            margin-bottom: 18px;
+            margin-bottom: 14px;
         }
         .modal-box .field {
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
         .modal-box .field label {
             display: block;
@@ -299,15 +466,15 @@
         }
         .modal-actions {
             display: flex;
-            gap: 12px;
-            margin-top: 20px;
+            gap: 10px;
+            margin-top: 16px;
             justify-content: flex-end;
         }
         .modal-actions button {
-            padding: 8px 28px;
+            padding: 8px 24px;
             border-radius: 10px;
             border: none;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 500;
             cursor: pointer;
             transition: background 0.2s;
@@ -328,36 +495,126 @@
         }
 
         /* ── 响应式 ── */
-        @media (max-width: 820px) {
+        @media (max-width: 900px) {
             .charts-grid {
                 grid-template-columns: 1fr 1fr;
             }
             .app-container {
-                padding: 18px 16px;
-            }
-            .input-row {
                 padding: 16px;
             }
-        }
-        @media (max-width: 520px) {
-            .charts-grid {
-                grid-template-columns: 1fr;
+            .selector-row {
+                padding: 14px 16px;
             }
             .result-cards {
-                flex-direction: column;
+                flex-direction: row;
             }
-            .input-row {
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 8px;
+            }
+            .app-container {
+                padding: 12px 10px 20px;
+                border-radius: 16px;
+            }
+            .app-header h1 {
+                font-size: 18px;
+            }
+            .app-header .badge {
+                font-size: 11px;
+                padding: 2px 10px;
+            }
+            .selector-row {
                 flex-direction: column;
-                align-items: stretch;
+                gap: 10px;
+                padding: 12px 14px;
+            }
+            .sel-group {
+                flex: 1 1 auto;
+                min-width: 0;
+                width: 100%;
+            }
+            .btn-group {
+                flex-wrap: wrap;
+                width: 100%;
             }
             .btn-calc,
             .btn-exit {
-                align-self: stretch;
-                margin-left: 0;
-                margin-top: 6px;
+                flex: 1 1 auto;
+                justify-content: center;
+                text-align: center;
+                padding: 9px 12px;
+                font-size: 14px;
+                height: 42px;
             }
+            .result-cards {
+                flex-direction: column;
+                gap: 8px;
+            }
+            .result-card {
+                flex: 1 1 auto;
+                padding: 10px 14px;
+            }
+            .result-card .value {
+                font-size: 18px;
+            }
+            .charts-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            .chart-box canvas {
+                max-height: 160px;
+            }
+            .reaction-info {
+                padding: 12px 14px;
+            }
+            .reaction-info .eq {
+                font-size: 15px;
+            }
+            .theory-box {
+                padding: 12px 14px;
+            }
+            .table-wrap table {
+                font-size: 12px;
+                min-width: 320px;
+            }
+            .table-wrap th,
+            .table-wrap td {
+                padding: 6px 10px;
+            }
+            .modal-box {
+                padding: 18px 16px 16px;
+            }
+        }
+
+        @media (max-width: 400px) {
             .app-header h1 {
-                font-size: 19px;
+                font-size: 16px;
+            }
+            .app-header .badge {
+                font-size: 10px;
+                padding: 2px 8px;
+            }
+            .selector-row {
+                padding: 10px 12px;
+            }
+            .sel-group select,
+            .sel-group input {
+                font-size: 14px;
+                padding: 8px 10px;
+            }
+            .btn-calc,
+            .btn-exit {
+                font-size: 13px;
+                padding: 8px 10px;
+                height: 38px;
+            }
+            .result-card .value {
+                font-size: 16px;
+            }
+            .reaction-info .eq {
+                font-size: 14px;
             }
         }
     </style>
@@ -367,28 +624,37 @@
     <div class="app-container">
         <!-- 标题 -->
         <div class="app-header">
-            <h1>⚡ 热力学熵变计算器</h1>
-            <span class="badge">集成数据库 · 43种化合物</span>
+            <h1>🧪 化学反应熵变计算器</h1>
+            <span class="badge">15 组反应 · 智能匹配</span>
         </div>
 
-        <!-- 输入区域 -->
-        <div class="input-row">
-            <div class="input-group">
-                <label>反应物</label>
-                <input id="reactants" value="CaCO3" placeholder="如 CaCO3,CaO" />
+        <!-- 选择行 -->
+        <div class="selector-row">
+            <div class="sel-group">
+                <label>反应物 A</label>
+                <select id="selA">
+                    <option value="">请选择反应物质</option>
+                </select>
             </div>
-            <div class="input-group">
-                <label>生成物</label>
-                <input id="products" value="CaO,CO2" placeholder="如 CaO,CO2" />
+            <div class="sel-group">
+                <label>反应物 B</label>
+                <select id="selB">
+                    <option value="">请先选择反应物A</option>
+                </select>
             </div>
-            <div class="input-group" style="flex:0 0 130px;">
+            <div class="sel-group" style="flex:0 0 140px; min-width:110px;">
                 <label>温度 T (K) ≥ 273.15</label>
-                <input id="temperature" value="1200" type="number" step="1" min="273.15" />
+                <input id="temperature" type="number" step="1" min="273.15" value="1200" />
             </div>
-            <div style="display: flex; align-items: center;">
-                <button class="btn-calc" id="calcBtn">🔬 计算并绘图</button>
+            <div class="btn-group">
+                <button class="btn-calc" id="calcBtn">⚡ 计算熵变</button>
                 <button class="btn-exit" id="exitBtn">🏠 返回游戏</button>
             </div>
+        </div>
+
+        <!-- 反应信息 -->
+        <div class="reaction-info" id="reactionInfo">
+            <div class="placeholder">👆 请选择反应物 A 和 B，系统将自动匹配化学反应</div>
         </div>
 
         <!-- 结果卡片 -->
@@ -411,7 +677,33 @@
         </div>
 
         <!-- 消息栏 -->
-        <div class="msg-bar info" id="msgBar">💡 输入化合物名称，点击「计算并绘图」查看结果</div>
+        <div class="msg-bar info" id="msgBar">💡 选择反应物后点击「计算熵变」查看结果</div>
+
+        <!-- 计算思路 (动态展示数值) -->
+        <div class="theory-box" id="theoryBox">
+            <h3>📖 熵变计算思路</h3>
+            <p style="margin-bottom:10px;">将“反应系统”与“周围环境”组合成孤立系统（宇宙），利用熵增原理判断反应自发性。</p>
+            <div id="theoryContent">
+                <p style="color:#94a3b8;">请选择反应并点击「计算熵变」查看详细计算过程。</p>
+            </div>
+        </div>
+
+        <!-- 表格 -->
+        <div class="table-wrap" id="tableWrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>T (K)</th>
+                        <th>ΔS<sub>系</sub> (J·mol⁻¹·K⁻¹)</th>
+                        <th>ΔS<sub>环</sub> (J·mol⁻¹·K⁻¹)</th>
+                        <th>ΔS<sub>总</sub> (J·mol⁻¹·K⁻¹)</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <tr><td colspan="4" style="color:#94a3b8; font-family:inherit;">— 请先选择反应并计算 —</td></tr>
+                </tbody>
+            </table>
+        </div>
 
         <!-- 图表区 -->
         <div class="charts-grid">
@@ -434,7 +726,7 @@
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal-box">
             <h2 id="modalTitle">🧪 补充化合物数据</h2>
-            <div class="sub" id="modalSub">请输入该化合物的热力学参数</div>
+            <div class="sub" id="modalSub">请输入该物质的热力学参数</div>
             <div class="field">
                 <label>标准熵 S° (J/(mol·K))</label>
                 <input id="modalS" type="number" step="any" value="0" />
@@ -456,12 +748,12 @@
 
     <script>
         // ======================================================================
-        //  1. 化合物数据库 (与 MATLAB 完全一致)
+        //  1. 物质数据库
         // ======================================================================
         const RAW_DATA = [
-            "CaCO3 91.7 -1207.6 83.5",
-            "CaO 38.1 -634.9 42.0",
-            "CO2 213.8 -393.5 37.1",
+            "CaCO3 92.9 -1207.6 83.5",
+            "CaO 39.75 -634.9 42.0",
+            "CO2 213.74 -393.5 37.1",
             "H2O 70.0 -285.8 75.3",
             "H2O(g) 188.8 -241.8 33.6",
             "O2 205.2 0 29.4",
@@ -502,10 +794,14 @@
             "HNO3 155.6 -174.1 109.9",
             "H2SO4 156.9 -814.0 138.9",
             "CH4 186.3 -74.8 35.3",
-            "C2H6 229.6 -84.7 52.6"
+            "C2H6 229.6 -84.7 52.6",
+            "HCl 186.9 -92.3 29.1",
+            "Zn 41.6 0 25.4",
+            "ZnCl2 111.5 -415.1 71.3",
+            "AgNO3 140.9 -124.4 94.1",
+            "NaNO3 116.9 -467.9 92.9"
         ];
 
-        // 构建数据库 Map: name -> { S, Hf, Cp }
         const compDB = new Map();
         for (const line of RAW_DATA) {
             const parts = line.trim().split(/\s+/);
@@ -515,7 +811,6 @@
             const Hf = parseFloat(parts[2]);
             const Cp = parseFloat(parts[3]);
             compDB.set(name, { S, Hf, Cp });
-            // 兼容处理：若名称带 (g) / (l)，同时存一份无后缀版本
             if (name.includes('(')) {
                 const clean = name.replace(/\([gl]\)/g, '').trim();
                 if (clean && !compDB.has(clean)) {
@@ -524,129 +819,447 @@
             }
         }
 
-        // 临时用户补充数据 (会话级)
+        // 用户临时补充数据
         const userDB = new Map();
 
         // ======================================================================
-        //  2. DOM 引用
+        //  2. 化学反应数据库
         // ======================================================================
-        const elReact = document.getElementById('reactants');
-        const elProd = document.getElementById('products');
-        const elTemp = document.getElementById('temperature');
-        const elCalc = document.getElementById('calcBtn');
-        const elExit = document.getElementById('exitBtn');
-        const elMsg = document.getElementById('msgBar');
-        const elResSys = document.getElementById('resSys');
-        const elResSurr = document.getElementById('resSurr');
-        const elResTotal = document.getElementById('resTotal');
-
-        // 三个 canvas
-        const canvasSys = document.getElementById('chartSys');
-        const canvasSurr = document.getElementById('chartSurr');
-        const canvasTotal = document.getElementById('chartTotal');
-
-        // 模态框
-        const modalOverlay = document.getElementById('modalOverlay');
-        const modalTitle = document.getElementById('modalTitle');
-        const modalSub = document.getElementById('modalSub');
-        const modalS = document.getElementById('modalS');
-        const modalHf = document.getElementById('modalHf');
-        const modalCp = document.getElementById('modalCp');
-        const modalConfirm = document.getElementById('modalConfirm');
-        const modalCancel = document.getElementById('modalCancel');
+        const REACTIONS = [{
+            id: 1,
+            reactantA: 'NaOH',
+            reactantB: 'HCl',
+            products: [{ name: 'NaCl', coeff: 1 }, { name: 'H2O', coeff: 1 }],
+            equation: 'NaOH + HCl → NaCl + H₂O',
+            description: '强酸与强碱的中和反应，放出大量热。'
+        }, {
+            id: 2,
+            reactantA: 'NaOH',
+            reactantB: 'CO2',
+            products: [{ name: 'Na2CO3', coeff: 1 }, { name: 'H2O', coeff: 1 }],
+            equation: '2NaOH + CO₂ → Na₂CO₃ + H₂O',
+            description: '氢氧化钠吸收二氧化碳，用于去除CO₂气体。'
+        }, {
+            id: 3,
+            reactantA: 'CaO',
+            reactantB: 'CO2',
+            products: [{ name: 'CaCO3', coeff: 1 }],
+            equation: 'CaO + CO₂ → CaCO₃',
+            description: '生石灰吸收二氧化碳生成碳酸钙。'
+        }, {
+            id: 4,
+            reactantA: 'CaO',
+            reactantB: 'H2O',
+            products: [{ name: 'Ca(OH)2', coeff: 1 }],
+            equation: 'CaO + H₂O → Ca(OH)₂',
+            description: '生石灰与水反应生成熟石灰，放出大量热。'
+        }, {
+            id: 5,
+            reactantA: 'Zn',
+            reactantB: 'HCl',
+            products: [{ name: 'ZnCl2', coeff: 1 }, { name: 'H2', coeff: 1 }],
+            equation: 'Zn + 2HCl → ZnCl₂ + H₂↑',
+            description: '锌与盐酸反应生成氯化锌和氢气。'
+        }, {
+            id: 6,
+            reactantA: 'Zn',
+            reactantB: 'Cl2',
+            products: [{ name: 'ZnCl2', coeff: 1 }],
+            equation: 'Zn + Cl₂ → ZnCl₂',
+            description: '锌在氯气中燃烧生成氯化锌。'
+        }, {
+            id: 7,
+            reactantA: 'CH4',
+            reactantB: 'O2',
+            products: [{ name: 'CO2', coeff: 1 }, { name: 'H2O(g)', coeff: 2 }],
+            equation: 'CH₄ + 2O₂ → CO₂ + 2H₂O(g)',
+            description: '甲烷完全燃烧，用于供热和发电。'
+        }, {
+            id: 8,
+            reactantA: 'C',
+            reactantB: 'O2',
+            products: [{ name: 'CO2', coeff: 1 }],
+            equation: 'C + O₂ → CO₂',
+            description: '碳在足量氧气中完全燃烧生成二氧化碳。'
+        }, {
+            id: 9,
+            reactantA: 'CO',
+            reactantB: 'O2',
+            products: [{ name: 'CO2', coeff: 2 }],
+            equation: '2CO + O₂ → 2CO₂',
+            description: '一氧化碳燃烧生成二氧化碳。'
+        }, {
+            id: 10,
+            reactantA: 'N2',
+            reactantB: 'H2',
+            products: [{ name: 'NH3', coeff: 2 }],
+            equation: 'N₂ + 3H₂ ⇌ 2NH₃',
+            description: '合成氨反应，工业制氨的核心反应。'
+        }, {
+            id: 11,
+            reactantA: 'SO2',
+            reactantB: 'O2',
+            products: [{ name: 'SO3', coeff: 2 }],
+            equation: '2SO₂ + O₂ → 2SO₃',
+            description: '二氧化硫氧化生成三氧化硫，硫酸工业关键反应。'
+        }, {
+            id: 12,
+            reactantA: 'AgNO3',
+            reactantB: 'NaCl',
+            products: [{ name: 'AgCl', coeff: 1 }, { name: 'NaNO3', coeff: 1 }],
+            equation: 'AgNO₃ + NaCl → AgCl↓ + NaNO₃',
+            description: '硝酸银与氯化钠反应生成氯化银白色沉淀。'
+        }, {
+            id: 13,
+            reactantA: 'Na2CO3',
+            reactantB: 'HCl',
+            products: [{ name: 'NaCl', coeff: 2 }, { name: 'CO2', coeff: 1 }, { name: 'H2O', coeff: 1 }],
+            equation: 'Na₂CO₃ + 2HCl → 2NaCl + CO₂↑ + H₂O',
+            description: '碳酸钠与盐酸反应放出二氧化碳气体。'
+        }, {
+            id: 14,
+            reactantA: 'CaCO3',
+            reactantB: '（无）',
+            products: [{ name: 'CaO', coeff: 1 }, { name: 'CO2', coeff: 1 }],
+            equation: 'CaCO₃ → CaO + CO₂↑',
+            description: '石灰石高温分解生成生石灰和二氧化碳。'
+        }, {
+            id: 15,
+            reactantA: 'H2O',
+            reactantB: '（无）',
+            products: [{ name: 'H2', coeff: 1 }, { name: 'O2', coeff: 0.5 }],
+            equation: '2H₂O → 2H₂↑ + O₂↑',
+            description: '水的电解分解，制取氢气和氧气。'
+        }];
 
         // ======================================================================
-        //  3. 图表实例缓存
+        //  3. 辅助函数
         // ======================================================================
-        let chartSys = null;
-        let chartSurr = null;
-        let chartTotal = null;
+        function getAllSubstances() {
+            const set = new Set();
+            for (const r of REACTIONS) {
+                set.add(r.reactantA);
+                if (r.reactantB !== '（无）') set.add(r.reactantB);
+                for (const p of r.products) set.add(p.name);
+            }
+            return Array.from(set).sort();
+        }
+
+        function getBoptions(A) {
+            const list = [];
+            for (const r of REACTIONS) {
+                if (r.reactantA === A && r.reactantB === '（无）') {
+                    if (!list.includes('（无）')) list.push('（无）');
+                }
+                if (r.reactantA === A && r.reactantB !== '（无）') {
+                    if (!list.includes(r.reactantB)) list.push(r.reactantB);
+                }
+                if (r.reactantB === A && r.reactantB !== '（无）') {
+                    if (!list.includes(r.reactantA)) list.push(r.reactantA);
+                }
+            }
+            if (list.length === 0) {
+                for (const r of REACTIONS) {
+                    if (r.reactantA === A && r.reactantB === '（无）') {
+                        list.push('（无）');
+                        break;
+                    }
+                }
+            }
+            return list.sort();
+        }
+
+        function findReaction(A, B) {
+            for (const r of REACTIONS) {
+                if (B === '（无）') {
+                    if (r.reactantA === A && r.reactantB === '（无）') {
+                        return r;
+                    }
+                } else {
+                    if ((r.reactantA === A && r.reactantB === B) ||
+                        (r.reactantA === B && r.reactantB === A)) {
+                        return r;
+                    }
+                }
+            }
+            return null;
+        }
 
         // ======================================================================
-        //  4. 核心函数：获取化合物数据 (支持弹窗补充)
+        //  4. 获取化合物数据 (支持弹窗)
         // ======================================================================
         function getCompoundData(name) {
-            // 1) 内置数据库
-            if (compDB.has(name)) {
-                return compDB.get(name);
-            }
-            // 2) 用户临时补充
-            if (userDB.has(name)) {
-                return userDB.get(name);
-            }
-            // 3) 弹窗询问
+            if (compDB.has(name)) return compDB.get(name);
+            if (userDB.has(name)) return userDB.get(name);
             return new Promise((resolve, reject) => {
-                // 显示模态框
-                modalTitle.textContent = `🧪 补充化合物: ${name}`;
-                modalSub.textContent = `未找到 "${name}" 的热力学数据，请手动输入：`;
-                modalS.value = '0';
-                modalHf.value = '0';
-                modalCp.value = '0';
-                modalOverlay.classList.add('active');
+                const overlay = document.getElementById('modalOverlay');
+                const title = document.getElementById('modalTitle');
+                const sub = document.getElementById('modalSub');
+                const sInput = document.getElementById('modalS');
+                const hfInput = document.getElementById('modalHf');
+                const cpInput = document.getElementById('modalCp');
+                const confirmBtn = document.getElementById('modalConfirm');
+                const cancelBtn = document.getElementById('modalCancel');
 
-                // 清除旧监听，避免重复
+                title.textContent = `🧪 补充物质: ${name}`;
+                sub.textContent = `未找到 "${name}" 的热力学数据，请手动输入：`;
+                sInput.value = '0';
+                hfInput.value = '0';
+                cpInput.value = '0';
+                overlay.classList.add('active');
+
                 const onConfirm = () => {
-                    const S = parseFloat(modalS.value);
-                    const Hf = parseFloat(modalHf.value);
-                    const Cp = parseFloat(modalCp.value);
+                    const S = parseFloat(sInput.value);
+                    const Hf = parseFloat(hfInput.value);
+                    const Cp = parseFloat(cpInput.value);
                     if (isNaN(S) || isNaN(Hf) || isNaN(Cp)) {
                         alert('请输入有效的数字！');
                         return;
                     }
                     const data = { S, Hf, Cp };
                     userDB.set(name, data);
-                    modalOverlay.classList.remove('active');
+                    overlay.classList.remove('active');
+                    cleanup();
                     resolve(data);
                 };
                 const onCancel = () => {
-                    modalOverlay.classList.remove('active');
-                    reject(new Error(`用户取消了化合物 "${name}" 的数据输入`));
+                    overlay.classList.remove('active');
+                    cleanup();
+                    reject(new Error(`用户取消了 "${name}" 的数据输入`));
                 };
-
-                // 挂载一次性监听
-                const confirmHandler = () => { onConfirm(); };
-                const cancelHandler = () => { onCancel(); };
-                modalConfirm.onclick = confirmHandler;
-                modalCancel.onclick = cancelHandler;
-                // 点击背景关闭 = 取消
-                modalOverlay.onclick = (e) => {
-                    if (e.target === modalOverlay) onCancel();
-                };
-                // Enter 键确认
-                const keyHandler = (e) => {
-                    if (e.key === 'Enter') onConfirm();
-                };
-                document.addEventListener('keydown', keyHandler);
-                // 清理 (当模态框关闭时)
                 const cleanup = () => {
-                    modalConfirm.onclick = null;
-                    modalCancel.onclick = null;
-                    modalOverlay.onclick = null;
+                    confirmBtn.onclick = null;
+                    cancelBtn.onclick = null;
+                    overlay.onclick = null;
                     document.removeEventListener('keydown', keyHandler);
                 };
-                // 在 resolve / reject 中清理
-                const origResolve = resolve;
-                const origReject = reject;
-                resolve = (val) => { cleanup();
-                    origResolve(val); };
-                reject = (err) => { cleanup();
-                    origReject(err); };
+                const keyHandler = (e) => {
+                    if (e.key === 'Enter') onConfirm();
+                    if (e.key === 'Escape') onCancel();
+                };
+                confirmBtn.onclick = onConfirm;
+                cancelBtn.onclick = onCancel;
+                overlay.onclick = (e) => { if (e.target === overlay) onCancel(); };
+                document.addEventListener('keydown', keyHandler);
             });
         }
 
         // ======================================================================
-        //  5. 计算主逻辑
+        //  5. DOM 引用
         // ======================================================================
-        async function calculate() {
-            // 读取输入
-            const reactStr = elReact.value.trim();
-            const prodStr = elProd.value.trim();
+        const selA = document.getElementById('selA');
+        const selB = document.getElementById('selB');
+        const elTemp = document.getElementById('temperature');
+        const calcBtn = document.getElementById('calcBtn');
+        const exitBtn = document.getElementById('exitBtn');
+        const msgBar = document.getElementById('msgBar');
+        const resSys = document.getElementById('resSys');
+        const resSurr = document.getElementById('resSurr');
+        const resTotal = document.getElementById('resTotal');
+        const reactionInfo = document.getElementById('reactionInfo');
+        const tableBody = document.getElementById('tableBody');
+        const canvasSys = document.getElementById('chartSys');
+        const canvasSurr = document.getElementById('chartSurr');
+        const canvasTotal = document.getElementById('chartTotal');
+        const theoryContent = document.getElementById('theoryContent');
+
+        let chartSys = null,
+            chartSurr = null,
+            chartTotal = null;
+
+        // ======================================================================
+        //  6. 初始化下拉菜单
+        // ======================================================================
+        function initSelects() {
+            const all = getAllSubstances();
+            selA.innerHTML = '<option value="">请选择反应物质</option>';
+            for (const s of all) {
+                const opt = document.createElement('option');
+                opt.value = s;
+                opt.textContent = s;
+                selA.appendChild(opt);
+            }
+            selB.innerHTML = '<option value="">请先选择反应物A</option>';
+            selB.disabled = true;
+        }
+
+        selA.addEventListener('change', function() {
+            const A = this.value;
+            if (!A) {
+                selB.innerHTML = '<option value="">请先选择反应物A</option>';
+                selB.disabled = true;
+                reactionInfo.innerHTML = `<div class="placeholder">👆 请选择反应物 A 和 B，系统将自动匹配化学反应</div>`;
+                clearResults();
+                return;
+            }
+            const options = getBoptions(A);
+            selB.innerHTML = '<option value="">请选择 —</option>';
+            for (const b of options) {
+                const opt = document.createElement('option');
+                opt.value = b;
+                opt.textContent = b;
+                selB.appendChild(opt);
+            }
+            selB.disabled = false;
+            clearResults();
+            reactionInfo.innerHTML = `<div class="placeholder">✅ 已选 A = ${A}，请选择反应物 B</div>`;
+        });
+
+        selB.addEventListener('change', function() {
+            const A = selA.value;
+            const B = this.value;
+            if (!A || !B) {
+                reactionInfo.innerHTML = `<div class="placeholder">👆 请选择反应物 A 和 B</div>`;
+                clearResults();
+                return;
+            }
+            const rxn = findReaction(A, B);
+            if (!rxn) {
+                reactionInfo.innerHTML = `<div class="placeholder">⚠️ 未找到 ${A} 与 ${B} 的匹配反应</div>`;
+                clearResults();
+                return;
+            }
+            const prodStr = rxn.products.map(p => p.name).join(' + ');
+            reactionInfo.innerHTML = `
+                <div class="eq">⚗️ ${rxn.equation}</div>
+                <div class="desc">📌 ${rxn.description}</div>
+                <div class="prod-label">🧪 产物 C：</div>
+                <div class="prod-value">${prodStr}</div>
+            `;
+            clearResults();
+            setMsg(`✅ 已匹配反应：${rxn.equation}，点击「计算熵变」查看热力学数据`, 'info');
+        });
+
+        // ======================================================================
+        //  7. 清除结果
+        // ======================================================================
+        function clearResults() {
+            resSys.textContent = '—';
+            resSurr.textContent = '—';
+            resTotal.textContent = '—';
+            tableBody.innerHTML = '<tr><td colspan="4" style="color:#94a3b8; font-family:inherit;">— 请先选择反应并计算 —</td></tr>';
+            if (chartSys) { chartSys.destroy();
+                chartSys = null; }
+            if (chartSurr) { chartSurr.destroy();
+                chartSurr = null; }
+            if (chartTotal) { chartTotal.destroy();
+                chartTotal = null; }
+            // 恢复理论部分
+            theoryContent.innerHTML = `<p style="color:#94a3b8;">请选择反应并点击「计算熵变」查看详细计算过程。</p>`;
+        }
+
+        function setMsg(text, type = 'info') {
+            msgBar.textContent = text;
+            msgBar.className = 'msg-bar ' + type;
+        }
+
+        // ======================================================================
+        //  8. 更新理论部分 (动态展示计算数值)
+        // ======================================================================
+        function updateTheory(rxn, dS_0, dH_0, dCp, T, dS_sys, dH_sys, dS_surr, dS_total, items) {
+            const T0 = 298.15;
+            const dH_0_kJ = dH_0; // 已经是 kJ/mol
+            const dH_0_J = dH_0 * 1000;
+
+            // 构建物质名称字符串
+            const reactants = [];
+            const products = [];
+            for (const item of items) {
+                if (item.coeff < 0) {
+                    const coeff = Math.abs(item.coeff);
+                    reactants.push((coeff === 1 ? '' : coeff) + item.name);
+                } else {
+                    const coeff = item.coeff;
+                    products.push((coeff === 1 ? '' : coeff) + item.name);
+                }
+            }
+            const reactStr = reactants.join(' + ');
+            const prodStr = products.join(' + ');
+
+            // 构建计算过程
+            let html = '';
+
+            // 1. 系统熵变（标准态）
+            html += `<div class="step">`;
+            html += `<p><strong>① 系统熵变（标准态 298.15 K）：</strong></p>`;
+            html += `<div class="formula">ΔS<sub>系</sub> = ΣS(产物) − ΣS(反应物)</div>`;
+            html += `<p style="margin:4px 0;">代入： ΔS<sub>系</sub> = (${prodStr}) − (${reactStr})</p>`;
+            html += `<p style="margin:4px 0;">结果： <span class="calc-value">ΔS<sub>系</sub> = ${dS_0.toFixed(2)} J/(mol·K)</span></p>`;
+            html += `</div>`;
+
+            // 2. 系统焓变（标准态）
+            html += `<div class="step">`;
+            html += `<p><strong>② 系统焓变（标准态 298.15 K）：</strong></p>`;
+            html += `<div class="formula">ΔH<sub>系</sub> = ΣH(产物) − ΣH(反应物)</div>`;
+            html += `<p style="margin:4px 0;">代入： ΔH<sub>系</sub> = (${prodStr}) − (${reactStr})</p>`;
+            html += `<p style="margin:4px 0;">结果： <span class="calc-value">ΔH<sub>系</sub> = ${dH_0_kJ.toFixed(2)} kJ/mol</span></p>`;
+            html += `</div>`;
+
+            // 3. 热容差
+            html += `<div class="step">`;
+            html += `<p><strong>③ 热容差 ΔC<sub>p</sub>：</strong></p>`;
+            html += `<div class="formula">ΔC<sub>p</sub> = ΣC<sub>p</sub>(产物) − ΣC<sub>p</sub>(反应物)</div>`;
+            html += `<p style="margin:4px 0;">结果： <span class="calc-value">ΔC<sub>p</sub> = ${dCp.toFixed(2)} J/(mol·K)</span></p>`;
+            html += `</div>`;
+
+            // 4. 温度修正
+            html += `<div class="step">`;
+            html += `<p><strong>④ 温度修正（T = ${T.toFixed(2)} K）：</strong></p>`;
+            html += `<div class="formula">ΔS<sub>系</sub>(T) = ΔS<sub>系</sub>(298.15K) + ΔC<sub>p</sub> · ln(T / 298.15)</div>`;
+            html +=
+                `<p style="margin:4px 0;">代入： ΔS<sub>系</sub>(${T.toFixed(2)}) = ${dS_0.toFixed(2)} + ${dCp.toFixed(2)} · ln(${T.toFixed(2)} / 298.15)</p>`;
+            html +=
+                `<p style="margin:4px 0;">结果： <span class="calc-value">ΔS<sub>系</sub>(${T.toFixed(2)}) = ${dS_sys.toFixed(2)} J/(mol·K)</span></p>`;
+            html += `<div class="formula" style="margin-top:6px;">ΔH<sub>系</sub>(T) = ΔH<sub>系</sub>(298.15K) + ΔC<sub>p</sub> · (T − 298.15)</div>`;
+            html +=
+                `<p style="margin:4px 0;">代入： ΔH<sub>系</sub>(${T.toFixed(2)}) = ${dH_0_J.toFixed(2)} + ${dCp.toFixed(2)} · (${T.toFixed(2)} − 298.15)</p>`;
+            html +=
+                `<p style="margin:4px 0;">结果： <span class="calc-value">ΔH<sub>系</sub>(${T.toFixed(2)}) = ${dH_sys.toFixed(2)} J/mol</span></p>`;
+            html += `</div>`;
+
+            // 5. 环境熵变
+            html += `<div class="step">`;
+            html += `<p><strong>⑤ 环境熵变：</strong></p>`;
+            html += `<div class="formula">ΔS<sub>环</sub> = − ΔH<sub>系</sub>(T) / T</div>`;
+            html +=
+                `<p style="margin:4px 0;">代入： ΔS<sub>环</sub> = − ${dH_sys.toFixed(2)} / ${T.toFixed(2)}</p>`;
+            html += `<p style="margin:4px 0;">结果： <span class="calc-value">ΔS<sub>环</sub> = ${dS_surr.toFixed(2)} J/(mol·K)</span></p>`;
+            html += `</div>`;
+
+            // 6. 总熵变 + 关键结论
+            html += `<div class="step">`;
+            html += `<p><strong>⑥ 总熵变：</strong></p>`;
+            html += `<div class="formula">ΔS<sub>总</sub> = ΔS<sub>系</sub>(T) + ΔS<sub>环</sub></div>`;
+            html +=
+                `<p style="margin:4px 0;">代入： ΔS<sub>总</sub> = ${dS_sys.toFixed(2)} + (${dS_surr.toFixed(2)})</p>`;
+            html += `<p style="margin:4px 0;">结果： <span class="calc-value">ΔS<sub>总</sub> = ${dS_total.toFixed(2)} J/(mol·K)</span></p>`;
+            html += `</div>`;
+
+            // 关键结论（简化版）
+            const isSpontaneous = dS_total > 0;
+            const conclusionClass = isSpontaneous ? 'spontaneous' : 'non-spontaneous';
+            const conclusionText = isSpontaneous ?
+                `ΔS<sub>总</sub> > 0，反应在给定温度下 <strong>自发</strong> 进行。` :
+                `ΔS<sub>总</sub> < 0，反应在给定温度下 <strong>不能自发</strong> 进行。`;
+
+            html += `<div class="key-conclusion">`;
+            html += `<strong>✅ 关键结论：</strong> <span class="${conclusionClass}">${conclusionText}</span>`;
+            html += `</div>`;
+
+            theoryContent.innerHTML = html;
+        }
+
+        // ======================================================================
+        //  9. 核心计算
+        // ======================================================================
+        async function handleCalculate() {
+            const A = selA.value;
+            const B = selB.value;
             const tempStr = elTemp.value.trim();
             const T = parseFloat(tempStr);
 
-            // 验证
-            if (!reactStr || !prodStr) {
-                setMsg('请填写反应物和生成物', 'error');
+            if (!A || !B) {
+                setMsg('请完整选择反应物 A 和 B', 'error');
                 return;
             }
             if (isNaN(T) || T < 273.15) {
@@ -654,64 +1267,90 @@
                 return;
             }
 
-            // 解析化合物列表
-            const reactants = reactStr.split(',').map(s => s.trim()).filter(s => s);
-            const products = prodStr.split(',').map(s => s.trim()).filter(s => s);
-
-            if (reactants.length === 0 || products.length === 0) {
-                setMsg('请至少输入一种反应物和一种生成物', 'error');
+            const rxn = findReaction(A, B);
+            if (!rxn) {
+                setMsg(`⚠️ 未找到 ${A} 与 ${B} 的匹配反应`, 'error');
                 return;
             }
 
             try {
-                setMsg('⏳ 正在读取数据...', 'info');
+                setMsg('⏳ 正在读取热力学数据...', 'info');
 
-                // 获取所有反应物数据
-                let S_react = 0,
-                    Hf_react = 0,
-                    Cp_react = 0;
-                for (const name of reactants) {
-                    const d = await getCompoundData(name);
-                    S_react += d.S;
-                    Hf_react += d.Hf;
-                    Cp_react += d.Cp;
+                const allItems = [];
+                allItems.push({ name: rxn.reactantA, coeff: -1 });
+                if (rxn.reactantB !== '（无）') {
+                    allItems.push({ name: rxn.reactantB, coeff: -1 });
+                }
+                for (const p of rxn.products) {
+                    allItems.push({ name: p.name, coeff: p.coeff });
                 }
 
-                // 获取所有生成物数据
-                let S_prod = 0,
-                    Hf_prod = 0,
-                    Cp_prod = 0;
-                for (const name of products) {
-                    const d = await getCompoundData(name);
-                    S_prod += d.S;
-                    Hf_prod += d.Hf;
-                    Cp_prod += d.Cp;
+                const dataMap = new Map();
+                for (const item of allItems) {
+                    if (!dataMap.has(item.name)) {
+                        const d = await getCompoundData(item.name);
+                        dataMap.set(item.name, d);
+                    }
                 }
 
-                // 计算反应参数
-                const dS_0 = S_prod - S_react; // J/(mol·K)
-                const dH_0 = Hf_prod - Hf_react; // kJ/mol
-                const dCp = Cp_prod - Cp_react; // J/(mol·K)
-                const dH_0_J = dH_0 * 1000; // J/mol
+                let dS_0 = 0,
+                    dH_0 = 0,
+                    dCp = 0;
+                for (const item of allItems) {
+                    const d = dataMap.get(item.name);
+                    dS_0 += item.coeff * d.S;
+                    dH_0 += item.coeff * d.Hf;
+                    dCp += item.coeff * d.Cp;
+                }
 
                 const T0 = 298.15;
+                const dH_0_J = dH_0 * 1000;
 
-                // 在指定温度 T 下的值
                 const dS_sys = dS_0 + dCp * Math.log(T / T0);
                 const dH_sys = dH_0_J + dCp * (T - T0);
                 const dS_surr = -dH_sys / T;
                 const dS_total = dS_sys + dS_surr;
 
-                // 更新结果卡片
-                elResSys.textContent = dS_sys.toFixed(2);
-                elResSurr.textContent = dS_surr.toFixed(2);
-                elResTotal.textContent = dS_total.toFixed(2);
+                resSys.textContent = dS_sys.toFixed(2);
+                resSurr.textContent = dS_surr.toFixed(2);
+                resTotal.textContent = dS_total.toFixed(2);
 
-                setMsg(`✅ 计算成功：ΔS₀ = ${dS_0.toFixed(2)} J/(mol·K)  ΔH₀ = ${dH_0.toFixed(2)} kJ/mol  ΔCp = ${dCp.toFixed(2)} J/(mol·K)`,
+                setMsg(`✅ 计算成功  |  ΔS° = ${dS_0.toFixed(2)} J/(mol·K)  ΔH° = ${dH_0.toFixed(2)} kJ/mol  ΔCp = ${dCp.toFixed(2)} J/(mol·K)`,
                     'success');
 
+                // 生成表格数据
+                const T_min = 273.15;
+                const T_max = 2000;
+                const step = 50;
+                const rows = [];
+                for (let t = T_min; t <= T_max; t += step) {
+                    const tR = Math.round(t * 100) / 100;
+                    const sys = dS_0 + dCp * Math.log(tR / T0);
+                    const h = dH_0_J + dCp * (tR - T0);
+                    const surr = -h / tR;
+                    const total = sys + surr;
+                    rows.push({ T: tR, sys, surr, total });
+                }
+
+                let html = '';
+                for (let i = 0; i < rows.length; i++) {
+                    const r = rows[i];
+                    const isHighlight = Math.abs(r.T - T) < 0.5;
+                    const cls = isHighlight ? 'highlight-row' : '';
+                    html += `<tr class="${cls}">
+                        <td>${r.T.toFixed(2)}</td>
+                        <td>${r.sys.toFixed(2)}</td>
+                        <td>${r.surr.toFixed(2)}</td>
+                        <td>${r.total.toFixed(2)}</td>
+                    </tr>`;
+                }
+                tableBody.innerHTML = html;
+
                 // 绘制图表
-                drawCharts(dS_0, dH_0_J, dCp, T, dS_sys, dS_surr, dS_total, reactStr, prodStr);
+                drawCharts(rxn, dS_0, dH_0_J, dCp, T, dS_sys, dS_surr, dS_total, rows);
+
+                // 更新理论部分（展示计算数值）
+                updateTheory(rxn, dS_0, dH_0, dCp, T, dS_sys, dH_sys, dS_surr, dS_total, allItems);
 
             } catch (err) {
                 setMsg(`❌ ${err.message}`, 'error');
@@ -720,31 +1359,15 @@
         }
 
         // ======================================================================
-        //  6. 绘制图表 (使用 Chart.js)
+        //  10. 绘制图表
         // ======================================================================
-        function drawCharts(dS_0, dH_0_J, dCp, T_user, dS_sys, dS_surr, dS_total, reactStr, prodStr) {
+        function drawCharts(rxn, dS_0, dH_0_J, dCp, T_user, dS_sys, dS_surr, dS_total, rows) {
             const T0 = 298.15;
-            const T_min = 273.15;
-            const T_max = 2000;
-            const step = 2; // 步长 2K，平衡性能与精度
-            const labels = [];
-            const dataSys = [];
-            const dataSurr = [];
-            const dataTotal = [];
+            const labels = rows.map(r => r.T);
+            const dataSys = rows.map(r => r.sys);
+            const dataSurr = rows.map(r => r.surr);
+            const dataTotal = rows.map(r => r.total);
 
-            for (let t = T_min; t <= T_max; t += step) {
-                const tRound = Math.round(t * 100) / 100;
-                labels.push(tRound);
-                const sys = dS_0 + dCp * Math.log(tRound / T0);
-                const h = dH_0_J + dCp * (tRound - T0);
-                const surr = -h / tRound;
-                const total = sys + surr;
-                dataSys.push(sys);
-                dataSurr.push(surr);
-                dataTotal.push(total);
-            }
-
-            // 销毁旧图表
             if (chartSys) { chartSys.destroy();
                 chartSys = null; }
             if (chartSurr) { chartSurr.destroy();
@@ -752,7 +1375,8 @@
             if (chartTotal) { chartTotal.destroy();
                 chartTotal = null; }
 
-            // ---- 通用配置 ----
+            const eqLabel = rxn.equation;
+
             const commonOpts = {
                 responsive: true,
                 maintainAspectRatio: true,
@@ -762,11 +1386,11 @@
                 },
                 scales: {
                     x: {
-                        title: { display: true, text: '温度 T / K', font: { size: 12 } },
+                        title: { display: true, text: '温度 T / K', font: { size: 11 } },
                         grid: { color: 'rgba(0,0,0,0.05)' }
                     },
                     y: {
-                        title: { display: true, text: 'ΔS / (J·mol⁻¹·K⁻¹)', font: { size: 12 } },
+                        title: { display: true, text: 'ΔS / (J·mol⁻¹·K⁻¹)', font: { size: 11 } },
                         grid: { color: 'rgba(0,0,0,0.05)' }
                     }
                 },
@@ -776,7 +1400,6 @@
                 }
             };
 
-            // ---- 图1: 系统熵变 (蓝色) ----
             const ctxSys = canvasSys.getContext('2d');
             chartSys = new Chart(ctxSys, {
                 type: 'line',
@@ -794,12 +1417,11 @@
                     ...commonOpts,
                     plugins: {
                         ...commonOpts.plugins,
-                        title: { display: true, text: `系统熵变  (${reactStr} → ${prodStr})`, font: { size: 13 } }
+                        title: { display: true, text: `系统熵变  ${eqLabel}`, font: { size: 12 } }
                     }
                 }
             });
 
-            // ---- 图2: 环境熵变 (红色) ----
             const ctxSurr = canvasSurr.getContext('2d');
             chartSurr = new Chart(ctxSurr, {
                 type: 'line',
@@ -817,12 +1439,11 @@
                     ...commonOpts,
                     plugins: {
                         ...commonOpts.plugins,
-                        title: { display: true, text: `环境熵变  (${reactStr} → ${prodStr})`, font: { size: 13 } }
+                        title: { display: true, text: `环境熵变  ${eqLabel}`, font: { size: 12 } }
                     }
                 }
             });
 
-            // ---- 图3: 总熵变 (黑色) + 参考线 ----
             const ctxTotal = canvasTotal.getContext('2d');
             chartTotal = new Chart(ctxTotal, {
                 type: 'line',
@@ -851,15 +1472,15 @@
                     plugins: {
                         legend: { display: false },
                         tooltip: { mode: 'index', intersect: false },
-                        title: { display: true, text: `总熵变 (宇宙)  (${reactStr} → ${prodStr})`, font: { size: 13 } }
+                        title: { display: true, text: `总熵变 (宇宙)  ${eqLabel}`, font: { size: 12 } }
                     },
                     scales: {
                         x: {
-                            title: { display: true, text: '温度 T / K', font: { size: 12 } },
+                            title: { display: true, text: '温度 T / K', font: { size: 11 } },
                             grid: { color: 'rgba(0,0,0,0.05)' }
                         },
                         y: {
-                            title: { display: true, text: 'ΔS_总 / (J·mol⁻¹·K⁻¹)', font: { size: 12 } },
+                            title: { display: true, text: 'ΔS_总 / (J·mol⁻¹·K⁻¹)', font: { size: 11 } },
                             grid: { color: 'rgba(0,0,0,0.05)' }
                         }
                     },
@@ -872,70 +1493,32 @@
         }
 
         // ======================================================================
-        //  7. 辅助函数
+        //  11. 事件绑定
         // ======================================================================
-        function setMsg(text, type = 'info') {
-            elMsg.textContent = text;
-            elMsg.className = 'msg-bar ' + type;
-        }
+        calcBtn.addEventListener('click', handleCalculate);
+        elTemp.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleCalculate(); });
 
-        // ======================================================================
-        //  8. 事件绑定
-        // ======================================================================
-        elCalc.addEventListener('click', calculate);
-        elTemp.addEventListener('keydown', (e) => { if (e.key === 'Enter') calculate(); });
-        elReact.addEventListener('keydown', (e) => { if (e.key === 'Enter') calculate(); });
-        elProd.addEventListener('keydown', (e) => { if (e.key === 'Enter') calculate(); });
-
-        // ======================================================================
-        //  9. 退出按钮：跳转回 index.html 并自动展开选择面板
-        //     ★ 修改说明：
-        //       1. 点击时在 sessionStorage 中设置标志 'returnFromPage2' = 'true'
-        //       2. 跳转到 index.html
-        //       3. 需要在 index.html 的 main 函数中添加检测该标志的代码（见下方注释）
-        // ======================================================================
-        elExit.addEventListener('click', function() {
-            // 【关键】设置标志，通知 index.html 需要自动展开选择面板
-            sessionStorage.setItem('returnFromPage2', 'true');
-            // 跳转回主启动器
+        exitBtn.addEventListener('click', function() {
             window.location.href = 'index.html';
         });
 
-        /*
-         * ================================================================
-         *   ★ 配套修改：请在 index.html 的 main 函数中添加以下代码 ★
-         * ================================================================
-         *   // ---- 检测是否从 page2.html 返回 ----
-         *   if (sessionStorage.getItem('returnFromPage2') === 'true') {
-         *       sessionStorage.removeItem('returnFromPage2');
-         *       // 等待页面完全加载后，自动展开选项面板
-         *       setTimeout(() => {
-         *           // 确保面板是展开状态
-         *           if (!isOpen) {
-         *               togglePanel(true);
-         *           }
-         *       }, 350);
-         *   }
-         * ================================================================
-         */
-
         // ======================================================================
-        //  10. 启动时自动计算一次 (展示默认示例)
+        //  12. 启动（默认无选中）
         // ======================================================================
         window.addEventListener('load', () => {
-            setTimeout(calculate, 300);
+            initSelects();
+            clearResults();
+            reactionInfo.innerHTML = `<div class="placeholder">👆 请选择反应物 A 和 B，系统将自动匹配化学反应</div>`;
         });
 
-        // ======================================================================
-        //  11. 处理模态框 Enter 键 (已在 getCompoundData 中处理)
-        // ======================================================================
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && modalOverlay.classList.contains('active')) {
-                modalCancel.click();
+            const overlay = document.getElementById('modalOverlay');
+            if (e.key === 'Escape' && overlay.classList.contains('active')) {
+                document.getElementById('modalCancel').click();
             }
         });
 
-        console.log('✅ 热力学熵变计算器已加载，化合物数量:', compDB.size);
+        console.log('✅ 化学反应熵变计算器已加载，物质数:', compDB.size, ' 反应数:', REACTIONS.length);
     </script>
 </body>
 </html>
