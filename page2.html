@@ -1235,7 +1235,7 @@
             html += `<p style="margin:4px 0;">结果： <span class="calc-value">ΔS<sub>总</sub> = ${dS_total.toFixed(2)} J/(mol·K)</span></p>`;
             html += `</div>`;
 
-            // 关键结论（简化版）
+            // 关键结论（仅判断 ΔS总 是否大于0，反应是否自发）
             const isSpontaneous = dS_total > 0;
             const conclusionClass = isSpontaneous ? 'spontaneous' : 'non-spontaneous';
             const conclusionText = isSpontaneous ?
@@ -1498,8 +1498,10 @@
         calcBtn.addEventListener('click', handleCalculate);
         elTemp.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleCalculate(); });
 
+        // ★★★ 返回游戏：跳转至 index.html 并自动展开面板 ★★★
         exitBtn.addEventListener('click', function() {
-            window.location.href = 'index.html';
+            // 使用 URL 参数 ?open=true 触发 index.html 的面板自动展开
+            window.location.href = 'index.html?open=true';
         });
 
         // ======================================================================
