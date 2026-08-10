@@ -661,8 +661,8 @@
         <div class="game-title">🍎 苹果树答题 🍎</div>
         <div class="game-desc">
             点击苹果或拖动小车接住苹果进行答题<br>
-            ✨ 答对 → 金苹果<br>
-            ☠️ 答错 → 黑苹果<br>
+            😊 答对 → 金苹果<br>
+            🤔 答错 → 黑苹果<br>
             30秒内完成挑战！
         </div>
         <button class="start-btn" id="startBtn">开始游戏</button>
@@ -676,7 +676,7 @@
 
     <!-- ===== 答案覆盖层 ===== -->
     <div class="answer-overlay" id="answerOverlay">
-        <div class="answer-icon" id="answerIcon">☠️</div>
+        <div class="answer-icon" id="answerIcon">🤔</div>
         <div class="answer-label" id="answerLabel">答错啦！</div>
         <div class="answer-text" id="answerText"></div>
         <button class="next-btn" id="nextBtn">进入下一题 →</button>
@@ -833,9 +833,10 @@
         function drawOptionsFixed() {
             if (!gameRunning) return;
             var q = questions[currentQuestion];
-            var lineHeight = 30;
-            var startY = 130;
-            var fontSize = Math.min(14, W * 0.032);
+            var lineHeight = Math.max(18, Math.min(24, W * 0.065));
+            var startY = 135;
+            var fontSize = Math.min(15, Math.max(12, W * 0.035));
+            var maxW = W * 0.94;
             ctx.font = 'bold ' + fontSize + 'px PingFang SC,sans-serif';
             ctx.textAlign = 'left';
             ctx.textBaseline = 'top';
@@ -844,10 +845,15 @@
             ctx.shadowOffsetX = 1;
             ctx.shadowOffsetY = 1;
             ctx.fillStyle = '#fff';
-            var leftX = Math.max(W * 0.04, 12);
+            var leftX = Math.max(W * 0.03, 10);
+            var optY = startY;
             for (var i = 0; i < 4; i++) {
                 var optText = appleKeys[i] + '. ' + q.opt[i];
-                ctx.fillText(optText, leftX, startY + i * lineHeight);
+                var wrapped = wrapTextCanvas(optText, maxW, fontSize);
+                for (var wi = 0; wi < wrapped.length; wi++) {
+                    ctx.fillText(wrapped[wi], leftX, optY);
+                    optY += lineHeight;
+                }
             }
             ctx.shadowBlur = 0;
             ctx.shadowOffsetX = 0;
@@ -876,15 +882,15 @@
             if (!gameRunning) return;
             var q = questions[currentQuestion];
             var qText = '第' + (currentQuestion + 1) + '题：' + q.q;
-            var fontSize = Math.min(14, W * 0.032);
+            var fontSize = Math.min(15, Math.max(12, W * 0.035));
             ctx.font = 'bold ' + fontSize + 'px PingFang SC,sans-serif';
-            var maxChars = Math.floor(W / (fontSize * 0.7));
-            var lines = wrapText(qText, maxChars);
-            var lineH = fontSize * 2.2;
+            var maxW = W * 0.94;
+            var lines = wrapTextCanvas(qText, maxW, fontSize);
+            var lineH = fontSize * 1.9;
             var totalH = lines.length * lineH;
-            var qBoxX = W * 0.04;
-            var qBoxW = W * 0.92;
-            var qBoxY = 70;
+            var qBoxX = W * 0.03;
+            var qBoxW = W * 0.94;
+            var qBoxY = 75;
             var qBoxH = totalH + 16;
             ctx.textAlign = 'left';
             ctx.textBaseline = 'top';
@@ -899,6 +905,23 @@
             ctx.shadowBlur = 0;
             ctx.shadowOffsetX = 0;
             ctx.shadowOffsetY = 0;
+        }
+
+        function wrapTextCanvas(text, maxWidth, fontSize) {
+            var words = text.split('');
+            var lines = [];
+            var cur = '';
+            for (var i = 0; i < words.length; i++) {
+                var test = cur + words[i];
+                if (ctx.measureText(test).width > maxWidth && cur !== '') {
+                    lines.push(cur);
+                    cur = words[i];
+                } else {
+                    cur = test;
+                }
+            }
+            if (cur) lines.push(cur);
+            return lines;
         }
 
         function wrapText(text, maxChars) {
@@ -1111,13 +1134,13 @@
                 apple.color = '#FFD700';
                 goldCount++;
                 document.getElementById('goldCount').textContent = goldCount;
-                showFeedback('✨', '#FFD700');
+                showFeedback('😊', '#FFD700');
                 createParticles(apple.x, apple.y, '255, 215, 0');
                 showAnswerExplanation(questions[currentQuestion], questions[currentQuestion].ans, true);
             } else {
                 apple.color = '#333';
                 apple.scale = 0.85;
-                showFeedback('☠️', '#333');
+                showFeedback('🤔', '#333');
                 createParticles(apple.x, apple.y, '60, 60, 60');
                 showAnswerExplanation(questions[currentQuestion], apple.key, false);
             }
@@ -1126,7 +1149,7 @@
         function showAnswerExplanation(q, selectedKey, isCorrect) {
             var ci = appleKeys.indexOf(q.ans);
             var si = appleKeys.indexOf(selectedKey);
-            document.getElementById('answerIcon').textContent = isCorrect ? '✨' : '☠️';
+            document.getElementById('answerIcon').textContent = isCorrect ? '😊' : '🤔';
             document.getElementById('answerLabel').textContent = isCorrect ? '回答正确！' : '答错啦！';
             document.getElementById('answerText').innerHTML =
                 '正确答案：<b style="color:#4ade80">' + q.ans + '. ' + q.opt[ci] + '</b><br><br>' +
