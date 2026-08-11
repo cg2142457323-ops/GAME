@@ -754,6 +754,35 @@
             margin-right: 6px;
         }
 
+        /* ===== 跳过按钮 ===== */
+        .skip-btn {
+            margin-top: 14px;
+            padding: 10px 32px;
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            letter-spacing: 0.5px;
+        }
+        .skip-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.25);
+            color: #fff;
+            transform: scale(1.02);
+        }
+        .skip-btn:active {
+            transform: scale(0.94);
+        }
+        .skip-btn.disabled {
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
         /* ===== 结果弹窗 ===== */
         .result-overlay {
             position: absolute;
@@ -823,7 +852,6 @@
             margin: 8px 0 16px;
             border: 1px solid rgba(255, 215, 0, 0.15);
         }
-        /* ---- 星星展示区 ---- */
         .result-stars {
             display: flex;
             justify-content: center;
@@ -973,6 +1001,7 @@
             .result-stars .star-empty { font-size: 32px; }
             .difficulty-tag, .score-tag { font-size: 11px; padding: 3px 12px; }
             .question-header { margin-bottom: 6px; }
+            .skip-btn { font-size: 14px; padding: 8px 24px; }
         }
 
         @media (max-width: 480px) {
@@ -995,6 +1024,7 @@
             .result-stars .star-empty { font-size: 28px; }
             .difficulty-tag, .score-tag { font-size: 10px; padding: 2px 10px; }
             .question-header { margin-bottom: 4px; }
+            .skip-btn { font-size: 13px; padding: 6px 18px; }
         }
     </style>
 </head>
@@ -1118,8 +1148,12 @@
                             <div class="hole-label"><span class="label-icon">❌</span> 错</div>
                         </div>
                     </div>
+
+                    <!-- 跳过按钮 -->
+                    <button class="skip-btn" id="skipBtn" onclick="handleSkip()">⏭️ 跳过此题</button>
+
                     <div style="margin-top:6px;font-size:14px;color:rgba(255,255,255,0.25);text-align:center;letter-spacing:1px;">
-                        👆 点击苹果切开选择答案
+                        👆 点击苹果切开选择答案 · 跳过不扣分
                     </div>
                     <button class="next-btn" id="nextBtn" style="display:none;" onclick="goNext()">下一题 →</button>
                 </div>
@@ -1130,9 +1164,8 @@
                 <div class="result-box">
                     <span class="big-corn"></span>
                     <div class="result-title">闯关完成！</div>
-                    <div class="result-sub">你的最终成绩是</div>
+                    <div class="result-sub">你的最终成绩为</div>
                     <div class="result-score" id="finalCornCount">0</div>
-                    <!-- 星星展示区 -->
                     <div class="result-stars" id="resultStars"></div>
                     <div class="result-detail" id="finalDetail">⭐ 玉米</div>
                     <div class="result-btn-group">
@@ -1349,14 +1382,14 @@
         const finalDetail = document.getElementById('finalDetail');
         const resultStars = document.getElementById('resultStars');
         const questionCard = document.getElementById('questionCard');
+        const skipBtn = document.getElementById('skipBtn');
 
         /* ================================================================
            工具函数
            ================================================================ */
-        // 不再打乱，保持原始顺序（简单→中等→困难）
         function initQuestions() {
             shuffledQuestions = questionData.map((item, idx) => ({ ...item, originalIdx: idx + 1 }));
-            // 顺序已经按 简单→中等→困难 排列，无需 shuffle
+            // 保持原始顺序：简单→中等→困难
         }
 
         /* ================================================================
@@ -1381,6 +1414,7 @@
             resetMoles();
             wrapperCorrect.classList.remove('disabled');
             wrapperWrong.classList.remove('disabled');
+            skipBtn.classList.remove('disabled');
             isAnswering = false;
             isGameActive = false;
             stopTimer();
@@ -1470,6 +1504,7 @@
             resetMoles();
             wrapperCorrect.classList.remove('disabled');
             wrapperWrong.classList.remove('disabled');
+            skipBtn.classList.remove('disabled');
             nextBtn.style.display = 'none';
             isAnswering = false;
             isGameActive = true;
@@ -1507,6 +1542,7 @@
 
             wrapperCorrect.classList.add('disabled');
             wrapperWrong.classList.add('disabled');
+            skipBtn.classList.add('disabled');
 
             const correctApple = correct === '对' ? appleCorrect : appleWrong;
             const wrongApple = correct === '对' ? appleWrong : appleCorrect;
@@ -1551,6 +1587,7 @@
 
             wrapperCorrect.classList.add('disabled');
             wrapperWrong.classList.add('disabled');
+            skipBtn.classList.add('disabled');
 
             const correctApple = correct === '对' ? appleCorrect : appleWrong;
             showAppleState(correctApple, 'good');
@@ -1559,6 +1596,41 @@
                 <span style="display:block;margin-top:6px;color:#c8d6e5;font-size:14px;line-height:1.5;">💡 解析：${data.explain}</span>
             `;
 
+            const isLast = (currentIndex + 1 >= shuffledQuestions.length);
+            nextBtn.textContent = isLast ? '查看结果 🏁' : '下一题 →';
+            nextBtn.style.display = 'block';
+
+            if (window.MathJax && MathJax.typesetPromise) {
+                MathJax.typesetPromise([questionCard]).catch(err => console.error(err));
+            }
+        }
+
+        /* ================================================================
+           跳过逻辑
+           ================================================================ */
+        function handleSkip() {
+            if (!isGameActive || isAnswering) return;
+            if (currentIndex >= shuffledQuestions.length) return;
+
+            // 跳过：不扣分，不得分，直接进入下一题
+            isAnswering = true;
+            stopTimer();
+            isGameActive = false;
+
+            wrapperCorrect.classList.add('disabled');
+            wrapperWrong.classList.add('disabled');
+            skipBtn.classList.add('disabled');
+
+            const data = shuffledQuestions[currentIndex];
+            const correct = data.ans;
+
+            // 显示正确答案（但不展示苹果动画，直接显示提示）
+            qHint.innerHTML = `
+                <span style="color:#94a3b8;">⏭️ 已跳过此题　正确答案是 "<strong>${correct}</strong>"</span>
+                <span style="display:block;margin-top:6px;color:#c8d6e5;font-size:14px;line-height:1.5;">💡 解析：${data.explain}</span>
+            `;
+
+            // 不改变分数，不展示苹果动画
             const isLast = (currentIndex + 1 >= shuffledQuestions.length);
             nextBtn.textContent = isLast ? '查看结果 🏁' : '下一题 →';
             nextBtn.style.display = 'block';
@@ -1631,17 +1703,14 @@
             const { fullStars, hasHalf } = getStars(score);
             let html = '';
 
-            // 显示 fullStars 颗全亮星
             for (let i = 0; i < fullStars; i++) {
                 html += `<span class="star-wrap"><span class="star-full">⭐</span></span>`;
             }
 
-            // 如果有半颗星
             if (hasHalf) {
                 html += `<span class="star-wrap"><span class="star-half">⭐</span></span>`;
             }
 
-            // 如果一颗星都没有（且没有半颗星），显示空星占位（可选）
             if (fullStars === 0 && !hasHalf) {
                 html += `<span style="color:#444;font-size:42px;line-height:1;">☆</span>`;
                 html += `<span style="color:#444;font-size:14px;margin-left:6px;opacity:0.5;">（未获得星星）</span>`;
@@ -1660,12 +1729,12 @@
             resetMoles();
             wrapperCorrect.classList.add('disabled');
             wrapperWrong.classList.add('disabled');
+            skipBtn.classList.add('disabled');
 
             finalCornCount.textContent = cornCount + '分';
             const total = shuffledQuestions.length;
             finalDetail.textContent = `共 ${total} 题，获得 ${cornCount} 分`;
 
-            // 渲染星星
             resultStars.innerHTML = renderStars(cornCount);
 
             resultOverlay.classList.add('show');
@@ -1680,6 +1749,7 @@
             resetMoles();
             wrapperCorrect.classList.remove('disabled');
             wrapperWrong.classList.remove('disabled');
+            skipBtn.classList.remove('disabled');
             isAnswering = false;
             isGameActive = false;
             stopTimer();
