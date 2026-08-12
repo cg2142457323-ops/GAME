@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -16,7 +16,7 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            font-family: 'SimSun', 'Microsoft YaHei', sans-serif;
             background: #0b1424;
         }
         #gameCanvas {
@@ -61,7 +61,7 @@
             background: rgba(255, 255, 255, 0.06);
             color: rgba(255, 255, 255, 0.75);
             font-size: 12px;
-            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            font-family: 'SimSun', 'Microsoft YaHei', sans-serif;
             cursor: pointer;
             transition: all 0.2s;
             font-weight: 500;
@@ -160,7 +160,7 @@
             cursor: pointer;
             box-shadow: 0 8px 25px rgba(255, 107, 107, 0.5);
             animation: pulse 2s ease infinite;
-            font-family: 'PingFang SC', sans-serif;
+            font-family: 'SimSun', sans-serif;
             min-width: 200px;
         }
         .start-menu-btn {
@@ -174,7 +174,7 @@
             font-weight: bold;
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-            font-family: 'PingFang SC', sans-serif;
+            font-family: 'SimSun', sans-serif;
             min-width: 160px;
             transition: all 0.25s;
         }
@@ -295,7 +295,7 @@
             font-weight: bold;
             cursor: pointer;
             box-shadow: 0 6px 20px rgba(74, 222, 128, 0.4);
-            font-family: 'PingFang SC', sans-serif;
+            font-family: 'SimSun', sans-serif;
             min-width: 160px;
         }
 
@@ -360,7 +360,7 @@
             font-weight: bold;
             cursor: pointer;
             box-shadow: 0 8px 30px rgba(255, 215, 0, 0.5);
-            font-family: 'PingFang SC', sans-serif;
+            font-family: 'SimSun', sans-serif;
             min-width: 140px;
         }
         .result-btn-group .menu-btn {
@@ -373,7 +373,7 @@
             font-weight: bold;
             cursor: pointer;
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
-            font-family: 'PingFang SC', sans-serif;
+            font-family: 'SimSun', sans-serif;
             min-width: 140px;
             transition: all 0.25s;
         }
@@ -647,7 +647,7 @@
     <!-- ===== 顶部栏 ===== -->
     <div class="top-bar" id="topBar">
         <div class="left-group">
-            <button class="back-btn" id="topBackBtn">← 主菜单</button>
+            <button class="back-btn" id="topBackBtn">← 返回</button>
         </div>
         <div class="info-group">
             <div><span class="gold-icon">🍎</span> <span id="goldCount">0</span></div>
@@ -666,7 +666,7 @@
             30秒内完成挑战！
         </div>
         <button class="start-btn" id="startBtn">开始游戏</button>
-        <button class="start-menu-btn" id="startMenuBtn">← 主菜单</button>
+        <button class="start-menu-btn" id="startMenuBtn">← 返回</button>
     </div>
 
     <!-- ===== 反馈覆盖层 ===== -->
@@ -689,7 +689,7 @@
         <div class="result-label">获得 <span id="resultGold">0</span> 个金苹果</div>
         <div class="result-btn-group">
             <button class="restart-btn" id="restartBtn">再玩一次</button>
-            <button class="menu-btn" id="resultMenuBtn">🏠 主菜单</button>
+            <button class="menu-btn" id="resultMenuBtn">🏠 返回</button>
         </div>
     </div>
 
@@ -837,7 +837,7 @@
             var startY = 135;
             var fontSize = Math.min(15, Math.max(12, W * 0.035));
             var maxW = W * 0.94;
-            ctx.font = 'bold ' + fontSize + 'px PingFang SC,sans-serif';
+            ctx.font = 'bold ' + fontSize + 'px SimSun,sans-serif';
             ctx.textAlign = 'left';
             ctx.textBaseline = 'top';
             ctx.shadowColor = 'rgba(0,0,0,0.6)';
@@ -883,7 +883,7 @@
             var q = questions[currentQuestion];
             var qText = '第' + (currentQuestion + 1) + '题：' + q.q;
             var fontSize = Math.min(15, Math.max(12, W * 0.035));
-            ctx.font = 'bold ' + fontSize + 'px PingFang SC,sans-serif';
+            ctx.font = 'bold ' + fontSize + 'px SimSun,sans-serif';
             var maxW = W * 0.94;
             var lines = wrapTextCanvas(qText, maxW, fontSize);
             var lineH = fontSize * 1.9;

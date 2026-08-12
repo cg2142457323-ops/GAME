@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>冷热水混合模拟 · 方向倒转</title>
+    <title>冷热水混合模拟 · 熵变计算 (0℃=273K)</title>
     <style>
         * {
             box-sizing: border-box;
@@ -16,7 +16,7 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            font-family: 'Microsoft YaHei', 'Segoe UI', Arial, sans-serif;
+            font-family: 'SimSun', '宋体', serif;
             padding: 12px;
         }
         .container {
@@ -35,6 +35,7 @@
             margin: 0 0 12px 0;
             color: #1a2a3a;
             letter-spacing: 2px;
+            font-family: 'SimSun', '宋体', serif;
         }
 
         /* ---- 顶部：参数设置 ---- */
@@ -51,6 +52,7 @@
             color: #1a2a3a;
             margin-bottom: 8px;
             letter-spacing: 1px;
+            font-family: 'SimSun', '宋体', serif;
         }
         .params-grid {
             display: flex;
@@ -69,6 +71,7 @@
             font-weight: 500;
             color: #2a3a4a;
             white-space: nowrap;
+            font-family: 'SimSun', '宋体', serif;
         }
         .param-group input[type="text"],
         .param-group input[type="number"] {
@@ -82,7 +85,7 @@
             text-align: center;
             background: #fff;
             transition: border 0.2s;
-            font-family: 'Arial', sans-serif;
+            font-family: 'SimSun', '宋体', serif;
         }
         .param-group input:focus {
             border-color: #4a8fc0;
@@ -93,6 +96,7 @@
             font-size: 13px;
             color: #4a5a6a;
             font-weight: 500;
+            font-family: 'SimSun', '宋体', serif;
         }
         .btn {
             height: 34px;
@@ -103,7 +107,7 @@
             font-weight: 700;
             cursor: pointer;
             transition: all 0.2s;
-            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            font-family: 'SimSun', '宋体', serif;
             white-space: nowrap;
         }
         .btn-primary {
@@ -153,6 +157,15 @@
             transform: none !important;
             box-shadow: none !important;
         }
+        .btn-entropy {
+            background: #8e44ad;
+            color: #fff;
+        }
+        .btn-entropy:hover {
+            background: #7d3c98;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(142, 68, 173, 0.35);
+        }
 
         .speed-slider {
             width: 80px;
@@ -165,6 +178,7 @@
             min-width: 40px;
             text-align: center;
             font-size: 14px;
+            font-family: 'SimSun', '宋体', serif;
         }
         .checkbox-group {
             display: flex;
@@ -173,6 +187,7 @@
             font-size: 13px;
             font-weight: 500;
             color: #2a3a4a;
+            font-family: 'SimSun', '宋体', serif;
         }
         .checkbox-group input[type="checkbox"] {
             width: 17px;
@@ -181,7 +196,7 @@
             cursor: pointer;
         }
 
-        /* ---- 中间：曲线图 ---- */
+        /* ---- 曲线图 ---- */
         .curve-section {
             background: #fafbfc;
             border-radius: 10px;
@@ -196,6 +211,7 @@
             text-align: center;
             margin-bottom: 4px;
             letter-spacing: 1px;
+            font-family: 'SimSun', '宋体', serif;
         }
         #curveCanvas {
             width: 100%;
@@ -206,7 +222,96 @@
             background: #ffffff;
         }
 
-        /* ---- 底部：动画演示 ---- */
+        /* ---- 熵变结果 ---- */
+        .entropy-section {
+            background: #fafbfc;
+            border-radius: 10px;
+            border: 2px solid #e4e9f0;
+            padding: 10px 14px 14px 14px;
+            margin-bottom: 14px;
+        }
+        .entropy-section .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1a2a3a;
+            text-align: center;
+            margin-bottom: 6px;
+            letter-spacing: 1px;
+            font-family: 'SimSun', '宋体', serif;
+        }
+        .entropy-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 8px 16px;
+            margin-top: 6px;
+        }
+        .entropy-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 8px 4px 10px 4px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e8ecf0;
+        }
+        .entropy-item .entropy-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #2a3a4a;
+            margin-bottom: 2px;
+            text-align: center;
+            font-family: 'SimSun', '宋体', serif;
+        }
+        .entropy-item .entropy-label sub {
+            font-size: 10px;
+        }
+        .entropy-item .entropy-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a2a3a;
+            padding: 2px 0;
+            font-family: 'SimSun', '宋体', serif;
+        }
+        .entropy-item .entropy-value.positive {
+            color: #2a9d6e;
+        }
+        .entropy-item .entropy-value.negative {
+            color: #c0392b;
+        }
+        .entropy-item .entropy-value.zero {
+            color: #6c7a8a;
+        }
+        .entropy-item .entropy-unit {
+            font-size: 12px;
+            color: #4a5a6a;
+            font-weight: 500;
+            font-family: 'SimSun', '宋体', serif;
+        }
+        .entropy-conclusion {
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a2a3a;
+            margin-top: 10px;
+            padding: 8px 12px;
+            background: #ffffff;
+            border-radius: 8px;
+            border: 1px solid #e8ecf0;
+            font-family: 'SimSun', '宋体', serif;
+        }
+        .entropy-conclusion .highlight {
+            color: #2a9d6e;
+        }
+        .entropy-conclusion .highlight-red {
+            color: #c0392b;
+        }
+        .entropy-placeholder {
+            color: #8a9aaa;
+            font-weight: 400;
+        }
+
+        /* ---- 动画演示 ---- */
         .demo-section {
             position: relative;
             border-radius: 10px;
@@ -261,6 +366,7 @@
             color: #1a2a3a;
             pointer-events: none;
             padding: 0;
+            font-family: 'SimSun', '宋体', serif;
         }
         .colorbar-labels span {
             background: rgba(255, 255, 255, 0.85);
@@ -268,6 +374,7 @@
             border-radius: 4px;
             font-size: 12px;
             white-space: nowrap;
+            font-family: 'SimSun', '宋体', serif;
         }
 
         /* 信息行 */
@@ -285,11 +392,13 @@
             font-size: 17px;
             font-weight: 700;
             color: #0b1a2a;
+            font-family: 'SimSun', '宋体', serif;
         }
         .demo-info .final-temp {
             font-size: 15px;
             font-weight: 600;
             color: #2c5a7a;
+            font-family: 'SimSun', '宋体', serif;
         }
 
         /* ---- 响应式 ---- */
@@ -335,6 +444,13 @@
             h1 {
                 font-size: 20px;
             }
+            .entropy-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 6px 12px;
+            }
+            .entropy-item .entropy-value {
+                font-size: 17px;
+            }
         }
         @media (max-width: 480px) {
             .params-grid {
@@ -353,6 +469,16 @@
                 height: 28px;
                 padding: 0 8px;
                 font-size: 12px;
+            }
+            .entropy-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 4px 8px;
+            }
+            .entropy-item .entropy-value {
+                font-size: 15px;
+            }
+            .entropy-item .entropy-label {
+                font-size: 11px;
             }
         }
     </style>
@@ -404,12 +530,13 @@
 
                     <!-- 目标时间组 -->
                     <div style="display:flex; align-items:center; gap:4px 8px; margin:0 4px;">
-                        <label style="font-size:13px; font-weight:500; color:#2a3a4a; white-space:nowrap;">目标时间</label>
-                        <input type="text" id="targetTime" value="30" style="width:56px; height:30px; border:1.5px solid #c8d0d8; border-radius:6px; padding:0 6px; font-size:14px; font-weight:500; text-align:center; background:#fff; font-family:Arial;"/>
+                        <label style="font-size:13px; font-weight:500; color:#2a3a4a; white-space:nowrap; font-family:'SimSun','宋体',serif;">目标时间</label>
+                        <input type="text" id="targetTime" value="30" style="width:56px; height:30px; border:1.5px solid #c8d0d8; border-radius:6px; padding:0 6px; font-size:14px; font-weight:500; text-align:center; background:#fff; font-family:'SimSun','宋体',serif;" />
                         <span class="unit">s</span>
                         <button class="btn btn-secondary" id="btnJump" style="height:30px; padding:0 12px;">跳转</button>
                     </div>
 
+                    <button class="btn btn-entropy" id="btnEntropy" style="height:30px; padding:0 12px;">🧮 熵变</button>
                     <button class="btn btn-outline" id="btnExport">📥 截图</button>
                     <button class="btn btn-danger" id="btnExit">✕ 退出</button>
                 </div>
@@ -422,13 +549,43 @@
             </div>
         </div>
 
-        <!-- ===== 中间：曲线图 ===== -->
+        <!-- ===== 曲线图 ===== -->
         <div class="curve-section">
             <div class="section-title">📈 平均温度变化</div>
             <canvas id="curveCanvas" width="900" height="500"></canvas>
         </div>
 
-        <!-- ===== 底部：动画演示 ===== -->
+        <!-- ===== 熵变计算结果 ===== -->
+        <div class="entropy-section" id="entropySection">
+            <div class="section-title">🧮 熵变计算结果</div>
+            <div class="entropy-grid">
+                <div class="entropy-item">
+                    <span class="entropy-label">混合后温度</span>
+                    <span class="entropy-value" id="mixTemp">--</span>
+                    <span class="entropy-unit">℃</span>
+                </div>
+                <div class="entropy-item">
+                    <span class="entropy-label">热水熵变 ΔS<sub>热</sub></span>
+                    <span class="entropy-value" id="entropyHot">--</span>
+                    <span class="entropy-unit">J/K</span>
+                </div>
+                <div class="entropy-item">
+                    <span class="entropy-label">冷水熵变 ΔS<sub>冷</sub></span>
+                    <span class="entropy-value" id="entropyCold">--</span>
+                    <span class="entropy-unit">J/K</span>
+                </div>
+                <div class="entropy-item">
+                    <span class="entropy-label">系统熵变 ΔS</span>
+                    <span class="entropy-value" id="entropyTotal">--</span>
+                    <span class="entropy-unit">J/K</span>
+                </div>
+            </div>
+            <div class="entropy-conclusion" id="entropyConclusion">
+                <span class="entropy-placeholder">点击「🧮 熵变」按钮查看结果</span>
+            </div>
+        </div>
+
+        <!-- ===== 动画演示 ===== -->
         <div class="demo-section">
             <div class="canvas-wrapper">
                 <canvas id="mainCanvas" width="800" height="400"></canvas>
@@ -473,6 +630,9 @@
         const steps_per_frame = 4;
         const dt_phys = plot_interval / steps_per_frame;
 
+        // 水的比热容 (J/(kg·K))
+        const Cp_water = 4180;
+
         let c = [];
         let t_phys = 0;
         let isRunning = false;
@@ -516,10 +676,18 @@
         const btnJump = document.getElementById('btnJump');
         const btnExport = document.getElementById('btnExport');
         const btnExit = document.getElementById('btnExit');
+        const btnEntropy = document.getElementById('btnEntropy');
         const autoExportChk = document.getElementById('autoExport');
 
         const speedSlider = document.getElementById('speedSlider');
         const speedDisplay = document.getElementById('speedDisplay');
+
+        // 熵变显示元素
+        const mixTempEl = document.getElementById('mixTemp');
+        const entropyHotEl = document.getElementById('entropyHot');
+        const entropyColdEl = document.getElementById('entropyCold');
+        const entropyTotalEl = document.getElementById('entropyTotal');
+        const entropyConclusion = document.getElementById('entropyConclusion');
 
         // ============================================================
         //  2. 颜色映射
@@ -579,7 +747,6 @@
         // ============================================================
         function initField() {
             c = [];
-            // 根据左右温度大小决定初始化方向
             const isLeftHot = Th >= Tc;
             const leftInit = isLeftHot ? 1.0 : 0.0;
             const rightInit = isLeftHot ? 0.0 : 1.0;
@@ -794,7 +961,6 @@
                 ctx2.fillRect(0, y, W, 1);
             }
 
-            // 根据实际温度修正色标文字
             const hotTemp = Math.max(Th, Tc);
             const coldTemp = Math.min(Th, Tc);
             cbHot.textContent = `${Math.round(hotTemp)} °C`;
@@ -803,7 +969,7 @@
         }
 
         // ============================================================
-        //  5. 曲线图（自适应颜色与刻度）
+        //  5. 曲线图
         // ============================================================
         function renderCurve() {
             const W = curveCanvas.width,
@@ -814,12 +980,10 @@
             ctx2.fillStyle = '#ffffff';
             ctx2.fillRect(0, 0, W, H);
 
-            // 增加左侧留白，防止“温度”标签与数字重叠
             const pad = { top: 28, bottom: 40, left: 70, right: 28 };
             const plotW = W - pad.left - pad.right;
             const plotH = H - pad.top - pad.bottom;
 
-            // 网格
             ctx2.strokeStyle = '#e8ecf0';
             ctx2.lineWidth = 0.5;
             for (let i = 0; i <= 4; i++) {
@@ -835,7 +999,6 @@
                 ctx2.stroke();
             }
 
-            // 坐标轴
             ctx2.strokeStyle = '#2a3a4a';
             ctx2.lineWidth = 1.8;
             ctx2.beginPath();
@@ -844,9 +1007,8 @@
             ctx2.lineTo(pad.left + plotW, pad.top + plotH);
             ctx2.stroke();
 
-            // 刻度标签 (横轴)
             ctx2.fillStyle = '#2a3a4a';
-            ctx2.font = '11px Arial';
+            ctx2.font = '11px SimSun, 宋体, serif';
             ctx2.textAlign = 'center';
             ctx2.textBaseline = 'top';
             for (let i = 0; i <= 4; i++) {
@@ -855,7 +1017,6 @@
                 ctx2.fillText(label, x, pad.top + plotH + 6);
             }
 
-            // 刻度标签 (纵轴) - 自动适应冷热方向
             const minT = Math.min(Th, Tc);
             const maxT = Math.max(Th, Tc);
             ctx2.textAlign = 'right';
@@ -863,13 +1024,12 @@
             for (let i = 0; i <= 4; i++) {
                 const y = pad.top + plotH - (i / 4) * plotH;
                 const tempVal = minT + (maxT - minT) * (i / 4);
-                const label = tempVal.toFixed(0); // 仅保留数字
+                const label = tempVal.toFixed(0);
                 ctx2.fillText(label, pad.left - 8, y);
             }
 
-            // 坐标轴标签
             ctx2.fillStyle = '#1a2a3a';
-            ctx2.font = 'bold 14px Arial';
+            ctx2.font = 'bold 14px SimSun, 宋体, serif';
             ctx2.textAlign = 'center';
             ctx2.textBaseline = 'top';
             ctx2.fillText('时间 (s)', pad.left + plotW / 2, pad.top + plotH + 26);
@@ -880,24 +1040,21 @@
             ctx2.textAlign = 'center';
             ctx2.textBaseline = 'middle';
             ctx2.fillStyle = '#1a2a3a';
-            ctx2.font = 'bold 14px Arial';
+            ctx2.font = 'bold 14px SimSun, 宋体, serif';
             ctx2.fillText('温度 (℃)', 0, 0);
             ctx2.restore();
 
-            // 画数据曲线
             if (t_history.length < 2) return;
 
             const scaleX = (t) => pad.left + (t / t_max) * plotW;
             const scaleY = (v) => pad.top + plotH - v * plotH;
 
-            // 动态决定颜色和标签
             const isLeftHot = Th >= Tc;
             const leftColor = isLeftHot ? '#e74c3c' : '#2980b9';
             const rightColor = isLeftHot ? '#2980b9' : '#e74c3c';
             const leftLabel = isLeftHot ? '红 (热)' : '蓝 (冷)';
             const rightLabel = isLeftHot ? '蓝 (冷)' : '红 (热)';
 
-            // 左侧曲线
             ctx2.strokeStyle = leftColor;
             ctx2.lineWidth = 2.5;
             ctx2.beginPath();
@@ -909,7 +1066,6 @@
             }
             ctx2.stroke();
 
-            // 右侧曲线
             ctx2.strokeStyle = rightColor;
             ctx2.lineWidth = 2.5;
             ctx2.beginPath();
@@ -921,8 +1077,7 @@
             }
             ctx2.stroke();
 
-            // 图例
-            ctx2.font = '12px Arial';
+            ctx2.font = '12px SimSun, 宋体, serif';
             ctx2.textAlign = 'left';
             ctx2.textBaseline = 'top';
             ctx2.fillStyle = leftColor;
@@ -1167,7 +1322,80 @@
         }
 
         // ============================================================
-        //  9. UI 事件
+        //  9. 熵变计算（核心新增功能，0℃ = 273K）
+        // ============================================================
+        function calculateEntropy() {
+            if (!readParams()) {
+                alert('参数无效，请检查温度（0~100℃）和质量（>0）是否合理。');
+                return;
+            }
+
+            // 开尔文温度 (使用 273 作为 0℃ 的标准，符合用户要求)
+            const T1_K = Th + 273;
+            const T2_K = Tc + 273;
+            const m1 = m_left;
+            const m2 = m_right;
+
+            // 混合后温度 (开尔文)
+            const T_mix_K = (m1 * T1_K + m2 * T2_K) / (m1 + m2);
+            const T_mix_C = T_mix_K - 273;
+
+            // 熵变计算
+            // 热水熵变: ΔS_hot = m1 * Cp * ln(T_mix / T1)
+            // 冷水熵变: ΔS_cold = m2 * Cp * ln(T_mix / T2)
+            const dS_hot = m1 * Cp_water * Math.log(T_mix_K / T1_K);
+            const dS_cold = m2 * Cp_water * Math.log(T_mix_K / T2_K);
+            const dS_total = dS_hot + dS_cold;
+
+            // 更新显示
+            mixTempEl.textContent = T_mix_C.toFixed(1);
+
+            // 热水熵变
+            entropyHotEl.textContent = dS_hot.toFixed(1);
+            entropyHotEl.className = 'entropy-value' + (dS_hot >= 0 ? ' positive' : ' negative');
+
+            // 冷水熵变
+            entropyColdEl.textContent = dS_cold.toFixed(1);
+            entropyColdEl.className = 'entropy-value' + (dS_cold >= 0 ? ' positive' : ' negative');
+
+            // 系统熵变
+            entropyTotalEl.textContent = dS_total.toFixed(1);
+            entropyTotalEl.className = 'entropy-value' + (dS_total > 0 ? ' positive' : (dS_total < 0 ? ' negative' :
+            ' zero'));
+
+            // 结论
+            let conclusionHtml = '';
+            if (dS_total > 0) {
+                conclusionHtml =
+                    `✅ ΔS = <span class="highlight">${dS_total.toFixed(1)} J/K</span> > 0，冷热水混合为 <span class="highlight">不可逆自发过程</span>（熵增原理）`;
+            } else if (dS_total < 0) {
+                conclusionHtml =
+                    `⚠️ ΔS = <span class="highlight-red">${dS_total.toFixed(1)} J/K</span> < 0，混合为 <span class="highlight-red">非自发过程</span>（需要外界做功）`;
+            } else {
+                conclusionHtml = `⚖️ ΔS = 0，混合为可逆过程（理想化情形）`;
+            }
+            // 显示公式（基于 273K 基准）
+            conclusionHtml += `<br><span style="font-size:12px;font-weight:400;color:#4a5a6a;font-family:'SimSun','宋体',serif;"> 
+                ΔS<sub>热</sub> = ${m1}×${(Cp_water/1000).toFixed(2)}×ln(${T_mix_K.toFixed(2)}/${T1_K.toFixed(2)}) = ${dS_hot.toFixed(1)} J/K &nbsp;|&nbsp; 
+                ΔS<sub>冷</sub> = ${m2}×${(Cp_water/1000).toFixed(2)}×ln(${T_mix_K.toFixed(2)}/${T2_K.toFixed(2)}) = ${dS_cold.toFixed(1)} J/K
+            </span>`;
+            entropyConclusion.innerHTML = conclusionHtml;
+        }
+
+        // 重置熵变显示为占位状态
+        function resetEntropyDisplay() {
+            mixTempEl.textContent = '--';
+            entropyHotEl.textContent = '--';
+            entropyHotEl.className = 'entropy-value';
+            entropyColdEl.textContent = '--';
+            entropyColdEl.className = 'entropy-value';
+            entropyTotalEl.textContent = '--';
+            entropyTotalEl.className = 'entropy-value';
+            entropyConclusion.innerHTML = '<span class="entropy-placeholder">点击「🧮 熵变」按钮查看结果</span>';
+        }
+
+        // ============================================================
+        //  10. UI 事件
         // ============================================================
         btnStart.addEventListener('click', startSimulation);
 
@@ -1189,16 +1417,20 @@
             }
         });
 
+        // 熵变计算按钮
+        btnEntropy.addEventListener('click', calculateEntropy);
+
         function updateParamsAndRender() {
             if (!readParams()) return;
             alpha = m_left / (m_left + m_right);
-            // 参数变化时重置模拟状态并刷新视图
             if (isRunning) {
                 stopSimulation();
                 btnStart.textContent = '▶ 开始混合';
             }
             initField();
             renderAll();
+            // 参数变化时重置熵变显示
+            resetEntropyDisplay();
         }
 
         leftTempInput.addEventListener('input', updateParamsAndRender);
@@ -1217,7 +1449,7 @@
         });
 
         // ============================================================
-        //  10. 初始化
+        //  11. 初始化
         // ============================================================
         function init() {
             mainCanvas.width = 800;
@@ -1237,12 +1469,13 @@
             speedSlider.value = '1.0';
             playbackSpeed = 1.0;
 
-            // 确保 autoExport 默认不勾选
             autoExportChk.checked = false;
+
+            resetEntropyDisplay();
         }
 
         init();
-        console.log('✅ 冷热水混合模拟已加载 (自适应温差方向)');
+        console.log('✅ 冷热水混合模拟已加载 (熵变计算基准 0℃ = 273K)');
     </script>
 </body>
 </html>
