@@ -1149,6 +1149,9 @@
         }
 
         function startSimulation() {
+            // 开始模拟时清除熵变结果
+            resetEntropyDisplay();
+
             if (isRunning) {
                 resetSimulation();
                 return;
@@ -1192,6 +1195,8 @@
             initField();
             renderAll();
             btnStart.textContent = '▶ 开始混合';
+            // 重置时清除熵变结果
+            resetEntropyDisplay();
         }
 
         function readParams() {
@@ -1226,6 +1231,9 @@
         //  7. 跳转
         // ============================================================
         function jumpToTime(target) {
+            // 跳转前清除熵变结果
+            resetEntropyDisplay();
+
             if (isRunning) {
                 stopSimulation();
             }
@@ -1270,12 +1278,13 @@
         }
 
         // ============================================================
-        //  8. 录制 & 截图
+        //  8. 录制 & 截图（仅录制曲线图）
         // ============================================================
         function startRecording() {
             if (isRecording) return;
             try {
-                const stream = mainCanvas.captureStream(30);
+                // 直接使用 curveCanvas 作为录制源
+                const stream = curveCanvas.captureStream(30);
                 mediaRecorder = new MediaRecorder(stream, {
                     mimeType: 'video/webm;codecs=vp9',
                     videoBitsPerSecond: 2_000_000
@@ -1290,7 +1299,7 @@
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = `cold_hot_mix_${Date.now()}.webm`;
+                    a.download = `temp_curve_${Date.now()}.webm`;
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);
@@ -1299,8 +1308,10 @@
                 };
                 mediaRecorder.start(1000 / 30);
                 isRecording = true;
+                console.log('📹 曲线图录制已启动');
             } catch (e) {
                 alert('视频录制启动失败，请使用"截图"功能。');
+                console.error('录制启动失败:', e);
             }
         }
 
@@ -1308,7 +1319,8 @@
             if (mediaRecorder && mediaRecorder.state !== 'inactive') {
                 try {
                     mediaRecorder.stop();
-                } catch (e) {}
+                    console.log('📹 曲线图录制已停止');
+                } catch (e) { }
             }
             isRecording = false;
             mediaRecorder = null;
@@ -1322,15 +1334,15 @@
         }
 
         // ============================================================
-        //  9. 熵变计算（核心新增功能，0℃ = 273K）
+        //  9. 熵变计算（核心功能，0℃ = 273K）
         // ============================================================
         function calculateEntropy() {
             if (!readParams()) {
                 alert('参数无效，请检查温度（0~100℃）和质量（>0）是否合理。');
-                return;
+                return false;
             }
 
-            // 开尔文温度 (使用 273 作为 0℃ 的标准，符合用户要求)
+            // 开尔文温度 (使用 273 作为 0℃ 的标准)
             const T1_K = Th + 273;
             const T2_K = Tc + 273;
             const m1 = m_left;
@@ -1341,8 +1353,6 @@
             const T_mix_C = T_mix_K - 273;
 
             // 熵变计算
-            // 热水熵变: ΔS_hot = m1 * Cp * ln(T_mix / T1)
-            // 冷水熵变: ΔS_cold = m2 * Cp * ln(T_mix / T2)
             const dS_hot = m1 * Cp_water * Math.log(T_mix_K / T1_K);
             const dS_cold = m2 * Cp_water * Math.log(T_mix_K / T2_K);
             const dS_total = dS_hot + dS_cold;
@@ -1350,20 +1360,16 @@
             // 更新显示
             mixTempEl.textContent = T_mix_C.toFixed(1);
 
-            // 热水熵变
             entropyHotEl.textContent = dS_hot.toFixed(1);
             entropyHotEl.className = 'entropy-value' + (dS_hot >= 0 ? ' positive' : ' negative');
 
-            // 冷水熵变
             entropyColdEl.textContent = dS_cold.toFixed(1);
             entropyColdEl.className = 'entropy-value' + (dS_cold >= 0 ? ' positive' : ' negative');
 
-            // 系统熵变
             entropyTotalEl.textContent = dS_total.toFixed(1);
             entropyTotalEl.className = 'entropy-value' + (dS_total > 0 ? ' positive' : (dS_total < 0 ? ' negative' :
-            ' zero'));
+                ' zero'));
 
-            // 结论
             let conclusionHtml = '';
             if (dS_total > 0) {
                 conclusionHtml =
@@ -1374,15 +1380,16 @@
             } else {
                 conclusionHtml = `⚖️ ΔS = 0，混合为可逆过程（理想化情形）`;
             }
-            // 显示公式（基于 273K 基准）
             conclusionHtml += `<br><span style="font-size:12px;font-weight:400;color:#4a5a6a;font-family:'SimSun','宋体',serif;"> 
                 ΔS<sub>热</sub> = ${m1}×${(Cp_water/1000).toFixed(2)}×ln(${T_mix_K.toFixed(2)}/${T1_K.toFixed(2)}) = ${dS_hot.toFixed(1)} J/K &nbsp;|&nbsp; 
                 ΔS<sub>冷</sub> = ${m2}×${(Cp_water/1000).toFixed(2)}×ln(${T_mix_K.toFixed(2)}/${T2_K.toFixed(2)}) = ${dS_cold.toFixed(1)} J/K
             </span>`;
             entropyConclusion.innerHTML = conclusionHtml;
+
+            return true;
         }
 
-        // 重置熵变显示为占位状态
+        // 重置熵变显示为占位状态，并将按钮恢复为“熵变”
         function resetEntropyDisplay() {
             mixTempEl.textContent = '--';
             entropyHotEl.textContent = '--';
@@ -1392,6 +1399,19 @@
             entropyTotalEl.textContent = '--';
             entropyTotalEl.className = 'entropy-value';
             entropyConclusion.innerHTML = '<span class="entropy-placeholder">点击「🧮 熵变」按钮查看结果</span>';
+            btnEntropy.textContent = '🧮 熵变';
+        }
+
+        // 熵变按钮点击切换逻辑
+        function toggleEntropy() {
+            if (btnEntropy.textContent.includes('熵变')) {
+                const success = calculateEntropy();
+                if (success) {
+                    btnEntropy.textContent = '🔄 重置';
+                }
+            } else {
+                resetEntropyDisplay();
+            }
         }
 
         // ============================================================
@@ -1417,8 +1437,7 @@
             }
         });
 
-        // 熵变计算按钮
-        btnEntropy.addEventListener('click', calculateEntropy);
+        btnEntropy.addEventListener('click', toggleEntropy);
 
         function updateParamsAndRender() {
             if (!readParams()) return;
@@ -1429,7 +1448,6 @@
             }
             initField();
             renderAll();
-            // 参数变化时重置熵变显示
             resetEntropyDisplay();
         }
 
