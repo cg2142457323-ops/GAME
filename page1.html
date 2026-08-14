@@ -1373,15 +1373,16 @@
             let conclusionHtml = '';
             if (dS_total > 0) {
                 conclusionHtml =
-                    `✅ ΔS = <span class="highlight">${dS_total.toFixed(1)} J/K</span> > 0，冷热水混合为 <span class="highlight">不可逆自发过程</span>（熵增原理）`;
+                    `ΔS = <span class="highlight">${dS_total.toFixed(1)} J/K</span> > 0，冷热水混合为 <span class="highlight">不可逆自发过程</span>（熵增原理）`;
             } else if (dS_total < 0) {
                 conclusionHtml =
                     `⚠️ ΔS = <span class="highlight-red">${dS_total.toFixed(1)} J/K</span> < 0，混合为 <span class="highlight-red">非自发过程</span>（需要外界做功）`;
             } else {
                 conclusionHtml = `⚖️ ΔS = 0，混合为可逆过程（理想化情形）`;
             }
+            // 显示公式（基于 273K 基准）—— 热水与冷水各占一行
             conclusionHtml += `<br><span style="font-size:12px;font-weight:400;color:#4a5a6a;font-family:'SimSun','宋体',serif;"> 
-                ΔS<sub>热</sub> = ${m1}×${(Cp_water/1000).toFixed(2)}×ln(${T_mix_K.toFixed(2)}/${T1_K.toFixed(2)}) = ${dS_hot.toFixed(1)} J/K &nbsp;|&nbsp; 
+                ΔS<sub>热</sub> = ${m1}×${(Cp_water/1000).toFixed(2)}×ln(${T_mix_K.toFixed(2)}/${T1_K.toFixed(2)}) = ${dS_hot.toFixed(1)} J/K<br>
                 ΔS<sub>冷</sub> = ${m2}×${(Cp_water/1000).toFixed(2)}×ln(${T_mix_K.toFixed(2)}/${T2_K.toFixed(2)}) = ${dS_cold.toFixed(1)} J/K
             </span>`;
             entropyConclusion.innerHTML = conclusionHtml;
