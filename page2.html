@@ -1532,10 +1532,15 @@
         calcBtn.addEventListener('click', handleCalculate);
         elTemp.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleCalculate(); });
 
-        // ★★★ 返回游戏：跳转至 index.html 并自动展开面板 ★★★
+        // ★★★ 返回游戏：跳转至 index.html 并自动展开子视图（冷热水混合/化学熵变计算） ★★★
         exitBtn.addEventListener('click', function() {
+            // 设置 sessionStorage 标志，让 index.html 识别为从化学计算器返回
+            sessionStorage.setItem('returnFromPage2', 'true');
+            
             // 使用 URL 参数 ?open=true 触发 index.html 的面板自动展开
-            window.location.href = 'index.html?open=true';
+            // 注意：要实现跳转后直接显示“冷热水混合模拟/化学熵变计算”这两个模块的界面，
+            // 还需要修改 index.html 的 autoOpenPanel 函数（详见代码后注释）。
+            window.location.href = 'index.html?open=true&view=sub';
         });
 
         // ======================================================================

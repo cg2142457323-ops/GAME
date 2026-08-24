@@ -1431,10 +1431,16 @@
 
         btnExport.addEventListener('click', exportScreenshot);
 
+        // 【重点修改部分】：退出按钮逻辑
         btnExit.addEventListener('click', () => {
             if (isRunning) stopSimulation();
             if (confirm('确定要退出并返回主菜单吗？')) {
-                window.location.href = 'index.html?open=true';
+                // 利用 sessionStorage 告知 index.html 自动展开面板
+                sessionStorage.setItem('returnFromPage2', 'true');
+                // 跳转时带上 view=sub 参数
+                // 注：index.html 需要配合修改识别该参数，才能直接跳转到“冷热水混合/化学熵变计算”的子菜单界面。
+                // 否则默认只会展开主视图，需用户再点击一次“虚拟仿真小实验”
+                window.location.href = 'index.html?open=true&view=sub';
             }
         });
 

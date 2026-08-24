@@ -798,15 +798,16 @@
             startBtn.innerHTML = '<span class="icon">🚀</span> 开始探索';
 
             // ============================================================
-            //  ★★★ 新增：检测从子页面返回并自动展开面板 ★★★
+            //  ★★★ 自动展开检测（支持 view=sub 参数） ★★★
             // ============================================================
             function autoOpenPanel() {
-                // 1) 检查 URL 参数：?panel=open 或 ?open=true
+                // 1) 检查 URL 参数：?panel=open 或 ?open=true 或 ?view=sub
                 const urlParams = new URLSearchParams(window.location.search);
                 const hasPanelOpen = urlParams.get('panel') === 'open';
                 const hasOpenTrue = urlParams.get('open') === 'true';
+                const viewParam = urlParams.get('view'); // 新增：识别 view 参数
 
-                // 2) 检查 sessionStorage（来自 page2.html）
+                // 2) 检查 sessionStorage（来自 page2.html 或其他页面）
                 const returnFromPage2 = sessionStorage.getItem('returnFromPage2') === 'true';
 
                 const shouldOpen = hasPanelOpen || hasOpenTrue || returnFromPage2;
@@ -822,6 +823,10 @@
                         if (!isOpen) {
                             togglePanel(true);
                         }
+                        // 新增：如果 URL 中带 view=sub，则直接切换到子视图
+                        if (viewParam === 'sub') {
+                            showView('sub');
+                        }
                         // 清除 URL 参数，让地址栏恢复干净，避免刷新后再次自动展开
                         if (hasPanelOpen || hasOpenTrue) {
                             const cleanUrl = window.location.pathname + window.location.hash;
@@ -834,7 +839,7 @@
             // 执行自动展开检测
             autoOpenPanel();
 
-            console.log('✅ 启动器已加载 · 自动展开检测已启用');
+            console.log('✅ 启动器已加载 · 自动展开检测已启用 (支持 view=sub)');
         })();
     </script>
 
