@@ -1,11 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>熵变闯关</title>
-
-    <!-- ===== MathJax 配置 ===== -->
     <script>
         window.MathJax = {
             tex: {
@@ -30,15 +28,12 @@
     <script type="text/javascript" id="MathJax-script" async
     src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
     </script>
-
     <style>
-        /* ===== 全局重置 & 基础 ===== */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
             font-family: 'SimSun', '瀹嬩綋', 'Segoe UI', 'Comic Sans MS', 'Chalkboard SE', cursive, sans-serif;
             min-height: 100vh;
@@ -50,8 +45,6 @@
             justify-content: center;
             align-items: center;
         }
-
-        /* ===== 粒子画布 ===== */
         #particleCanvas {
             position: fixed;
             inset: 0;
@@ -60,8 +53,6 @@
             z-index: 0;
             pointer-events: none;
         }
-
-        /* ===== 主容器 ===== */
         .game-wrapper {
             position: relative;
             z-index: 1;
@@ -81,14 +72,9 @@
             overflow: hidden;
             padding: 30px 30px 25px;
         }
-
         .hidden {
             display: none !important;
         }
-
-        /* ================================================================
-           选择判断菜单界面
-           ================================================================ */
         #menuPanel {
             position: absolute;
             inset: 0;
@@ -101,7 +87,6 @@
             justify-content: space-between;
             align-items: center;
         }
-
         .menu-header-area {
             display: flex;
             flex-direction: column;
@@ -137,7 +122,6 @@
             box-shadow: 0 0 20px rgba(0, 200, 255, 0.08);
             cursor: default;
         }
-
         .back-btn {
             padding: 6px 14px;
             border-radius: 14px;
@@ -156,7 +140,6 @@
             border-color: rgba(255, 255, 255, 0.25);
             color: #fff;
         }
-
         .menu-cards {
             display: flex;
             justify-content: center;
@@ -168,7 +151,6 @@
             padding: 5px 0;
             width: 100%;
         }
-
         .menu-card {
             flex: 0 0 260px;
             max-width: 320px;
@@ -196,7 +178,6 @@
         .menu-card:active {
             transform: scale(0.96);
         }
-
         .card-apple {
             background: rgba(100, 140, 160, 0.15);
             backdrop-filter: blur(8px);
@@ -205,7 +186,6 @@
             background: rgba(140, 80, 200, 0.12);
             backdrop-filter: blur(8px);
         }
-
         .menu-card .card-emoji {
             font-size: 46px;
             margin-bottom: 10px;
@@ -239,7 +219,6 @@
             background: rgba(255, 255, 255, 0.18);
             border-color: rgba(255, 255, 255, 0.3);
         }
-
         .menu-footer {
             display: flex;
             flex-direction: column;
@@ -266,17 +245,12 @@
             color: rgba(255, 255, 255, 0.15);
             letter-spacing: 2px;
         }
-
-        /* ================================================================
-           游戏界面
-           ================================================================ */
         #gamePanel {
             display: flex;
             flex-direction: column;
             height: 100%;
             position: relative;
         }
-
         .top-bar {
             display: flex;
             justify-content: space-between;
@@ -286,7 +260,6 @@
             flex-wrap: wrap;
             gap: 12px;
         }
-
         .top-bar .left-group {
             display: flex;
             align-items: center;
@@ -296,7 +269,6 @@
             font-size: 13px;
             padding: 6px 14px;
         }
-
         .top-bar .corn-display {
             display: flex;
             align-items: center;
@@ -310,7 +282,6 @@
             border-radius: 40px;
             border: 1px solid rgba(255, 215, 0, 0.2);
         }
-
         .top-bar .corn-display .corn-icon {
             font-size: 34px;
             line-height: 1;
@@ -320,7 +291,6 @@
             text-align: center;
             font-size: 30px;
         }
-
         .top-bar .timer-display {
             display: flex;
             align-items: center;
@@ -346,12 +316,10 @@
             color: #ff8a7a;
             animation: pulseWarn 0.6s ease-in-out infinite alternate;
         }
-
         @keyframes pulseWarn {
             0% { opacity: 1; transform: scale(1); }
             100% { opacity: 0.5; transform: scale(1.06); }
         }
-
         .top-bar .progress-display {
             font-size: 20px;
             font-weight: 600;
@@ -361,8 +329,6 @@
             border-radius: 40px;
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
-
-        /* ===== 主体 ===== */
         .main-area {
             display: flex;
             flex: 1;
@@ -371,7 +337,6 @@
             min-height: 0;
             height: 100%;
         }
-
         .question-area {
             flex: 0 0 auto;
             display: flex;
@@ -380,7 +345,6 @@
             padding: 0;
             min-height: 120px;
         }
-
         .question-card {
             background: rgba(255, 255, 255, 0.07);
             backdrop-filter: blur(8px);
@@ -395,7 +359,6 @@
             flex-direction: column;
             justify-content: center;
         }
-
         .question-header {
             display: flex;
             justify-content: space-between;
@@ -404,7 +367,6 @@
             flex-wrap: wrap;
             gap: 8px;
         }
-
         .question-number {
             font-size: 14px;
             color: rgba(255, 255, 255, 0.4);
@@ -412,14 +374,12 @@
             letter-spacing: 1px;
             text-transform: uppercase;
         }
-
         .question-tags {
             display: flex;
             gap: 10px;
             align-items: center;
             flex-wrap: wrap;
         }
-
         .difficulty-tag {
             padding: 4px 16px;
             border-radius: 20px;
@@ -443,7 +403,6 @@
             color: #f87171;
             border-color: rgba(248, 113, 113, 0.25);
         }
-
         .score-tag {
             padding: 4px 16px;
             border-radius: 20px;
@@ -453,7 +412,6 @@
             color: #ffdd77;
             border: 1px solid rgba(255, 215, 0, 0.2);
         }
-
         .question-text {
             font-size: 22px;
             font-weight: 600;
@@ -466,7 +424,6 @@
         .question-text .tex2jax_process {
             font-weight: 500;
         }
-
         .question-hint {
             margin-top: 12px;
             font-size: 15px;
@@ -481,8 +438,6 @@
             font-size: 18px;
             margin-right: 6px;
         }
-
-        /* ---- 苹果选择区 ---- */
         .holes-area {
             flex: 1;
             display: flex;
@@ -492,7 +447,6 @@
             padding: 6px 0;
             position: relative;
         }
-
         .holes-row {
             display: flex;
             gap: 50px;
@@ -502,7 +456,6 @@
             position: relative;
             width: 100%;
         }
-
         .hole-wrapper {
             display: flex;
             flex-direction: column;
@@ -520,7 +473,6 @@
             pointer-events: none;
             opacity: 0.5;
         }
-
         .hole-container {
             position: relative;
             width: 160px;
@@ -529,7 +481,6 @@
             align-items: center;
             justify-content: center;
         }
-
         .hole-container .apple {
             position: relative;
             width: 120px;
@@ -608,7 +559,6 @@
             left: 50%;
             transform: rotate(-20deg);
         }
-
         .hole-container .apple .apple-inner {
             display: none;
             position: absolute;
@@ -648,7 +598,6 @@
             left: 44%;
             transform: rotate(0deg);
         }
-
         @keyframes cutApple {
             0% { transform: scale(1) rotateY(0deg); }
             50% { transform: scale(1.1) rotateY(20deg); }
@@ -660,7 +609,6 @@
             60% { transform: scale(0.85) rotate(5deg); }
             100% { transform: scale(1) rotate(0deg); }
         }
-
         .hole-container .apple.cut-good {
             animation: cutApple 0.6s cubic-bezier(0.34, 1.2, 0.64, 1) forwards;
         }
@@ -674,7 +622,6 @@
         .hole-container .apple.cut-good .apple-inner {
             display: block;
         }
-
         .hole-container .apple.cut-bad {
             animation: cutWrongApple 0.5s ease-out forwards;
         }
@@ -692,7 +639,6 @@
             opacity: 0.5;
             background: linear-gradient(135deg, #888, #555);
         }
-
         .hole-container .apple.cut-good .stars {
             display: block !important;
             position: absolute;
@@ -731,12 +677,10 @@
             animation-delay: 0.9s;
             font-size: 24px;
         }
-
         @keyframes starFloat {
             0% { transform: translateY(0) rotate(0deg) scale(0.8); opacity: 0.6; }
             100% { transform: translateY(-14px) rotate(30deg) scale(1.2); opacity: 1; }
         }
-
         .hole-label {
             font-size: 24px;
             font-weight: 800;
@@ -753,8 +697,6 @@
         .hole-label .label-icon {
             margin-right: 6px;
         }
-
-        /* ===== 跳过按钮 ===== */
         .skip-btn {
             margin-top: 14px;
             padding: 10px 32px;
@@ -782,8 +724,6 @@
             pointer-events: none;
             opacity: 0.3;
         }
-
-        /* ===== 结果弹窗 ===== */
         .result-overlay {
             position: absolute;
             inset: 0;
@@ -801,7 +741,6 @@
         .result-overlay.show {
             display: flex;
         }
-
         .result-box {
             background: rgba(255, 255, 255, 0.08);
             backdrop-filter: blur(16px);
@@ -818,7 +757,6 @@
             0% { opacity: 0; transform: scale(0.8) translateY(30px); }
             100% { opacity: 1; transform: scale(1) translateY(0); }
         }
-
         .result-box .big-corn {
             font-size: 72px;
             display: block;
@@ -882,7 +820,6 @@
             font-size: 42px;
             line-height: 1;
         }
-
         .result-box .result-detail {
             font-size: 16px;
             color: rgba(255, 255, 255, 0.5);
@@ -926,7 +863,6 @@
             background: rgba(255, 255, 255, 0.25);
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
         }
-
         .next-btn {
             display: none;
             margin-top: 16px;
@@ -950,8 +886,6 @@
         .next-btn:active {
             transform: scale(0.94);
         }
-
-        /* ===== 玉米弹出动画 ===== */
         .corn-fly {
             position: fixed;
             font-size: 48px;
@@ -965,8 +899,6 @@
             70% { opacity: 1; transform: translateY(-100px) scale(1) rotate(-5deg); }
             100% { opacity: 0; transform: translateY(-180px) scale(0.8) rotate(8deg); }
         }
-
-        /* ===== 响应式 ===== */
         @media (max-width: 820px) {
             .game-wrapper {
                 height: auto;
@@ -1003,7 +935,6 @@
             .question-header { margin-bottom: 6px; }
             .skip-btn { font-size: 14px; padding: 8px 24px; }
         }
-
         @media (max-width: 480px) {
             .main-area { gap: 10px; }
             .question-card { padding: 14px 14px 12px; min-height: 80px; }
@@ -1029,23 +960,14 @@
     </style>
 </head>
 <body>
-
-    <!-- ===== 粒子背景 ===== -->
     <canvas id="particleCanvas"></canvas>
-
-    <!-- ===== 主容器 ===== -->
     <div class="game-wrapper">
-
-        <!-- ============================================================
-        菜单面板
-        ============================================================ -->
         <div id="menuPanel">
             <div class="menu-header-area">
                 <h2>熵变闯关</h2>
                 <p class="menu-subtitle">益智游戏</p>
                 <div class="choice-btn">🎯 选择项目</div>
             </div>
-
             <div class="menu-cards">
                 <div class="menu-card card-apple" onclick="window.location.href='1.html'">
                     <div class="card-emoji">🍎</div>
@@ -1060,17 +982,12 @@
                     <div class="card-btn">开始游戏 →</div>
                 </div>
             </div>
-
             <div class="menu-footer">
                 <button class="back-btn bottom-back-btn" onclick="window.location.href='index.html?panel=open'">← 返回主菜单</button>
                 <p class="footer-text">选择上方实验进入 · 或点击返回</p>
                 <p class="footer-sub">✧ 每一个探索都是一次发现 ✧</p>
             </div>
         </div>
-
-        <!-- ============================================================
-        游戏面板
-        ============================================================ -->
         <div id="gamePanel" class="hidden">
             <div class="top-bar">
                 <div class="left-group">
@@ -1087,7 +1004,6 @@
                     <span id="progressText">1 / 10</span>
                 </div>
             </div>
-
             <div class="main-area">
                 <div class="question-area">
                     <div class="question-card" id="questionCard">
@@ -1104,7 +1020,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="holes-area">
                     <div class="holes-row">
                         <div class="hole-wrapper" id="wrapperCorrect">
@@ -1148,18 +1063,13 @@
                             <div class="hole-label"><span class="label-icon">❌</span> 错</div>
                         </div>
                     </div>
-
-                    <!-- 跳过按钮 -->
                     <button class="skip-btn" id="skipBtn" onclick="handleSkip()">⏭️ 跳过此题</button>
-
                     <div style="margin-top:6px;font-size:14px;color:rgba(255,255,255,0.25);text-align:center;letter-spacing:1px;">
                         👆 点击苹果切开选择答案 · 跳过不扣分
                     </div>
                     <button class="next-btn" id="nextBtn" style="display:none;" onclick="goNext()">下一题 →</button>
                 </div>
             </div>
-
-            <!-- 结果弹窗 -->
             <div class="result-overlay" id="resultOverlay">
                 <div class="result-box">
                     <span class="big-corn"></span>
@@ -1176,11 +1086,7 @@
             </div>
         </div>
     </div>
-
     <script>
-        /* ================================================================
-           粒子背景
-           ================================================================ */
         (function initParticles() {
             const canvas = document.getElementById('particleCanvas');
             const ctx = canvas.getContext('2d');
@@ -1188,14 +1094,12 @@
             const particles = [];
             const COUNT = 110;
             const MAX_R = 2.8;
-
             function resize() {
                 w = canvas.width = window.innerWidth;
                 h = canvas.height = window.innerHeight;
             }
             window.addEventListener('resize', resize);
             resize();
-
             class Particle {
                 constructor() { this.reset(); }
                 reset() {
@@ -1226,14 +1130,12 @@
                     }
                 }
             }
-
             for (let i = 0; i < COUNT; i++) {
                 const p = new Particle();
                 p.x = Math.random() * w;
                 p.y = Math.random() * h;
                 particles.push(p);
             }
-
             function drawLines() {
                 for (let i = 0; i < particles.length; i++) {
                     for (let j = i + 1; j < particles.length; j++) {
@@ -1254,7 +1156,6 @@
                     }
                 }
             }
-
             function animate() {
                 ctx.clearRect(0, 0, w, h);
                 const grad = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, Math.max(w, h) * 0.7);
@@ -1263,7 +1164,6 @@
                 grad.addColorStop(1, '#060a14');
                 ctx.fillStyle = grad;
                 ctx.fillRect(0, 0, w, h);
-
                 for (const p of particles) { p.update();
                     p.draw(); }
                 drawLines();
@@ -1271,85 +1171,67 @@
             }
             animate();
         })();
-
-        /* ================================================================
-           游戏数据（三层难度，共10题，按 简单→中等→困难 排列）
-           ================================================================ */
         const questionData = [{
-            // 简单 ①
             difficulty: "简单",
             score: 5,
             q: "熵增原理是热力学第二定律的宏观表述之一。",
             ans: "对",
             explain: "熵增原理（热力学第二定律的熵表述）与克劳修斯表述、开尔文表述是等价的，都是从宏观上描述热过程方向性的表述。"
         }, {
-            // 简单 ②
             difficulty: "简单",
             score: 5,
             q: "因为熵是态函数，所以只要系统初末状态确定，熵变就确定。",
             ans: "对",
             explain: "熵是状态函数（态函数），状态函数的核心特征是：其变化量仅由系统的初末状态决定，与变化的具体路径无关。因此只要初末状态确定，熵变就是唯一确定的值。"
         }, {
-            // 简单 ③
             difficulty: "简单",
             score: 5,
             q: "反应 $\\ce{CaCO_{3}(s) = CaO(s) + CO_{2}(g)}$ 的熵变 $\\Delta S < 0$。",
             ans: "错",
             explain: "该反应由固体反应物分解生成了 $\\ce{CO_{2}}$ 气体，反应后气体物质的量增加，体系微观混乱度提升，因此熵变 $\\Delta S > 0$。"
         }, {
-            // 中等 ④
             difficulty: "中等",
             score: 10,
             q: "熵增原理的宏观微分形式为 $dS \\ge 0$。",
             ans: "对",
             explain: "对于孤立系统，其熵永远不会减少，这就是熵增原理。其微分形式 $dS \\ge 0$ 表达了系统状态变化的不可逆性。"
         }, {
-            // 中等 ⑤
             difficulty: "中等",
             score: 10,
             q: "对于恒温热源，熵变的计算公式为 $\\Delta S = Q/T$，热源温度恒定，无论过程是否可逆，都可以用该式计算熵变。",
             ans: "对",
             explain: "恒温热源的温度始终不变，无论过程可逆与否，其熵变都等于系统吸收或释放的热量除以热源温度（即 $\\Delta S = Q/T$）。"
         }, {
-            // 中等 ⑥
             difficulty: "中等",
             score: 10,
             q: "系统的熵越大，其能量品质越高。",
             ans: "错",
             explain: "熵越大意味着系统的混乱度（无序度）越高，其能量的可利用程度就越低，因此能量品质是越低的。"
         }, {
-            // 中等 ⑦
             difficulty: "中等",
             score: 10,
             q: "反应 $\\ce{2H_{2}O_{2}(l) = 2H_{2}O(l) + O_{2}(g)}$ 的熵减小。",
             ans: "错",
             explain: "熵反映体系的微观混乱度，气态物质的熵远大于液态物质。该反应由液态反应物生成了气态 $\\ce{O_{2}}$，体系中气体分子数增加，混乱度显著增大，因此反应的熵增大。"
         }, {
-            // 困难 ⑧
             difficulty: "困难",
             score: 15,
             q: "一个绝热系统没有热量交换但有功的输入时，系统的熵会减小。",
             ans: "错",
             explain: "绝热系统与外界无热量交换（$Q=0$）。对系统输入功的过程通常为不可逆过程（伴随耗散效应），根据熵增原理，绝热不可逆过程系统的熵一定增加；即使是可逆绝热过程，熵也保持不变，绝不会减小。"
         }, {
-            // 困难 ⑨
             difficulty: "困难",
             score: 15,
             q: "电冰箱工作时，其内部的熵减少，但环境的熵增加，且总熵增加。",
             ans: "对",
             explain: "冰箱内部温度降低，熵减少；但压缩机工作时排出的热量释放到环境中，使得环境的熵大幅增加。将冰箱与环境看作一个大的孤立系统，总熵是增加的，符合熵增原理。"
         }, {
-            // 困难 ⑩
             difficulty: "困难",
             score: 15,
             q: "在孤立系统中，从非平衡态到平衡态的过程是熵增的过程。",
             ans: "对",
             explain: "根据熵增原理，孤立系统中自发进行的过程总是朝着熵增大的方向进行。系统从非平衡态自发趋向平衡态的过程属于自发过程，因此该过程是熵增过程，达到平衡时系统熵达到最大值。"
         }];
-
-        /* ================================================================
-           游戏状态
-           ================================================================ */
         let currentIndex = 0;
         let cornCount = 0;
         let timer = 30;
@@ -1358,10 +1240,6 @@
         let isAnswering = false;
         let totalQuestions = questionData.length;
         let shuffledQuestions = [];
-
-        /* ================================================================
-           DOM 引用
-           ================================================================ */
         const menuPanel = document.getElementById('menuPanel');
         const gamePanel = document.getElementById('gamePanel');
         const appleCorrect = document.getElementById('moleCorrect');
@@ -1383,18 +1261,9 @@
         const resultStars = document.getElementById('resultStars');
         const questionCard = document.getElementById('questionCard');
         const skipBtn = document.getElementById('skipBtn');
-
-        /* ================================================================
-           工具函数
-           ================================================================ */
         function initQuestions() {
             shuffledQuestions = questionData.map((item, idx) => ({ ...item, originalIdx: idx + 1 }));
-            // 保持原始顺序：简单→中等→困难
         }
-
-        /* ================================================================
-           界面切换控制
-           ================================================================ */
         function showMenu() {
             menuPanel.classList.remove('hidden');
             gamePanel.classList.add('hidden');
@@ -1402,7 +1271,6 @@
             isGameActive = false;
             isAnswering = false;
         }
-
         function startGame() {
             menuPanel.classList.add('hidden');
             gamePanel.classList.remove('hidden');
@@ -1422,7 +1290,6 @@
             timerDisplay.classList.remove('warning');
             loadQuestion(0);
         }
-
         function goToMenu() {
             stopTimer();
             isGameActive = false;
@@ -1430,31 +1297,24 @@
             resultOverlay.classList.remove('show');
             showMenu();
         }
-
-        /* ================================================================
-           苹果重置
-           ================================================================ */
-        function resetMoles() {
-            [appleCorrect, appleWrong].forEach(apple => {
-                apple.classList.remove('cut-good', 'cut-bad');
-                const stars = apple.querySelector('.stars');
-                if (stars) stars.style.display = 'none';
-                const body = apple.querySelector('.apple-body');
-                if (body) {
-                    body.style.background = '';
-                    body.style.boxShadow = '';
-                }
-                const leaf = apple.querySelector('.apple-leaf');
-                if (leaf) { leaf.style.opacity = '1';
-                    leaf.style.background = ''; }
-                const stem = apple.querySelector('.apple-stem');
-                if (stem) stem.style.opacity = '1';
-            });
+        function resetApple(apple) {
+            apple.classList.remove('cut-good', 'cut-bad');
+            const stars = apple.querySelector('.stars');
+            if (stars) stars.style.display = 'none';
+            const body = apple.querySelector('.apple-body');
+            if (body) {
+                body.style.background = '';
+                body.style.boxShadow = '';
+            }
+            const leaf = apple.querySelector('.apple-leaf');
+            if (leaf) { leaf.style.opacity = '1';
+                leaf.style.background = ''; }
+            const stem = apple.querySelector('.apple-stem');
+            if (stem) stem.style.opacity = '1';
         }
-
-        /* ================================================================
-           计时器
-           ================================================================ */
+        function resetMoles() {
+            [appleCorrect, appleWrong].forEach(apple => resetApple(apple));
+        }
         function startTimer() {
             clearInterval(timerInterval);
             timer = 30;
@@ -1470,15 +1330,10 @@
                 }
             }, 1000);
         }
-
         function stopTimer() {
             clearInterval(timerInterval);
             timerDisplay.classList.remove('warning');
         }
-
-        /* ================================================================
-           核心游戏逻辑
-           ================================================================ */
         function loadQuestion(index) {
             if (index >= shuffledQuestions.length) {
                 endGame();
@@ -1487,7 +1342,6 @@
             const data = shuffledQuestions[index];
             qText.textContent = data.q;
             qNumber.textContent = `第 ${index + 1} 题`;
-
             qDifficulty.textContent = data.difficulty;
             qDifficulty.className = 'difficulty-tag';
             if (data.difficulty === '简单') {
@@ -1497,7 +1351,6 @@
             } else if (data.difficulty === '困难') {
                 qDifficulty.classList.add('hard');
             }
-
             qScore.textContent = data.score + '分';
             progressText.textContent = `${index + 1} / ${shuffledQuestions.length}`;
             qHint.innerHTML = `<span><span class="hint-icon">🍎</span>点击苹果切开选择答案</span>`;
@@ -1508,16 +1361,13 @@
             nextBtn.style.display = 'none';
             isAnswering = false;
             isGameActive = true;
-
             if (window.MathJax && MathJax.typesetPromise) {
                 MathJax.typesetPromise([questionCard]).catch(err => console.error(err));
             }
-
             startTimer();
         }
-
         function showAppleState(apple, state) {
-            resetMoles();
+            resetApple(apple);
             if (state === 'good') {
                 apple.classList.add('cut-good');
                 const stars = apple.querySelector('.stars');
@@ -1526,27 +1376,21 @@
                 apple.classList.add('cut-bad');
             }
         }
-
         function handleAnswer(selected) {
             if (!isGameActive || isAnswering) return;
             if (currentIndex >= shuffledQuestions.length) return;
-
             const data = shuffledQuestions[currentIndex];
             const correct = data.ans;
             const isCorrect = (selected === correct);
             const scoreValue = data.score;
-
             isAnswering = true;
             stopTimer();
             isGameActive = false;
-
             wrapperCorrect.classList.add('disabled');
             wrapperWrong.classList.add('disabled');
             skipBtn.classList.add('disabled');
-
             const correctApple = correct === '对' ? appleCorrect : appleWrong;
             const wrongApple = correct === '对' ? appleWrong : appleCorrect;
-
             if (isCorrect) {
                 showAppleState(correctApple, 'good');
                 cornCount += scoreValue;
@@ -1564,82 +1408,59 @@
                     <span style="display:block;margin-top:6px;color:#c8d6e5;font-size:14px;line-height:1.5;">💡 解析：${data.explain}</span>
                 `;
             }
-
             const isLast = (currentIndex + 1 >= shuffledQuestions.length);
             nextBtn.textContent = isLast ? '查看结果 🏁' : '下一题 →';
             nextBtn.style.display = 'block';
-
             if (window.MathJax && MathJax.typesetPromise) {
                 MathJax.typesetPromise([questionCard]).catch(err => console.error(err));
             }
         }
-
         function handleTimeout() {
             if (!isGameActive || isAnswering) return;
             if (currentIndex >= shuffledQuestions.length) return;
-
             const data = shuffledQuestions[currentIndex];
             const correct = data.ans;
-
             isAnswering = true;
             stopTimer();
             isGameActive = false;
-
             wrapperCorrect.classList.add('disabled');
             wrapperWrong.classList.add('disabled');
             skipBtn.classList.add('disabled');
-
             const correctApple = correct === '对' ? appleCorrect : appleWrong;
             showAppleState(correctApple, 'good');
             qHint.innerHTML = `
                 <span style="color:#f87171;">⏰ 时间到！正确答案是 "<strong>${correct}</strong>"</span>
                 <span style="display:block;margin-top:6px;color:#c8d6e5;font-size:14px;line-height:1.5;">💡 解析：${data.explain}</span>
             `;
-
             const isLast = (currentIndex + 1 >= shuffledQuestions.length);
             nextBtn.textContent = isLast ? '查看结果 🏁' : '下一题 →';
             nextBtn.style.display = 'block';
-
             if (window.MathJax && MathJax.typesetPromise) {
                 MathJax.typesetPromise([questionCard]).catch(err => console.error(err));
             }
         }
-
-        /* ================================================================
-           跳过逻辑
-           ================================================================ */
         function handleSkip() {
             if (!isGameActive || isAnswering) return;
             if (currentIndex >= shuffledQuestions.length) return;
-
-            // 跳过：不扣分，不得分，直接进入下一题
             isAnswering = true;
             stopTimer();
             isGameActive = false;
-
             wrapperCorrect.classList.add('disabled');
             wrapperWrong.classList.add('disabled');
             skipBtn.classList.add('disabled');
-
             const data = shuffledQuestions[currentIndex];
             const correct = data.ans;
-
-            // 显示正确答案（但不展示苹果动画，直接显示提示）
             qHint.innerHTML = `
                 <span style="color:#94a3b8;">⏭️ 已跳过此题　正确答案是 "<strong>${correct}</strong>"</span>
                 <span style="display:block;margin-top:6px;color:#c8d6e5;font-size:14px;line-height:1.5;">💡 解析：${data.explain}</span>
             `;
-
-            // 不改变分数，不展示苹果动画
             const isLast = (currentIndex + 1 >= shuffledQuestions.length);
             nextBtn.textContent = isLast ? '查看结果 🏁' : '下一题 →';
             nextBtn.style.display = 'block';
-
             if (window.MathJax && MathJax.typesetPromise) {
                 MathJax.typesetPromise([questionCard]).catch(err => console.error(err));
             }
         }
-
         function goNext() {
             if (nextBtn.style.display === 'none') return;
             nextBtn.style.display = 'none';
@@ -1650,78 +1471,52 @@
                 endGame();
             }
         }
-
-        /* ================================================================
-           星星计算 & 展示
-           ================================================================ */
         function getStars(score) {
             let fullStars = 0;
             let hasHalf = false;
-
             if (score <= 0) {
-                // [-100, 0] → 0 颗星
             } else if (score < 20) {
-                // (0, 20) → 半颗星
                 hasHalf = true;
             } else if (score === 20) {
-                // 20 → 1 颗星
                 fullStars = 1;
             } else if (score < 40) {
-                // (20, 40) → 1 颗星 + 半颗星
                 fullStars = 1;
                 hasHalf = true;
             } else if (score === 40) {
-                // 40 → 2 颗星
                 fullStars = 2;
             } else if (score < 60) {
-                // (40, 60) → 2 颗星 + 半颗星
                 fullStars = 2;
                 hasHalf = true;
             } else if (score === 60) {
-                // 60 → 3 颗星
                 fullStars = 3;
             } else if (score < 80) {
-                // (60, 80) → 3 颗星 + 半颗星
                 fullStars = 3;
                 hasHalf = true;
             } else if (score === 80) {
-                // 80 → 4 颗星
                 fullStars = 4;
             } else if (score < 100) {
-                // (80, 100) → 4 颗星 + 半颗星
                 fullStars = 4;
                 hasHalf = true;
             } else if (score === 100) {
-                // 100 → 5 颗星
                 fullStars = 5;
             }
-
             return { fullStars, hasHalf };
         }
-
         function renderStars(score) {
             const { fullStars, hasHalf } = getStars(score);
             let html = '';
-
             for (let i = 0; i < fullStars; i++) {
                 html += `<span class="star-wrap"><span class="star-full">⭐</span></span>`;
             }
-
             if (hasHalf) {
                 html += `<span class="star-wrap"><span class="star-half">⭐</span></span>`;
             }
-
             if (fullStars === 0 && !hasHalf) {
                 html += `<span style="color:#444;font-size:42px;line-height:1;">☆</span>`;
                 html += `<span style="color:#444;font-size:14px;margin-left:6px;opacity:0.5;">（未获得星星）</span>`;
             }
-
             return html;
         }
-
-        /* ================================================================
-           结束 & 重启
-           ================================================================ */
         function endGame() {
             stopTimer();
             isGameActive = false;
@@ -1730,16 +1525,12 @@
             wrapperCorrect.classList.add('disabled');
             wrapperWrong.classList.add('disabled');
             skipBtn.classList.add('disabled');
-
             finalCornCount.textContent = cornCount + '分';
             const total = shuffledQuestions.length;
             finalDetail.textContent = `共 ${total} 题，获得 ${cornCount} 分`;
-
             resultStars.innerHTML = renderStars(cornCount);
-
             resultOverlay.classList.add('show');
         }
-
         function restartGame() {
             resultOverlay.classList.remove('show');
             cornCount = 0;
@@ -1757,10 +1548,6 @@
             timerDisplay.classList.remove('warning');
             loadQuestion(0);
         }
-
-        /* ================================================================
-           玉米飞特效
-           ================================================================ */
         function spawnCornFly(anchorEl) {
             const rect = anchorEl.getBoundingClientRect();
             const el = document.createElement('div');
@@ -1773,13 +1560,8 @@
                 if (el.parentNode) el.parentNode.removeChild(el);
             }, 1000);
         }
-
-        /* ================================================================
-           事件绑定 & 启动
-           ================================================================ */
         wrapperCorrect.addEventListener('click', () => { handleAnswer('对'); });
         wrapperWrong.addEventListener('click', () => { handleAnswer('错'); });
-
         window.onload = function() {
             showMenu();
             initQuestions();

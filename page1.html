@@ -37,8 +37,6 @@
             letter-spacing: 2px;
             font-family: 'SimSun', '宋体', serif;
         }
-
-        /* ---- 顶部：参数设置 ---- */
         .params-section {
             background: #fafbfc;
             border-radius: 10px;
@@ -166,7 +164,6 @@
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(142, 68, 173, 0.35);
         }
-
         .speed-slider {
             width: 80px;
             accent-color: #2c7fb8;
@@ -195,8 +192,6 @@
             accent-color: #2c7fb8;
             cursor: pointer;
         }
-
-        /* ---- 曲线图 ---- */
         .curve-section {
             background: #fafbfc;
             border-radius: 10px;
@@ -221,8 +216,6 @@
             border-radius: 6px;
             background: #ffffff;
         }
-
-        /* ---- 熵变结果 ---- */
         .entropy-section {
             background: #fafbfc;
             border-radius: 10px;
@@ -310,8 +303,6 @@
             color: #8a9aaa;
             font-weight: 400;
         }
-
-        /* ---- 动画演示 ---- */
         .demo-section {
             position: relative;
             border-radius: 10px;
@@ -333,8 +324,6 @@
             cursor: default;
             image-rendering: pixelated;
         }
-
-        /* 色标 */
         .colorbar-container {
             position: absolute;
             right: 20px;
@@ -376,8 +365,6 @@
             white-space: nowrap;
             font-family: 'SimSun', '宋体', serif;
         }
-
-        /* 信息行 */
         .demo-info {
             display: flex;
             justify-content: space-between;
@@ -400,8 +387,6 @@
             color: #2c5a7a;
             font-family: 'SimSun', '宋体', serif;
         }
-
-        /* ---- 响应式 ---- */
         @media (max-width: 780px) {
             .container {
                 padding: 12px 10px;
@@ -484,80 +469,60 @@
     </style>
 </head>
 <body>
-
     <div class="container" id="app">
         <h1>🔥 冷热水混合模拟 ❄️</h1>
-
-        <!-- ===== 顶部：参数设置 ===== -->
         <div class="params-section">
             <div class="section-title">⚙️ 参数设置</div>
             <div class="params-grid">
-                <!-- 左侧温度 -->
                 <div class="param-group">
                     <label>左侧温度</label>
                     <input type="text" id="leftTemp" value="80" />
                     <span class="unit">℃</span>
                 </div>
-                <!-- 右侧温度 -->
                 <div class="param-group">
                     <label>右侧温度</label>
                     <input type="text" id="rightTemp" value="0" />
                     <span class="unit">℃</span>
                 </div>
-                <!-- 左侧质量 -->
                 <div class="param-group">
                     <label>左侧质量</label>
                     <input type="text" id="leftMass" value="1" />
                     <span class="unit">kg</span>
                 </div>
-                <!-- 右侧质量 -->
                 <div class="param-group">
                     <label>右侧质量</label>
                     <input type="text" id="rightMass" value="1" />
                     <span class="unit">kg</span>
                 </div>
-
-                <!-- 播放速度 -->
                 <div class="param-group">
                     <label>速度</label>
                     <input type="range" class="speed-slider" id="speedSlider" min="0.1" max="5.0" step="0.1" value="1.0" />
                     <span class="speed-display" id="speedDisplay">1.0x</span>
                 </div>
-
-                <!-- 按钮组 + 目标时间 -->
                 <div class="param-group" style="gap:6px; flex-wrap:wrap;">
                     <button class="btn btn-primary" id="btnStart">▶ 开始混合</button>
-
-                    <!-- 目标时间组 -->
                     <div style="display:flex; align-items:center; gap:4px 8px; margin:0 4px;">
                         <label style="font-size:13px; font-weight:500; color:#2a3a4a; white-space:nowrap; font-family:'SimSun','宋体',serif;">目标时间</label>
                         <input type="text" id="targetTime" value="30" style="width:56px; height:30px; border:1.5px solid #c8d0d8; border-radius:6px; padding:0 6px; font-size:14px; font-weight:500; text-align:center; background:#fff; font-family:'SimSun','宋体',serif;" />
                         <span class="unit">s</span>
                         <button class="btn btn-secondary" id="btnJump" style="height:30px; padding:0 12px;">跳转</button>
                     </div>
-
-                    <button class="btn btn-entropy" id="btnEntropy" style="height:30px; padding:0 12px;">🧮 熵变</button>
-                    <button class="btn btn-outline" id="btnExport">📥 截图</button>
+                    <button class="btn btn-entropy" id="btnEntropy" style="height:30px; padding:0 12px;"> 熵变</button>
+                    <button class="btn btn-outline" id="btnExport"> 截图</button>
                     <button class="btn btn-danger" id="btnExit">✕ 退出</button>
                 </div>
-
-                <!-- 自动导出（默认不勾选） -->
                 <div class="checkbox-group">
                     <input type="checkbox" id="autoExport" />
                     <label for="autoExport">自动导出视频</label>
                 </div>
             </div>
         </div>
-
-        <!-- ===== 曲线图 ===== -->
         <div class="curve-section">
-            <div class="section-title">📈 平均温度变化</div>
+            <div class="section-title"> 平均温度变化</div>
             <canvas id="curveCanvas" width="900" height="500"></canvas>
         </div>
-
-        <!-- ===== 熵变计算结果 ===== -->
         <div class="entropy-section" id="entropySection">
-            <div class="section-title">🧮 熵变计算结果</div>
+            <div class="section-title"> 熵变计算结果</div>
             <div class="entropy-grid">
                 <div class="entropy-item">
                     <span class="entropy-label">混合后温度</span>
@@ -581,11 +546,9 @@
                 </div>
             </div>
             <div class="entropy-conclusion" id="entropyConclusion">
-                <span class="entropy-placeholder">点击「🧮 熵变」按钮查看结果</span>
+                <span class="entropy-placeholder">点击「 熵变」按钮查看结果</span>
             </div>
         </div>
-
-        <!-- ===== 动画演示 ===== -->
         <div class="demo-section">
             <div class="canvas-wrapper">
                 <canvas id="mainCanvas" width="800" height="400"></canvas>
@@ -604,35 +567,25 @@
             </div>
         </div>
     </div>
-
     <script>
-        // ============================================================
-        //  1. 参数与状态
-        // ============================================================
         const Lx = 2.0,
             Ly = 1.0;
         const nx = 200,
             ny = 100;
         const dx = Lx / nx,
             dy = Ly / ny;
-
         const D = 0.006;
         const U0 = 0.8;
         const tau_v = 12.0;
         const plot_interval = 0.04;
         const t_max = 60.0;
-
         let Th_default = 80,
             Tc_default = 0;
         let m_left_default = 1,
             m_right_default = 1;
-
         const steps_per_frame = 4;
         const dt_phys = plot_interval / steps_per_frame;
-
-        // 水的比热容 (J/(kg·K))
         const Cp_water = 4180;
-
         let c = [];
         let t_phys = 0;
         let isRunning = false;
@@ -640,33 +593,26 @@
         let isRecording = false;
         let mediaRecorder = null;
         let recordedChunks = [];
-
         let t_history = [];
         let left_avg_history = [];
         let right_avg_history = [];
-
         let Th = Th_default;
         let Tc = Tc_default;
         let m_left = m_left_default;
         let m_right = m_right_default;
         let alpha = m_left / (m_left + m_right);
-
         let playbackSpeed = 1.0;
-
-        // DOM
         const mainCanvas = document.getElementById('mainCanvas');
         const ctx = mainCanvas.getContext('2d');
         const curveCanvas = document.getElementById('curveCanvas');
         const curveCtx = curveCanvas.getContext('2d');
         const colorbarCanvas = document.getElementById('colorbarCanvas');
         const cbCtx = colorbarCanvas.getContext('2d');
-
         const timeDisplay = document.getElementById('timeDisplay');
         const finalTempDisplay = document.getElementById('finalTempDisplay');
         const cbHot = document.getElementById('cbHot');
         const cbMid = document.getElementById('cbMid');
         const cbCold = document.getElementById('cbCold');
-
         const leftTempInput = document.getElementById('leftTemp');
         const rightTempInput = document.getElementById('rightTemp');
         const leftMassInput = document.getElementById('leftMass');
@@ -678,20 +624,13 @@
         const btnExit = document.getElementById('btnExit');
         const btnEntropy = document.getElementById('btnEntropy');
         const autoExportChk = document.getElementById('autoExport');
-
         const speedSlider = document.getElementById('speedSlider');
         const speedDisplay = document.getElementById('speedDisplay');
-
-        // 熵变显示元素
         const mixTempEl = document.getElementById('mixTemp');
         const entropyHotEl = document.getElementById('entropyHot');
         const entropyColdEl = document.getElementById('entropyCold');
         const entropyTotalEl = document.getElementById('entropyTotal');
         const entropyConclusion = document.getElementById('entropyConclusion');
-
-        // ============================================================
-        //  2. 颜色映射
-        // ============================================================
         function hsv2rgb(h, s, v) {
             h = ((h % 360) + 360) % 360;
             const c = v * s;
@@ -713,7 +652,6 @@
                 b = x; }
             return [r + m, g + m, b + m];
         }
-
         function tempToColor(t, deltaT) {
             const sat_factor = Math.min(1, deltaT / 50);
             let hue;
@@ -732,7 +670,6 @@
             const v = 1.0;
             return hsv2rgb(hue, s, v);
         }
-
         function buildColorMap(n, deltaT) {
             const map = [];
             for (let i = 0; i < n; i++) {
@@ -741,10 +678,6 @@
             }
             return map;
         }
-
-        // ============================================================
-        //  3. 核心模拟
-        // ============================================================
         function initField() {
             c = [];
             const isLeftHot = Th >= Tc;
@@ -763,7 +696,6 @@
             left_avg_history = [];
             right_avg_history = [];
         }
-
         function computeLeftRightAvg() {
             const sep = Math.round(alpha * nx);
             let sumL = 0,
@@ -785,7 +717,6 @@
                 right: cntR > 0 ? sumR / cntR : 0
             };
         }
-
         function bilinearInterpolate(field, x, y) {
             const ix = x / dx;
             const iy = y / dy;
@@ -793,29 +724,23 @@
             const j0 = Math.floor(iy);
             const fx = ix - i0;
             const fy = iy - j0;
-
             const i1 = Math.min(i0 + 1, nx - 1);
             const j1 = Math.min(j0 + 1, ny - 1);
             const i0c = Math.max(i0, 0);
             const j0c = Math.max(j0, 0);
-
             const v00 = field[j0c][i0c];
             const v10 = field[j0c][i1];
             const v01 = field[j1][i0c];
             const v11 = field[j1][i1];
-
             const v0 = v00 + (v10 - v00) * fx;
             const v1 = v01 + (v11 - v01) * fx;
             return v0 + (v1 - v0) * fy;
         }
-
         function stepSimulation(dt) {
             if (dt <= 0) return;
-
             const decay = Math.exp(-t_phys / tau_v);
             const u_vel = new Float64Array(ny * nx);
             const v_vel = new Float64Array(ny * nx);
-
             for (let j = 0; j < ny; j++) {
                 const y = j * dy;
                 for (let i = 0; i < nx; i++) {
@@ -825,7 +750,6 @@
                     v_vel[idx] = -U0 * Math.cos(Math.PI * x / Lx) * Math.sin(Math.PI * y / Ly) * decay;
                 }
             }
-
             const c_adv = new Float64Array(ny * nx);
             for (let j = 0; j < ny; j++) {
                 const y = j * dy;
@@ -837,22 +761,17 @@
                     c_adv[idx] = bilinearInterpolate(c, xb, yb);
                 }
             }
-
             const sigma = Math.sqrt(2 * D * dt) / dx;
             const c_diff = gaussianFilter(c_adv, sigma, nx, ny);
-
             for (let j = 0; j < ny; j++) {
                 for (let i = 0; i < nx; i++) {
                     c[j][i] = Math.max(0, Math.min(1, c_diff[j * nx + i]));
                 }
             }
-
             t_phys += dt;
         }
-
         function gaussianFilter(data, sigma, w, h) {
             if (sigma < 0.01) return data.slice();
-
             const radius = Math.ceil(3 * sigma);
             const size = 2 * radius + 1;
             const kernel = new Float64Array(size);
@@ -863,7 +782,6 @@
                 sum += v;
             }
             for (let i = 0; i < size; i++) kernel[i] /= sum;
-
             const tmp = new Float64Array(w * h);
             for (let j = 0; j < h; j++) {
                 for (let i = 0; i < w; i++) {
@@ -877,7 +795,6 @@
                     tmp[j * w + i] = val / wsum;
                 }
             }
-
             const out = new Float64Array(w * h);
             for (let j = 0; j < h; j++) {
                 for (let i = 0; i < w; i++) {
@@ -893,18 +810,12 @@
             }
             return out;
         }
-
-        // ============================================================
-        //  4. 渲染
-        // ============================================================
         function renderMain() {
             const W = mainCanvas.width,
                 H = mainCanvas.height;
             const imgData = ctx.createImageData(W, H);
-
             const deltaT = Math.abs(Th - Tc);
             const cmap = buildColorMap(256, deltaT);
-
             for (let j = 0; j < ny; j++) {
                 for (let i = 0; i < nx; i++) {
                     const val = c[j][i];
@@ -930,9 +841,7 @@
                     }
                 }
             }
-
             ctx.putImageData(imgData, 0, 0);
-
             if (t_phys <= 0.1) {
                 const sepX = alpha * Lx / Lx * W;
                 ctx.beginPath();
@@ -944,14 +853,12 @@
                 ctx.stroke();
             }
         }
-
         function renderColorbar() {
             const W = colorbarCanvas.width,
                 H = colorbarCanvas.height;
             const ctx2 = cbCtx;
             const deltaT = Math.abs(Th - Tc);
             const cmap = buildColorMap(256, deltaT);
-
             for (let y = 0; y < H; y++) {
                 const t = 1 - y / (H - 1);
                 const idx = Math.round(t * 255);
@@ -960,30 +867,22 @@
                 ctx2.fillStyle = `rgb(${Math.round(r*255)},${Math.round(g*255)},${Math.round(b*255)})`;
                 ctx2.fillRect(0, y, W, 1);
             }
-
             const hotTemp = Math.max(Th, Tc);
             const coldTemp = Math.min(Th, Tc);
             cbHot.textContent = `${Math.round(hotTemp)} °C`;
             cbCold.textContent = `${Math.round(coldTemp)} °C`;
             cbMid.textContent = `${Math.round((hotTemp + coldTemp) / 2)} °C`;
         }
-
-        // ============================================================
-        //  5. 曲线图
-        // ============================================================
         function renderCurve() {
             const W = curveCanvas.width,
                 H = curveCanvas.height;
             const ctx2 = curveCtx;
             ctx2.clearRect(0, 0, W, H);
-
             ctx2.fillStyle = '#ffffff';
             ctx2.fillRect(0, 0, W, H);
-
             const pad = { top: 28, bottom: 40, left: 70, right: 28 };
             const plotW = W - pad.left - pad.right;
             const plotH = H - pad.top - pad.bottom;
-
             ctx2.strokeStyle = '#e8ecf0';
             ctx2.lineWidth = 0.5;
             for (let i = 0; i <= 4; i++) {
@@ -998,7 +897,6 @@
                 ctx2.lineTo(pad.left + plotW, y);
                 ctx2.stroke();
             }
-
             ctx2.strokeStyle = '#2a3a4a';
             ctx2.lineWidth = 1.8;
             ctx2.beginPath();
@@ -1006,7 +904,6 @@
             ctx2.lineTo(pad.left, pad.top + plotH);
             ctx2.lineTo(pad.left + plotW, pad.top + plotH);
             ctx2.stroke();
-
             ctx2.fillStyle = '#2a3a4a';
             ctx2.font = '11px SimSun, 宋体, serif';
             ctx2.textAlign = 'center';
@@ -1016,7 +913,6 @@
                 const label = (i / 4 * t_max).toFixed(0);
                 ctx2.fillText(label, x, pad.top + plotH + 6);
             }
-
             const minT = Math.min(Th, Tc);
             const maxT = Math.max(Th, Tc);
             ctx2.textAlign = 'right';
@@ -1027,13 +923,11 @@
                 const label = tempVal.toFixed(0);
                 ctx2.fillText(label, pad.left - 8, y);
             }
-
             ctx2.fillStyle = '#1a2a3a';
             ctx2.font = 'bold 14px SimSun, 宋体, serif';
             ctx2.textAlign = 'center';
             ctx2.textBaseline = 'top';
             ctx2.fillText('时间 (s)', pad.left + plotW / 2, pad.top + plotH + 26);
-
             ctx2.save();
             ctx2.translate(14, pad.top + plotH / 2);
             ctx2.rotate(-Math.PI / 2);
@@ -1043,18 +937,14 @@
             ctx2.font = 'bold 14px SimSun, 宋体, serif';
             ctx2.fillText('温度 (℃)', 0, 0);
             ctx2.restore();
-
             if (t_history.length < 2) return;
-
             const scaleX = (t) => pad.left + (t / t_max) * plotW;
             const scaleY = (v) => pad.top + plotH - v * plotH;
-
             const isLeftHot = Th >= Tc;
             const leftColor = isLeftHot ? '#e74c3c' : '#2980b9';
             const rightColor = isLeftHot ? '#2980b9' : '#e74c3c';
             const leftLabel = isLeftHot ? '红 (热)' : '蓝 (冷)';
             const rightLabel = isLeftHot ? '蓝 (冷)' : '红 (热)';
-
             ctx2.strokeStyle = leftColor;
             ctx2.lineWidth = 2.5;
             ctx2.beginPath();
@@ -1065,7 +955,6 @@
                 else ctx2.lineTo(x, y);
             }
             ctx2.stroke();
-
             ctx2.strokeStyle = rightColor;
             ctx2.lineWidth = 2.5;
             ctx2.beginPath();
@@ -1076,7 +965,6 @@
                 else ctx2.lineTo(x, y);
             }
             ctx2.stroke();
-
             ctx2.font = '12px SimSun, 宋体, serif';
             ctx2.textAlign = 'left';
             ctx2.textBaseline = 'top';
@@ -1087,47 +975,34 @@
             ctx2.fillRect(pad.left + 10, pad.top + 26, 18, 3);
             ctx2.fillText(rightLabel, pad.left + 32, pad.top + 22);
         }
-
         function renderAll() {
             renderMain();
             renderColorbar();
             renderCurve();
-
             timeDisplay.textContent = `⏱ 时间: ${t_phys.toFixed(2)} s`;
             const finalT = (m_left * Th + m_right * Tc) / (m_left + m_right);
             finalTempDisplay.textContent = `🌡 最终平衡温度: ${finalT.toFixed(1)} °C`;
         }
-
-        // ============================================================
-        //  6. 模拟控制
-        // ============================================================
         function runStep() {
             if (!isRunning) return;
-
             let stepsToRun = Math.round(steps_per_frame * playbackSpeed);
             if (stepsToRun < 1) stepsToRun = 1;
-
             for (let s = 0; s < stepsToRun; s++) {
                 stepSimulation(dt_phys);
             }
-
             const avg = computeLeftRightAvg();
             t_history.push(t_phys);
             left_avg_history.push(avg.left);
             right_avg_history.push(avg.right);
-
             renderAll();
-
             const variance = computeVariance();
             if (variance < 1e-4 || t_phys >= t_max) {
                 stopSimulation();
                 btnStart.textContent = '🔄 重新开始';
                 return;
             }
-
             timerId = setTimeout(runStep, 16);
         }
-
         function computeVariance() {
             let mean = 0,
                 count = 0;
@@ -1147,35 +1022,25 @@
             }
             return varSum / count;
         }
-
         function startSimulation() {
-            // 开始模拟时清除熵变结果
             resetEntropyDisplay();
-
             if (isRunning) {
                 resetSimulation();
                 return;
             }
-
             if (!readParams()) return;
-
             alpha = m_left / (m_left + m_right);
             initField();
-
             const finalT = (m_left * Th + m_right * Tc) / (m_left + m_right);
             finalTempDisplay.textContent = `🌡 最终平衡温度: ${finalT.toFixed(1)} °C`;
-
             isRunning = true;
             btnStart.textContent = '⏹ 重置';
-
             if (autoExportChk.checked) {
                 startRecording();
             }
-
             renderAll();
             timerId = setTimeout(runStep, 16);
         }
-
         function stopSimulation() {
             isRunning = false;
             if (timerId) {
@@ -1187,7 +1052,6 @@
             }
             btnStart.textContent = '▶ 开始混合';
         }
-
         function resetSimulation() {
             stopSimulation();
             readParams();
@@ -1195,21 +1059,17 @@
             initField();
             renderAll();
             btnStart.textContent = '▶ 开始混合';
-            // 重置时清除熵变结果
             resetEntropyDisplay();
         }
-
         function readParams() {
             const ThStr = leftTempInput.value.trim();
             const TcStr = rightTempInput.value.trim();
             const mLStr = leftMassInput.value.trim();
             const mRStr = rightMassInput.value.trim();
-
             const ThVal = parseFloat(ThStr);
             const TcVal = parseFloat(TcStr);
             const mLVal = parseFloat(mLStr);
             const mRVal = parseFloat(mRStr);
-
             if (isNaN(ThVal) || isNaN(TcVal) || isNaN(mLVal) || isNaN(mRVal)) {
                 return false;
             }
@@ -1226,21 +1086,14 @@
             rightMassInput.value = m_right;
             return true;
         }
-
-        // ============================================================
-        //  7. 跳转
-        // ============================================================
         function jumpToTime(target) {
-            // 跳转前清除熵变结果
             resetEntropyDisplay();
-
             if (isRunning) {
                 stopSimulation();
             }
             if (!readParams()) return;
             alpha = m_left / (m_left + m_right);
             initField();
-
             const targetT = Math.max(0, Math.min(t_max, target));
             const dt_jump = dt_phys;
             let steps = Math.round(targetT / dt_jump);
@@ -1267,23 +1120,16 @@
                     }
                 }
             }
-
             const avg = computeLeftRightAvg();
             t_history.push(t_phys);
             left_avg_history.push(avg.left);
             right_avg_history.push(avg.right);
-
             renderAll();
             btnStart.textContent = '▶ 开始混合';
         }
-
-        // ============================================================
-        //  8. 录制 & 截图（仅录制曲线图）
-        // ============================================================
         function startRecording() {
             if (isRecording) return;
             try {
-                // 直接使用 curveCanvas 作为录制源
                 const stream = curveCanvas.captureStream(30);
                 mediaRecorder = new MediaRecorder(stream, {
                     mimeType: 'video/webm;codecs=vp9',
@@ -1314,7 +1160,6 @@
                 console.error('录制启动失败:', e);
             }
         }
-
         function stopRecording() {
             if (mediaRecorder && mediaRecorder.state !== 'inactive') {
                 try {
@@ -1325,51 +1170,34 @@
             isRecording = false;
             mediaRecorder = null;
         }
-
         function exportScreenshot() {
             const link = document.createElement('a');
             link.download = `cold_hot_mix_${Date.now()}.png`;
             link.href = mainCanvas.toDataURL('image/png');
             link.click();
         }
-
-        // ============================================================
-        //  9. 熵变计算（核心功能，0℃ = 273K）
-        // ============================================================
         function calculateEntropy() {
             if (!readParams()) {
                 alert('参数无效，请检查温度（0~100℃）和质量（>0）是否合理。');
                 return false;
             }
-
-            // 开尔文温度 (使用 273 作为 0℃ 的标准)
             const T1_K = Th + 273;
             const T2_K = Tc + 273;
             const m1 = m_left;
             const m2 = m_right;
-
-            // 混合后温度 (开尔文)
             const T_mix_K = (m1 * T1_K + m2 * T2_K) / (m1 + m2);
             const T_mix_C = T_mix_K - 273;
-
-            // 熵变计算
             const dS_hot = m1 * Cp_water * Math.log(T_mix_K / T1_K);
             const dS_cold = m2 * Cp_water * Math.log(T_mix_K / T2_K);
             const dS_total = dS_hot + dS_cold;
-
-            // 更新显示
             mixTempEl.textContent = T_mix_C.toFixed(1);
-
             entropyHotEl.textContent = dS_hot.toFixed(1);
             entropyHotEl.className = 'entropy-value' + (dS_hot >= 0 ? ' positive' : ' negative');
-
             entropyColdEl.textContent = dS_cold.toFixed(1);
             entropyColdEl.className = 'entropy-value' + (dS_cold >= 0 ? ' positive' : ' negative');
-
             entropyTotalEl.textContent = dS_total.toFixed(1);
             entropyTotalEl.className = 'entropy-value' + (dS_total > 0 ? ' positive' : (dS_total < 0 ? ' negative' :
                 ' zero'));
-
             let conclusionHtml = '';
             if (dS_total > 0) {
                 conclusionHtml =
@@ -1380,17 +1208,13 @@
             } else {
                 conclusionHtml = `⚖️ ΔS = 0，混合为可逆过程（理想化情形）`;
             }
-            // 显示公式（基于 273K 基准）—— 热水与冷水各占一行
             conclusionHtml += `<br><span style="font-size:12px;font-weight:400;color:#4a5a6a;font-family:'SimSun','宋体',serif;"> 
                 ΔS<sub>热</sub> = ${m1}×${(Cp_water/1000).toFixed(2)}×ln(${T_mix_K.toFixed(2)}/${T1_K.toFixed(2)}) = ${dS_hot.toFixed(1)} J/K<br>
                 ΔS<sub>冷</sub> = ${m2}×${(Cp_water/1000).toFixed(2)}×ln(${T_mix_K.toFixed(2)}/${T2_K.toFixed(2)}) = ${dS_cold.toFixed(1)} J/K
             </span>`;
             entropyConclusion.innerHTML = conclusionHtml;
-
             return true;
         }
-
-        // 重置熵变显示为占位状态，并将按钮恢复为“熵变”
         function resetEntropyDisplay() {
             mixTempEl.textContent = '--';
             entropyHotEl.textContent = '--';
@@ -1399,11 +1223,9 @@
             entropyColdEl.className = 'entropy-value';
             entropyTotalEl.textContent = '--';
             entropyTotalEl.className = 'entropy-value';
-            entropyConclusion.innerHTML = '<span class="entropy-placeholder">点击「🧮 熵变」按钮查看结果</span>';
-            btnEntropy.textContent = '🧮 熵变';
+            entropyConclusion.innerHTML = '<span class="entropy-placeholder">点击「 熵变」按钮查看结果</span>';
+            btnEntropy.textContent = ' 熵变';
         }
-
-        // 熵变按钮点击切换逻辑
         function toggleEntropy() {
             if (btnEntropy.textContent.includes('熵变')) {
                 const success = calculateEntropy();
@@ -1414,12 +1236,7 @@
                 resetEntropyDisplay();
             }
         }
-
-        // ============================================================
-        //  10. UI 事件
-        // ============================================================
         btnStart.addEventListener('click', startSimulation);
-
         btnJump.addEventListener('click', () => {
             const val = parseFloat(targetTimeInput.value.trim());
             if (isNaN(val) || val < 0 || val > t_max) {
@@ -1428,24 +1245,14 @@
             }
             jumpToTime(val);
         });
-
         btnExport.addEventListener('click', exportScreenshot);
-
-        // 【重点修改部分】：退出按钮逻辑
         btnExit.addEventListener('click', () => {
             if (isRunning) stopSimulation();
             if (confirm('确定要退出并返回主菜单吗？')) {
-                // 利用 sessionStorage 告知 index.html 自动展开面板
-                sessionStorage.setItem('returnFromPage2', 'true');
-                // 跳转时带上 view=sub 参数
-                // 注：index.html 需要配合修改识别该参数，才能直接跳转到“冷热水混合/化学熵变计算”的子菜单界面。
-                // 否则默认只会展开主视图，需用户再点击一次“虚拟仿真小实验”
                 window.location.href = 'index.html?open=true&view=sub';
             }
         });
-
         btnEntropy.addEventListener('click', toggleEntropy);
-
         function updateParamsAndRender() {
             if (!readParams()) return;
             alpha = m_left / (m_left + m_right);
@@ -1457,25 +1264,18 @@
             renderAll();
             resetEntropyDisplay();
         }
-
         leftTempInput.addEventListener('input', updateParamsAndRender);
         rightTempInput.addEventListener('input', updateParamsAndRender);
         leftMassInput.addEventListener('input', updateParamsAndRender);
         rightMassInput.addEventListener('input', updateParamsAndRender);
-
         speedSlider.addEventListener('input', () => {
             playbackSpeed = parseFloat(speedSlider.value);
             speedDisplay.textContent = playbackSpeed.toFixed(1) + 'x';
         });
-
         window.addEventListener('beforeunload', () => {
             if (isRunning) stopSimulation();
             if (isRecording) stopRecording();
         });
-
-        // ============================================================
-        //  11. 初始化
-        // ============================================================
         function init() {
             mainCanvas.width = 800;
             mainCanvas.height = 400;
@@ -1483,24 +1283,19 @@
             curveCanvas.height = 500;
             colorbarCanvas.width = 28;
             colorbarCanvas.height = 360;
-
             readParams();
             alpha = m_left / (m_left + m_right);
             initField();
             renderAll();
             btnStart.textContent = '▶ 开始混合';
-
             speedDisplay.textContent = '1.0x';
             speedSlider.value = '1.0';
             playbackSpeed = 1.0;
-
             autoExportChk.checked = false;
-
             resetEntropyDisplay();
         }
-
         init();
-        console.log('✅ 冷热水混合模拟已加载 (熵变计算基准 0℃ = 273K)');
+        console.log('冷热水混合模拟已加载 (熵变计算基准 0℃ = 273K)');
     </script>
 </body>
 </html>

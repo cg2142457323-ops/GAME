@@ -4,19 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes" />
     <title>化学反应熵变计算器</title>
-
-    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
     </script>
-
     <style>
-        /* ── 全局重置 ── */
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
-
         body {
             background: #f0f4f8;
             font-family: 'SimSun', '宋体', serif;
@@ -27,7 +22,6 @@
             align-items: flex-start;
             justify-content: center;
         }
-
         .app-container {
             max-width: 1300px;
             width: 100%;
@@ -37,8 +31,6 @@
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
             padding: 20px 24px 32px;
         }
-
-        /* ── 标题 ── */
         .app-header {
             display: flex;
             flex-wrap: wrap;
@@ -68,8 +60,6 @@
             white-space: nowrap;
             font-family: 'SimSun', '宋体', serif;
         }
-
-        /* ── 选择行 ── */
         .selector-row {
             display: flex;
             flex-wrap: wrap;
@@ -119,7 +109,6 @@
             background-position: right 12px center;
             padding-right: 36px;
         }
-
         .btn-group {
             display: flex;
             flex-wrap: wrap;
@@ -152,7 +141,6 @@
             cursor: not-allowed;
             transform: none;
         }
-
         .btn-exit {
             background: #6b7280;
             color: #fff;
@@ -173,8 +161,6 @@
         .btn-exit:active {
             transform: scale(0.97);
         }
-
-        /* ── 反应信息卡 ── */
         .reaction-info {
             background: #f8fafc;
             border-radius: 14px;
@@ -215,8 +201,6 @@
             font-size: 14px;
             font-family: 'SimSun', '宋体', serif;
         }
-
-        /* ── 结果卡片 ── */
         .result-cards {
             display: flex;
             flex-wrap: wrap;
@@ -259,8 +243,6 @@
         .card-total {
             border-left-color: #1e293b;
         }
-
-        /* ── 消息栏 ── */
         .msg-bar {
             padding: 10px 16px;
             border-radius: 12px;
@@ -287,8 +269,6 @@
             background: #e6f0fa;
             color: #1a4b6d;
         }
-
-        /* ── 计算思路 (动态展示数值) ── */
         .theory-box {
             background: #fafcfe;
             border: 1px solid #e9edf2;
@@ -356,8 +336,6 @@
         .theory-box p {
             font-family: 'SimSun', '宋体', serif;
         }
-
-        /* ── 表格 ── */
         .table-wrap {
             overflow-x: auto;
             margin-bottom: 18px;
@@ -398,8 +376,6 @@
         .table-wrap td[colspan] {
             font-family: 'SimSun', '宋体', serif;
         }
-
-        /* ── 图表区 ── */
         .charts-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -425,8 +401,6 @@
             height: auto !important;
             max-height: 200px;
         }
-
-        /* ── 模态框 ── */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -527,8 +501,6 @@
         .modal-actions .btn-cancel:hover {
             background: #d5dce3;
         }
-
-        /* ── 响应式 ── */
         @media (max-width: 900px) {
             .charts-grid {
                 grid-template-columns: 1fr 1fr;
@@ -543,7 +515,6 @@
                 flex-direction: row;
             }
         }
-
         @media (max-width: 640px) {
             body {
                 padding: 8px;
@@ -621,7 +592,6 @@
                 padding: 18px 16px 16px;
             }
         }
-
         @media (max-width: 400px) {
             .app-header h1 {
                 font-size: 16px;
@@ -654,15 +624,12 @@
     </style>
 </head>
 <body>
-
     <div class="app-container">
-        <!-- 标题 -->
+        >
         <div class="app-header">
-            <h1>🧪 化学反应熵变计算器</h1>
-            <span class="badge">15 组反应 · 智能匹配</span>
+            <h1> 化学反应熵变计算器</h1>
+            <span class="badge">18种物质 · 智能匹配</span>
         </div>
-
-        <!-- 选择行 -->
         <div class="selector-row">
             <div class="sel-group">
                 <label>反应物 A</label>
@@ -685,13 +652,9 @@
                 <button class="btn-exit" id="exitBtn">🏠 退出游戏</button>
             </div>
         </div>
-
-        <!-- 反应信息 -->
         <div class="reaction-info" id="reactionInfo">
             <div class="placeholder">👆 请选择反应物 A 和 B，系统将自动匹配化学反应</div>
         </div>
-
-        <!-- 结果卡片 -->
         <div class="result-cards">
             <div class="result-card card-sys">
                 <div class="label">系统熵变 ΔS<sub>系</sub></div>
@@ -709,11 +672,7 @@
                 <div class="unit">J/(mol·K)</div>
             </div>
         </div>
-
-        <!-- 消息栏 -->
         <div class="msg-bar info" id="msgBar">💡 选择反应物后点击「计算熵变」查看结果</div>
-
-        <!-- 计算思路 (动态展示数值) -->
         <div class="theory-box" id="theoryBox">
             <h3>📖 熵变计算思路</h3>
             <p style="margin-bottom:10px; font-family:'SimSun','宋体',serif;">将“反应系统”与“周围环境”组合成孤立系统（宇宙），利用熵增原理判断反应自发性。</p>
@@ -721,8 +680,7 @@
                 <p style="color:#94a3b8; font-family:'SimSun','宋体',serif;">请选择反应并点击「计算熵变」查看详细计算过程。</p>
             </div>
         </div>
-
-        <!-- 表格 -->
+        >
         <div class="table-wrap" id="tableWrap">
             <table>
                 <thead>
@@ -738,28 +696,24 @@
                 </tbody>
             </table>
         </div>
-
-        <!-- 图表区 -->
         <div class="charts-grid">
             <div class="chart-box">
-                <h3>📈 系统熵变 ΔS<sub>系</sub></h3>
+                <h3> 系统熵变 ΔS<sub>系</sub></h3>
                 <canvas id="chartSys"></canvas>
             </div>
             <div class="chart-box">
-                <h3>📈 环境熵变 ΔS<sub>环</sub></h3>
+                <h3> 环境熵变 ΔS<sub>环</sub></h3>
                 <canvas id="chartSurr"></canvas>
             </div>
             <div class="chart-box">
-                <h3>📈 总熵变 ΔS<sub>总</sub></h3>
+                <h3> 总熵变 ΔS<sub>总</sub></h3>
                 <canvas id="chartTotal"></canvas>
             </div>
         </div>
     </div>
-
-    <!-- ====== 模态框：补充化合物数据 ====== -->
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal-box">
-            <h2 id="modalTitle">🧪 补充化合物数据</h2>
+            <h2 id="modalTitle"> 补充化合物数据</h2>
             <div class="sub" id="modalSub">请输入该物质的热力学参数</div>
             <div class="field">
                 <label>标准熵 S° (J/(mol·K))</label>
@@ -779,11 +733,7 @@
             </div>
         </div>
     </div>
-
     <script>
-        // ======================================================================
-        //  1. 物质数据库
-        // ======================================================================
         const RAW_DATA = [
             "CaCO3 92.90 -1206.92 81.88",
             "CaO 39.75 -635.09 42.80",
@@ -835,7 +785,6 @@
             "AgNO3 140.9 -124.4 94.1",
             "NaNO3 116.9 -467.9 92.9"
         ];
-
         const compDB = new Map();
         for (const line of RAW_DATA) {
             const parts = line.trim().split(/\s+/);
@@ -852,13 +801,7 @@
                 }
             }
         }
-
-        // 用户临时补充数据
         const userDB = new Map();
-
-        // ======================================================================
-        //  2. 化学反应数据库
-        // ======================================================================
         const REACTIONS = [{
             id: 1,
             reactantA: 'NaOH',
@@ -965,20 +908,15 @@
             equation: '2H₂O → 2H₂↑ + O₂↑',
             description: '水的电解分解，制取氢气和氧气。'
         }];
-
-        // ======================================================================
-        //  3. 辅助函数
-        // ======================================================================
-        function getAllSubstances() {
+        function getAllReactants() {
+            // 只返回真正作为反应物出现的物质，确保下拉框中每个可选项都能匹配到反应方程式
             const set = new Set();
             for (const r of REACTIONS) {
                 set.add(r.reactantA);
                 if (r.reactantB !== '（无）') set.add(r.reactantB);
-                for (const p of r.products) set.add(p.name);
             }
             return Array.from(set).sort();
         }
-
         function getBoptions(A) {
             const list = [];
             for (const r of REACTIONS) {
@@ -1002,7 +940,6 @@
             }
             return list.sort();
         }
-
         function findReaction(A, B) {
             for (const r of REACTIONS) {
                 if (B === '（无）') {
@@ -1018,10 +955,14 @@
             }
             return null;
         }
-
-        // ======================================================================
-        //  4. 获取化合物数据 (支持弹窗)
-        // ======================================================================
+        function formatCoeff(c) {
+            if (c === 1) return '';
+            if (c === 0.5) return '½';
+            return String(c);
+        }
+        function formatProductNames(rxn) {
+            return rxn.products.map(p => formatCoeff(p.coeff) + p.name).join(' + ');
+        }
         function getCompoundData(name) {
             if (compDB.has(name)) return compDB.get(name);
             if (userDB.has(name)) return userDB.get(name);
@@ -1034,14 +975,12 @@
                 const cpInput = document.getElementById('modalCp');
                 const confirmBtn = document.getElementById('modalConfirm');
                 const cancelBtn = document.getElementById('modalCancel');
-
-                title.textContent = `🧪 补充物质: ${name}`;
+                title.textContent = ` 补充物质: ${name}`;
                 sub.textContent = `未找到 "${name}" 的热力学数据，请手动输入：`;
                 sInput.value = '0';
                 hfInput.value = '0';
                 cpInput.value = '0';
                 overlay.classList.add('active');
-
                 const onConfirm = () => {
                     const S = parseFloat(sInput.value);
                     const Hf = parseFloat(hfInput.value);
@@ -1077,10 +1016,6 @@
                 document.addEventListener('keydown', keyHandler);
             });
         }
-
-        // ======================================================================
-        //  5. DOM 引用
-        // ======================================================================
         const selA = document.getElementById('selA');
         const selB = document.getElementById('selB');
         const elTemp = document.getElementById('temperature');
@@ -1096,16 +1031,11 @@
         const canvasSurr = document.getElementById('chartSurr');
         const canvasTotal = document.getElementById('chartTotal');
         const theoryContent = document.getElementById('theoryContent');
-
         let chartSys = null,
             chartSurr = null,
             chartTotal = null;
-
-        // ======================================================================
-        //  6. 初始化下拉菜单
-        // ======================================================================
         function initSelects() {
-            const all = getAllSubstances();
+            const all = getAllReactants();
             selA.innerHTML = '<option value="">请选择反应物质</option>';
             for (const s of all) {
                 const opt = document.createElement('option');
@@ -1116,7 +1046,6 @@
             selB.innerHTML = '<option value="">请先选择反应物A</option>';
             selB.disabled = true;
         }
-
         selA.addEventListener('change', function() {
             const A = this.value;
             if (!A) {
@@ -1136,9 +1065,8 @@
             }
             selB.disabled = false;
             clearResults();
-            reactionInfo.innerHTML = `<div class="placeholder">✅ 已选 A = ${A}，请选择反应物 B</div>`;
+            reactionInfo.innerHTML = `<div class="placeholder"> 已选 A = ${A}，请选择反应物 B</div>`;
         });
-
         selB.addEventListener('change', function() {
             const A = selA.value;
             const B = this.value;
@@ -1153,20 +1081,16 @@
                 clearResults();
                 return;
             }
-            const prodStr = rxn.products.map(p => p.name).join(' + ');
+            const prodStr = formatProductNames(rxn);
             reactionInfo.innerHTML = `
-                <div class="eq">⚗️ ${rxn.equation}</div>
-                <div class="desc">📌 ${rxn.description}</div>
-                <div class="prod-label">🧪 产物 C：</div>
+                <div class="eq"> ${rxn.equation}</div>
+                <div class="desc"> ${rxn.description}</div>
+                <div class="prod-label"> 生成物：</div>
                 <div class="prod-value">${prodStr}</div>
             `;
             clearResults();
-            setMsg(`✅ 已匹配反应：${rxn.equation}，点击「计算熵变」查看热力学数据`, 'info');
+            setMsg(` 已匹配反应：${rxn.equation}，点击「计算熵变」查看热力学数据`, 'info');
         });
-
-        // ======================================================================
-        //  7. 清除结果
-        // ======================================================================
         function clearResults() {
             resSys.textContent = '—';
             resSurr.textContent = '—';
@@ -1178,24 +1102,16 @@
                 chartSurr = null; }
             if (chartTotal) { chartTotal.destroy();
                 chartTotal = null; }
-            // 恢复理论部分
             theoryContent.innerHTML = `<p style="color:#94a3b8; font-family:'SimSun','宋体',serif;">请选择反应并点击「计算熵变」查看详细计算过程。</p>`;
         }
-
         function setMsg(text, type = 'info') {
             msgBar.textContent = text;
             msgBar.className = 'msg-bar ' + type;
         }
-
-        // ======================================================================
-        //  8. 更新理论部分 (动态展示计算数值)
-        // ======================================================================
         function updateTheory(rxn, dS_0, dH_0, dCp, T, dS_sys, dH_sys, dS_surr, dS_total, items) {
             const T0 = 298.15;
-            const dH_0_kJ = dH_0; // 已经是 kJ/mol
+            const dH_0_kJ = dH_0; 
             const dH_0_J = dH_0 * 1000;
-
-            // 构建物质名称字符串
             const reactants = [];
             const products = [];
             for (const item of items) {
@@ -1209,34 +1125,24 @@
             }
             const reactStr = reactants.join(' + ');
             const prodStr = products.join(' + ');
-
-            // 构建计算过程
             let html = '';
-
-            // 1. 系统熵变（标准态）
             html += `<div class="step">`;
             html += `<p style="font-family:'SimSun','宋体',serif;"><strong>① 系统熵变（标准态 298.15 K）：</strong></p>`;
             html += `<div class="formula" style="font-family:'SimSun','宋体',serif;">ΔS<sub>系</sub> = ΣS(产物) − ΣS(反应物)</div>`;
             html += `<p style="margin:4px 0; font-family:'SimSun','宋体',serif;">代入： ΔS<sub>系</sub> = (${prodStr}) − (${reactStr})</p>`;
             html += `<p style="margin:4px 0; font-family:'SimSun','宋体',serif;">结果： <span class="calc-value" style="font-family:'SimSun','宋体',serif;">ΔS<sub>系</sub> = ${dS_0.toFixed(2)} J/(mol·K)</span></p>`;
             html += `</div>`;
-
-            // 2. 系统焓变（标准态）
             html += `<div class="step">`;
             html += `<p style="font-family:'SimSun','宋体',serif;"><strong>② 系统焓变（标准态 298.15 K）：</strong></p>`;
             html += `<div class="formula" style="font-family:'SimSun','宋体',serif;">ΔH<sub>系</sub> = ΣH(产物) − ΣH(反应物)</div>`;
             html += `<p style="margin:4px 0; font-family:'SimSun','宋体',serif;">代入： ΔH<sub>系</sub> = (${prodStr}) − (${reactStr})</p>`;
             html += `<p style="margin:4px 0; font-family:'SimSun','宋体',serif;">结果： <span class="calc-value" style="font-family:'SimSun','宋体',serif;">ΔH<sub>系</sub> = ${dH_0_kJ.toFixed(2)} kJ/mol</span></p>`;
             html += `</div>`;
-
-            // 3. 热容差
             html += `<div class="step">`;
             html += `<p style="font-family:'SimSun','宋体',serif;"><strong>③ 热容差 ΔC<sub>p</sub>：</strong></p>`;
             html += `<div class="formula" style="font-family:'SimSun','宋体',serif;">ΔC<sub>p</sub> = ΣC<sub>p</sub>(产物) − ΣC<sub>p</sub>(反应物)</div>`;
             html += `<p style="margin:4px 0; font-family:'SimSun','宋体',serif;">结果： <span class="calc-value" style="font-family:'SimSun','宋体',serif;">ΔC<sub>p</sub> = ${dCp.toFixed(2)} J/(mol·K)</span></p>`;
             html += `</div>`;
-
-            // 4. 温度修正
             html += `<div class="step">`;
             html += `<p style="font-family:'SimSun','宋体',serif;"><strong>④ 温度修正（T = ${T.toFixed(2)} K）：</strong></p>`;
             html += `<div class="formula" style="font-family:'SimSun','宋体',serif;">ΔS<sub>系</sub>(T) = ΔS<sub>系</sub>(298.15K) + ΔC<sub>p</sub> · ln(T / 298.15)</div>`;
@@ -1250,8 +1156,6 @@
             html +=
                 `<p style="margin:4px 0; font-family:'SimSun','宋体',serif;">结果： <span class="calc-value" style="font-family:'SimSun','宋体',serif;">ΔH<sub>系</sub>(${T.toFixed(2)}) = ${dH_sys.toFixed(2)} J/mol</span></p>`;
             html += `</div>`;
-
-            // 5. 环境熵变
             html += `<div class="step">`;
             html += `<p style="font-family:'SimSun','宋体',serif;"><strong>⑤ 环境熵变：</strong></p>`;
             html += `<div class="formula" style="font-family:'SimSun','宋体',serif;">ΔS<sub>环</sub> = − ΔH<sub>系</sub>(T) / T</div>`;
@@ -1259,8 +1163,6 @@
                 `<p style="margin:4px 0; font-family:'SimSun','宋体',serif;">代入： ΔS<sub>环</sub> = − ${dH_sys.toFixed(2)} / ${T.toFixed(2)}</p>`;
             html += `<p style="margin:4px 0; font-family:'SimSun','宋体',serif;">结果： <span class="calc-value" style="font-family:'SimSun','宋体',serif;">ΔS<sub>环</sub> = ${dS_surr.toFixed(2)} J/(mol·K)</span></p>`;
             html += `</div>`;
-
-            // 6. 总熵变 + 关键结论
             html += `<div class="step">`;
             html += `<p style="font-family:'SimSun','宋体',serif;"><strong>⑥ 总熵变：</strong></p>`;
             html += `<div class="formula" style="font-family:'SimSun','宋体',serif;">ΔS<sub>总</sub> = ΔS<sub>系</sub>(T) + ΔS<sub>环</sub></div>`;
@@ -1268,30 +1170,21 @@
                 `<p style="margin:4px 0; font-family:'SimSun','宋体',serif;">代入： ΔS<sub>总</sub> = ${dS_sys.toFixed(2)} + (${dS_surr.toFixed(2)})</p>`;
             html += `<p style="margin:4px 0; font-family:'SimSun','宋体',serif;">结果： <span class="calc-value" style="font-family:'SimSun','宋体',serif;">ΔS<sub>总</sub> = ${dS_total.toFixed(2)} J/(mol·K)</span></p>`;
             html += `</div>`;
-
-            // 关键结论（仅判断 ΔS总 是否大于0，反应是否自发）
             const isSpontaneous = dS_total > 0;
             const conclusionClass = isSpontaneous ? 'spontaneous' : 'non-spontaneous';
             const conclusionText = isSpontaneous ?
                 `ΔS<sub>总</sub> > 0，反应在给定温度下 <strong>自发</strong> 进行。` :
                 `ΔS<sub>总</sub> < 0，反应在给定温度下 <strong>不能自发</strong> 进行。`;
-
             html += `<div class="key-conclusion" style="font-family:'SimSun','宋体',serif;">`;
-            html += `<strong>✅ 关键结论：</strong> <span class="${conclusionClass}" style="font-family:'SimSun','宋体',serif;">${conclusionText}</span>`;
+            html += `<strong> 关键结论：</strong> <span class="${conclusionClass}" style="font-family:'SimSun','宋体',serif;">${conclusionText}</span>`;
             html += `</div>`;
-
             theoryContent.innerHTML = html;
         }
-
-        // ======================================================================
-        //  9. 核心计算
-        // ======================================================================
         async function handleCalculate() {
             const A = selA.value;
             const B = selB.value;
             const tempStr = elTemp.value.trim();
             const T = parseFloat(tempStr);
-
             if (!A || !B) {
                 setMsg('请完整选择反应物 A 和 B', 'error');
                 return;
@@ -1300,16 +1193,13 @@
                 setMsg('温度必须 ≥ 273.15 K', 'error');
                 return;
             }
-
             const rxn = findReaction(A, B);
             if (!rxn) {
                 setMsg(`⚠️ 未找到 ${A} 与 ${B} 的匹配反应`, 'error');
                 return;
             }
-
             try {
                 setMsg('⏳ 正在读取热力学数据...', 'info');
-
                 const allItems = [];
                 allItems.push({ name: rxn.reactantA, coeff: -1 });
                 if (rxn.reactantB !== '（无）') {
@@ -1318,7 +1208,6 @@
                 for (const p of rxn.products) {
                     allItems.push({ name: p.name, coeff: p.coeff });
                 }
-
                 const dataMap = new Map();
                 for (const item of allItems) {
                     if (!dataMap.has(item.name)) {
@@ -1326,7 +1215,6 @@
                         dataMap.set(item.name, d);
                     }
                 }
-
                 let dS_0 = 0,
                     dH_0 = 0,
                     dCp = 0;
@@ -1336,23 +1224,17 @@
                     dH_0 += item.coeff * d.Hf;
                     dCp += item.coeff * d.Cp;
                 }
-
                 const T0 = 298.15;
                 const dH_0_J = dH_0 * 1000;
-
                 const dS_sys = dS_0 + dCp * Math.log(T / T0);
                 const dH_sys = dH_0_J + dCp * (T - T0);
                 const dS_surr = -dH_sys / T;
                 const dS_total = dS_sys + dS_surr;
-
                 resSys.textContent = dS_sys.toFixed(2);
                 resSurr.textContent = dS_surr.toFixed(2);
                 resTotal.textContent = dS_total.toFixed(2);
-
-                setMsg(`✅ 计算成功  |  ΔS° = ${dS_0.toFixed(2)} J/(mol·K)  ΔH° = ${dH_0.toFixed(2)} kJ/mol  ΔCp = ${dCp.toFixed(2)} J/(mol·K)`,
+                setMsg(` 计算成功  |  ΔS° = ${dS_0.toFixed(2)} J/(mol·K)  ΔH° = ${dH_0.toFixed(2)} kJ/mol  ΔCp = ${dCp.toFixed(2)} J/(mol·K)`,
                     'success');
-
-                // 生成表格数据
                 const T_min = 273.15;
                 const T_max = 2000;
                 const step = 50;
@@ -1365,7 +1247,6 @@
                     const total = sys + surr;
                     rows.push({ T: tR, sys, surr, total });
                 }
-
                 let html = '';
                 for (let i = 0; i < rows.length; i++) {
                     const r = rows[i];
@@ -1379,38 +1260,26 @@
                     </tr>`;
                 }
                 tableBody.innerHTML = html;
-
-                // 绘制图表
                 drawCharts(rxn, dS_0, dH_0_J, dCp, T, dS_sys, dS_surr, dS_total, rows);
-
-                // 更新理论部分（展示计算数值）
                 updateTheory(rxn, dS_0, dH_0, dCp, T, dS_sys, dH_sys, dS_surr, dS_total, allItems);
-
             } catch (err) {
                 setMsg(`❌ ${err.message}`, 'error');
                 console.error(err);
             }
         }
-
-        // ======================================================================
-        //  10. 绘制图表
-        // ======================================================================
         function drawCharts(rxn, dS_0, dH_0_J, dCp, T_user, dS_sys, dS_surr, dS_total, rows) {
             const T0 = 298.15;
             const labels = rows.map(r => r.T);
             const dataSys = rows.map(r => r.sys);
             const dataSurr = rows.map(r => r.surr);
             const dataTotal = rows.map(r => r.total);
-
             if (chartSys) { chartSys.destroy();
                 chartSys = null; }
             if (chartSurr) { chartSurr.destroy();
                 chartSurr = null; }
             if (chartTotal) { chartTotal.destroy();
                 chartTotal = null; }
-
             const eqLabel = rxn.equation;
-
             const commonOpts = {
                 responsive: true,
                 maintainAspectRatio: true,
@@ -1433,7 +1302,6 @@
                     line: { borderWidth: 2.2, tension: 0.3 }
                 }
             };
-
             const ctxSys = canvasSys.getContext('2d');
             chartSys = new Chart(ctxSys, {
                 type: 'line',
@@ -1455,7 +1323,6 @@
                     }
                 }
             });
-
             const ctxSurr = canvasSurr.getContext('2d');
             chartSurr = new Chart(ctxSurr, {
                 type: 'line',
@@ -1477,7 +1344,6 @@
                     }
                 }
             });
-
             const ctxTotal = canvasTotal.getContext('2d');
             chartTotal = new Chart(ctxTotal, {
                 type: 'line',
@@ -1525,41 +1391,23 @@
                 }
             });
         }
-
-        // ======================================================================
-        //  11. 事件绑定
-        // ======================================================================
         calcBtn.addEventListener('click', handleCalculate);
         elTemp.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleCalculate(); });
-
-        // ★★★ 返回游戏：跳转至 index.html 并自动展开子视图（冷热水混合/化学熵变计算） ★★★
         exitBtn.addEventListener('click', function() {
-            // 设置 sessionStorage 标志，让 index.html 识别为从化学计算器返回
-            sessionStorage.setItem('returnFromPage2', 'true');
-            
-            // 使用 URL 参数 ?open=true 触发 index.html 的面板自动展开
-            // 注意：要实现跳转后直接显示“冷热水混合模拟/化学熵变计算”这两个模块的界面，
-            // 还需要修改 index.html 的 autoOpenPanel 函数（详见代码后注释）。
             window.location.href = 'index.html?open=true&view=sub';
         });
-
-        // ======================================================================
-        //  12. 启动（默认无选中）
-        // ======================================================================
         window.addEventListener('load', () => {
             initSelects();
             clearResults();
             reactionInfo.innerHTML = `<div class="placeholder">👆 请选择反应物 A 和 B，系统将自动匹配化学反应</div>`;
         });
-
         document.addEventListener('keydown', (e) => {
             const overlay = document.getElementById('modalOverlay');
             if (e.key === 'Escape' && overlay.classList.contains('active')) {
                 document.getElementById('modalCancel').click();
             }
         });
-
-        console.log('✅ 化学反应熵变计算器已加载，物质数:', compDB.size, ' 反应数:', REACTIONS.length);
+        console.log(' 化学反应熵变计算器已加载，物质数:', compDB.size, ' 反应数:', REACTIONS.length);
     </script>
 </body>
 </html>

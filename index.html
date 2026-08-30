@@ -4,15 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>熵增原理小游戏 · 启动器</title>
-
     <style>
-        /* ===== 全局重置 & 基础 ===== */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
             font-family: 'SimSun', '宋体', serif;
             min-height: 100vh;
@@ -23,8 +20,6 @@
             overflow: hidden;
             user-select: none;
         }
-
-        /* ===== 粒子画布 ===== */
         #particleCanvas {
             position: fixed;
             inset: 0;
@@ -33,8 +28,6 @@
             z-index: 0;
             pointer-events: none;
         }
-
-        /* ===== 主容器 ===== */
         .container {
             position: relative;
             z-index: 1;
@@ -42,8 +35,6 @@
             max-width: 920px;
             padding: 20px;
         }
-
-        /* ===== 玻璃态卡片 ===== */
         .glass-card {
             background: rgba(255, 255, 255, 0.06);
             backdrop-filter: blur(18px) saturate(1.4);
@@ -54,20 +45,16 @@
             box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.08);
             transition: all 0.3s;
         }
-
-        /* ===== 头部 ===== */
         .header {
             text-align: center;
             margin-bottom: 16px;
         }
-
         .header .icon-big {
             font-size: 52px;
             display: block;
             margin-bottom: 4px;
             animation: floatIcon 3s ease-in-out infinite;
         }
-
         @keyframes floatIcon {
             0%,
             100% {
@@ -77,7 +64,6 @@
                 transform: translateY(-8px);
             }
         }
-
         .header h1 {
             font-size: 34px;
             font-weight: 700;
@@ -86,14 +72,12 @@
             text-shadow: 0 2px 20px rgba(100, 180, 255, 0.3);
             font-family: 'SimSun', '宋体', serif;
         }
-
         .header h1 span {
             background: linear-gradient(135deg, #f0c27f, #fc5c7d);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-
         .header .sub {
             font-size: 16px;
             color: rgba(255, 255, 255, 0.55);
@@ -102,13 +86,10 @@
             font-weight: 300;
             font-family: 'SimSun', '宋体', serif;
         }
-
-        /* ===== 开始按钮 ===== */
         .btn-start-wrap {
             text-align: center;
             margin: 22px 0 10px;
         }
-
         .btn-start {
             background: linear-gradient(135deg, #4facfe, #00f2fe);
             border: none;
@@ -125,7 +106,6 @@
             overflow: hidden;
             font-family: 'SimSun', '宋体', serif;
         }
-
         .btn-start::after {
             content: '';
             position: absolute;
@@ -138,7 +118,6 @@
             filter: blur(6px);
             opacity: 0.6;
         }
-
         @keyframes shimmerBtn {
             0% {
                 background-position: 0% 50%;
@@ -150,21 +129,16 @@
                 background-position: 0% 50%;
             }
         }
-
         .btn-start:hover {
             transform: scale(1.04);
             box-shadow: 0 12px 48px rgba(79, 172, 254, 0.5);
         }
-
         .btn-start:active {
             transform: scale(0.96);
         }
-
         .btn-start .icon {
             margin-right: 8px;
         }
-
-        /* ===== 选项面板 (初始隐藏) ===== */
         .options-panel {
             max-height: 0;
             overflow: hidden;
@@ -173,14 +147,11 @@
             opacity: 0;
             margin-top: 0;
         }
-
         .options-panel.open {
             max-height: 900px;
             opacity: 1;
             margin-top: 28px;
         }
-
-        /* ===== 视图容器 ===== */
         .view {
             transition: opacity 0.45s ease, transform 0.45s ease;
         }
@@ -194,15 +165,11 @@
             opacity: 1;
             transform: translateY(0);
         }
-
-        /* ===== 选项网格 ===== */
         .options-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 18px;
         }
-
-        /* ===== 选项卡片 ===== */
         .option-card {
             background: rgba(255, 255, 255, 0.07);
             border-radius: 24px;
@@ -216,7 +183,6 @@
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
             font-family: 'SimSun', '宋体', serif;
         }
-
         .option-card::before {
             content: '';
             position: absolute;
@@ -225,24 +191,20 @@
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), transparent);
             pointer-events: none;
         }
-
         .option-card:hover {
             transform: translateY(-6px) scale(1.02);
             background: rgba(255, 255, 255, 0.12);
             border-color: rgba(255, 255, 255, 0.2);
             box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35);
         }
-
         .option-card:active {
             transform: scale(0.96);
         }
-
         .option-card .emoji {
             font-size: 44px;
             display: block;
             margin-bottom: 8px;
         }
-
         .option-card h3 {
             font-size: 18px;
             font-weight: 700;
@@ -250,7 +212,6 @@
             margin-bottom: 4px;
             font-family: 'SimSun', '宋体', serif;
         }
-
         .option-card p {
             font-size: 13px;
             color: rgba(255, 255, 255, 0.55);
@@ -259,7 +220,6 @@
             min-height: 38px;
             font-family: 'SimSun', '宋体', serif;
         }
-
         .option-card .tag {
             display: inline-block;
             font-size: 12px;
@@ -272,13 +232,10 @@
             transition: all 0.3s;
             font-family: 'SimSun', '宋体', serif;
         }
-
         .option-card:hover .tag {
             background: rgba(255, 255, 255, 0.18);
             color: #fff;
         }
-
-        /* ---- 个性光晕 ---- */
         .option-card.card-lab::after {
             content: '';
             position: absolute;
@@ -293,7 +250,6 @@
         .option-card.card-lab:hover::after {
             transform: scale(1.1);
         }
-
         .option-card.card-hot::after {
             content: '';
             position: absolute;
@@ -308,7 +264,6 @@
         .option-card.card-hot:hover::after {
             transform: scale(1.1);
         }
-
         .option-card.card-chem::after {
             content: '';
             position: absolute;
@@ -323,7 +278,6 @@
         .option-card.card-chem:hover::after {
             transform: scale(1.1);
         }
-
         .option-card.card-quiz::after {
             content: '';
             position: absolute;
@@ -338,13 +292,10 @@
         .option-card.card-quiz:hover::after {
             transform: scale(1.1);
         }
-
-        /* ---- 子视图专属：返回按钮 ---- */
         .back-row {
             text-align: center;
             margin-top: 18px;
         }
-
         .back-btn {
             background: rgba(255, 255, 255, 0.08);
             border: 1px solid rgba(255, 255, 255, 0.12);
@@ -358,19 +309,15 @@
             font-family: 'SimSun', '宋体', serif;
             letter-spacing: 0.5px;
         }
-
         .back-btn:hover {
             background: rgba(255, 255, 255, 0.16);
             color: #fff;
             transform: scale(1.04);
             border-color: rgba(255, 255, 255, 0.25);
         }
-
         .back-btn:active {
             transform: scale(0.96);
         }
-
-        /* ===== 底部 ===== */
         .footer {
             text-align: center;
             margin-top: 22px;
@@ -379,8 +326,6 @@
             letter-spacing: 1px;
             font-family: 'SimSun', '宋体', serif;
         }
-
-        /* ===== 响应式 ===== */
         @media (max-width: 860px) {
             .options-grid {
                 grid-template-columns: repeat(2, 1fr);
@@ -399,13 +344,11 @@
                 min-height: 32px;
             }
         }
-
         @media (max-width: 640px) {
             .glass-card {
                 padding: 24px 16px 20px;
                 border-radius: 28px;
             }
-
             .header h1 {
                 font-size: 24px;
             }
@@ -415,17 +358,14 @@
             .header .sub {
                 font-size: 13px;
             }
-
             .btn-start {
                 padding: 13px 32px;
                 font-size: 17px;
             }
-
             .options-grid {
                 grid-template-columns: 1fr;
                 gap: 14px;
             }
-
             .option-card {
                 padding: 18px 14px 16px;
             }
@@ -439,7 +379,6 @@
                 min-height: 28px;
             }
         }
-
         @media (max-width: 400px) {
             .glass-card {
                 padding: 16px 10px 14px;
@@ -452,8 +391,6 @@
                 font-size: 15px;
             }
         }
-
-        /* ===== 进入动画（卡片逐个出现） ===== */
         .view.active .option-card {
             animation: cardSlideIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
         }
@@ -463,7 +400,6 @@
         .view.active .option-card:nth-child(2) {
             animation-delay: 0.20s;
         }
-
         @keyframes cardSlideIn {
             0% {
                 opacity: 0;
@@ -474,8 +410,6 @@
                 transform: translateY(0) scale(1);
             }
         }
-
-        /* ===== 小提示 ===== */
         .hint {
             font-size: 12px;
             color: rgba(255, 255, 255, 0.15);
@@ -484,101 +418,68 @@
             transition: opacity 0.3s;
             font-family: 'SimSun', '宋体', serif;
         }
-
-        /* ===== 工具类 ===== */
         .hidden {
             display: none !important;
         }
     </style>
 </head>
 <body>
-
-    <!-- ===== 粒子背景 ===== -->
     <canvas id="particleCanvas"></canvas>
-
-    <!-- ===== 主容器 ===== -->
     <div class="container">
         <div class="glass-card">
-
-            <!-- 头部 -->
             <div class="header">
                 <span class="icon-big">⚛️</span>
                 <h1><span>熵增原理小游戏</span></h1>
                 <div class="sub">选择你的实验项目 · 探索熵增原理的奥秘</div>
             </div>
-
-            <!-- 开始按钮 -->
             <div class="btn-start-wrap">
                 <button class="btn-start" id="startBtn">
                     <span class="icon">🚀</span> 开始探索
                 </button>
             </div>
-
-            <!-- 选项面板 -->
             <div class="options-panel" id="optionsPanel">
-
-                <!-- ===== 主视图 ===== -->
                 <div id="mainView" class="view active">
                     <div class="options-grid">
-
-                        <!-- 虚拟仿真小实验（整合入口） -->
                         <div class="option-card card-lab" data-action="openSub">
                             <span class="emoji">🔬</span>
                             <h3>虚拟仿真小实验</h3>
-                            <p>冷热水混合模拟 · 化学熵变计算</p>
+                            <p>冷热水混合模拟、化学反应熵变计算</p>
                             <span class="tag">进入实验 →</span>
                         </div>
-
-                        <!-- 选择判断模块 -->
                         <div class="option-card card-quiz" data-href="2.html">
                             <span class="emoji">📝</span>
                             <h3>选择判断模块</h3>
                             <p>热力学选择、判断题</p>
                             <span class="tag">进入游戏 →</span>
                         </div>
-
                     </div>
                     <div class="hint">点击「虚拟仿真小实验」展开子选项 · 或按 ESC 收起</div>
                 </div>
-
-                <!-- ===== 子视图（虚拟仿真子选项） ===== -->
                 <div id="subView" class="view hidden">
                     <div class="options-grid">
-
-                        <!-- 冷热水混合模拟 -->
                         <div class="option-card card-hot" data-href="page1.html">
                             <span class="emoji">🌡️</span>
                             <h3>冷热水混合模拟</h3>
                             <p>热力学和流体动力学</p>
                             <span class="tag">进入实验 →</span>
                         </div>
-
-                        <!-- 化学熵变计算 -->
                         <div class="option-card card-chem" data-href="page2.html">
                             <span class="emoji">🧪</span>
-                            <h3>化学熵变计算</h3>
+                            <h3>化学反应熵变计算</h3>
                             <p>物理化学</p>
                             <span class="tag">进入实验 →</span>
                         </div>
-
                     </div>
                     <div class="back-row">
                         <button class="back-btn" id="backBtn">← 返回主菜单</button>
                     </div>
                     <div class="hint">选择上方实验进入 · 或点击返回</div>
                 </div>
-
             </div>
-
-            <!-- 底部 -->
             <div class="footer">✦ 每一个探索都是一次发现 ✦</div>
         </div>
     </div>
-
     <script>
-        // ============================================================
-        //  1. 粒子背景 (Canvas)
-        // ============================================================
         (function initParticles() {
             const canvas = document.getElementById('particleCanvas');
             const ctx = canvas.getContext('2d');
@@ -586,14 +487,12 @@
             const particles = [];
             const COUNT = 110;
             const MAX_R = 2.8;
-
             function resize() {
                 w = canvas.width = window.innerWidth;
                 h = canvas.height = window.innerHeight;
             }
             window.addEventListener('resize', resize);
             resize();
-
             class Particle {
                 constructor() { this.reset(); }
                 reset() {
@@ -626,14 +525,12 @@
                     }
                 }
             }
-
             for (let i = 0; i < COUNT; i++) {
                 const p = new Particle();
                 p.x = Math.random() * w;
                 p.y = Math.random() * h;
                 particles.push(p);
             }
-
             function drawLines() {
                 for (let i = 0; i < particles.length; i++) {
                     for (let j = i + 1; j < particles.length; j++) {
@@ -654,7 +551,6 @@
                     }
                 }
             }
-
             function animate() {
                 ctx.clearRect(0, 0, w, h);
                 const grad = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, Math.max(w, h) * 0.7);
@@ -663,7 +559,6 @@
                 grad.addColorStop(1, '#060a14');
                 ctx.fillStyle = grad;
                 ctx.fillRect(0, 0, w, h);
-
                 for (const p of particles) {
                     p.update();
                     p.draw();
@@ -673,10 +568,6 @@
             }
             animate();
         })();
-
-        // ============================================================
-        //  2. 主交互逻辑
-        // ============================================================
         (function main() {
             const startBtn = document.getElementById('startBtn');
             const panel = document.getElementById('optionsPanel');
@@ -684,11 +575,8 @@
             const subView = document.getElementById('subView');
             const backBtn = document.getElementById('backBtn');
             const cards = document.querySelectorAll('.option-card');
-
             let isOpen = false;
             let currentView = 'main'; // 'main' | 'sub'
-
-            // ---- 视图切换 ----
             function showView(viewName) {
                 if (viewName === 'main') {
                     mainView.classList.remove('hidden');
@@ -703,7 +591,6 @@
                     mainView.classList.add('hidden');
                     currentView = 'sub';
                 }
-                // 重新触发卡片动画
                 const activeView = viewName === 'main' ? mainView : subView;
                 const cardsInView = activeView.querySelectorAll('.option-card');
                 cardsInView.forEach(card => {
@@ -712,51 +599,37 @@
                     card.style.animation = '';
                 });
             }
-
-            // ---- 面板展开/收起 ----
             function togglePanel(open) {
                 isOpen = (open !== undefined) ? open : !isOpen;
                 if (isOpen) {
                     panel.classList.add('open');
-                    // 默认显示主视图
                     if (currentView !== 'main') {
                         showView('main');
                     }
                     startBtn.innerHTML = '<span class="icon">🎯</span> 选择项目';
                 } else {
                     panel.classList.remove('open');
-                    // 收起时重置到主视图
                     if (currentView !== 'main') {
                         showView('main');
                     }
                     startBtn.innerHTML = '<span class="icon">🚀</span> 开始探索';
                 }
             }
-
-            // ---- 事件绑定 ----
-
-            // 开始按钮
             startBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 togglePanel();
             });
-
-            // 卡片点击
             cards.forEach(card => {
                 card.addEventListener('click', () => {
                     const href = card.getAttribute('data-href');
                     const action = card.getAttribute('data-action');
-
                     if (action === 'openSub') {
-                        // 进入子视图
                         showView('sub');
-                        // 确保面板是展开的
                         if (!isOpen) {
                             togglePanel(true);
                         }
                         return;
                     }
-
                     if (href) {
                         card.style.transform = 'scale(0.94)';
                         setTimeout(() => {
@@ -765,29 +638,21 @@
                     }
                 });
             });
-
-            // 返回按钮
             backBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 showView('main');
             });
-
-            // ESC 收起
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape' && isOpen) {
                     togglePanel(false);
                 }
             });
-
-            // 点击外部收起
             document.addEventListener('click', (e) => {
                 const container = document.querySelector('.container');
                 if (isOpen && !container.contains(e.target)) {
                     togglePanel(false);
                 }
             });
-
-            // ---- 初始状态 ----
             panel.classList.remove('open');
             isOpen = false;
             currentView = 'main';
@@ -796,52 +661,34 @@
             subView.classList.add('hidden');
             subView.classList.remove('active');
             startBtn.innerHTML = '<span class="icon">🚀</span> 开始探索';
-
-            // ============================================================
-            //  ★★★ 自动展开检测（支持 view=sub 参数） ★★★
-            // ============================================================
             function autoOpenPanel() {
-                // 1) 检查 URL 参数：?panel=open 或 ?open=true 或 ?view=sub
                 const urlParams = new URLSearchParams(window.location.search);
                 const hasPanelOpen = urlParams.get('panel') === 'open';
                 const hasOpenTrue = urlParams.get('open') === 'true';
-                const viewParam = urlParams.get('view'); // 新增：识别 view 参数
-
-                // 2) 检查 sessionStorage（来自 page2.html 或其他页面）
+                const openSubView = urlParams.get('view') === 'sub';
                 const returnFromPage2 = sessionStorage.getItem('returnFromPage2') === 'true';
-
-                const shouldOpen = hasPanelOpen || hasOpenTrue || returnFromPage2;
-
+                const shouldOpen = hasPanelOpen || hasOpenTrue || openSubView || returnFromPage2;
                 if (shouldOpen) {
-                    // 清除 sessionStorage 标志，防止后续重复触发
                     if (returnFromPage2) {
                         sessionStorage.removeItem('returnFromPage2');
                     }
-
-                    // 延迟一小段时间，等待 DOM 完全就绪，然后展开面板
                     setTimeout(() => {
                         if (!isOpen) {
                             togglePanel(true);
                         }
-                        // 新增：如果 URL 中带 view=sub，则直接切换到子视图
-                        if (viewParam === 'sub') {
+                        if (openSubView) {
                             showView('sub');
                         }
-                        // 清除 URL 参数，让地址栏恢复干净，避免刷新后再次自动展开
-                        if (hasPanelOpen || hasOpenTrue) {
+                        if (hasPanelOpen || hasOpenTrue || openSubView) {
                             const cleanUrl = window.location.pathname + window.location.hash;
                             window.history.replaceState({}, '', cleanUrl);
                         }
                     }, 350);
                 }
             }
-
-            // 执行自动展开检测
             autoOpenPanel();
-
-            console.log('✅ 启动器已加载 · 自动展开检测已启用 (支持 view=sub)');
+            console.log('✅ 启动器已加载 · 自动展开检测已启用');
         })();
     </script>
-
 </body>
 </html>
