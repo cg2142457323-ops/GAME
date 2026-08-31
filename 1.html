@@ -699,7 +699,7 @@
                 "exp": "熵的概念与熵增原理由德国物理学家克劳修斯提出，故C正确。" }
         ];
         var appleKeys = ['A', 'B', 'C', 'D'];
-        var appleColors = ['#FF4444', '#EE5555', '#DD6666', '#CC7777'];
+        var appleColors = ['#FF4444', '#FF4444', '#FF4444', '#FF4444'];
         var TOTAL_TIME = 30;
         var FALL_DELAY = 1000;
         var goldCount = 0;
@@ -959,18 +959,30 @@
             ctx.moveTo(-35, -20);
             ctx.lineTo(-45, -20);
             ctx.stroke();
-            for (var i = 0; i < collectedApples.length; i++) {
-                var col = i % 6;
-                var row = Math.floor(i / 6);
-                var ax = -25 + col * 8;
-                var ay = -25 - row * 10;
-                ctx.beginPath();
-                ctx.arc(ax, ay, 6, 0, Math.PI * 2);
-                ctx.fillStyle = '#FFD700';
-                ctx.fill();
-                ctx.strokeStyle = '#B8860B';
-                ctx.lineWidth = 1;
-                ctx.stroke();
+            var nGold = collectedApples.length;
+            if (nGold > 0) {
+                var rows = Math.ceil((Math.sqrt(8 * nGold + 1) - 1) / 2);
+                var gap = 12;
+                var rowH = 10;
+                var baseY = -42;
+                var gi = 0;
+                for (var row = 0; row < rows && gi < nGold; row++) {
+                    var rowCount = rows - row;
+                    var placeCount = Math.min(rowCount, nGold - gi);
+                    var startX = -(placeCount - 1) * gap / 2;
+                    for (var c = 0; c < placeCount; c++) {
+                        var ax = startX + c * gap;
+                        var ay = baseY - row * rowH;
+                        ctx.beginPath();
+                        ctx.arc(ax, ay, 6, 0, Math.PI * 2);
+                        ctx.fillStyle = '#FFD700';
+                        ctx.fill();
+                        ctx.strokeStyle = '#B8860B';
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                        gi++;
+                    }
+                }
             }
             ctx.save();
             ctx.translate(-24, 0);

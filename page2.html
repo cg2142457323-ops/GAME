@@ -955,13 +955,17 @@
             }
             return null;
         }
+        const SUB_DIGITS = { '0': '₀', '1': '₁', '2': '₂', '3': '₃', '4': '₄', '5': '₅', '6': '₆', '7': '₇', '8': '₈', '9': '₉' };
+        function formatFormula(name) {
+            return String(name).replace(/\d/g, d => SUB_DIGITS[d]);
+        }
         function formatCoeff(c) {
             if (c === 1) return '';
             if (c === 0.5) return '½';
             return String(c);
         }
         function formatProductNames(rxn) {
-            return rxn.products.map(p => formatCoeff(p.coeff) + p.name).join(' + ');
+            return rxn.products.map(p => formatCoeff(p.coeff) + formatFormula(p.name)).join(' + ');
         }
         function getCompoundData(name) {
             if (compDB.has(name)) return compDB.get(name);
@@ -975,8 +979,8 @@
                 const cpInput = document.getElementById('modalCp');
                 const confirmBtn = document.getElementById('modalConfirm');
                 const cancelBtn = document.getElementById('modalCancel');
-                title.textContent = ` 补充物质: ${name}`;
-                sub.textContent = `未找到 "${name}" 的热力学数据，请手动输入：`;
+                title.textContent = ` 补充物质: ${formatFormula(name)}`;
+                sub.textContent = `未找到 "${formatFormula(name)}" 的热力学数据，请手动输入：`;
                 sInput.value = '0';
                 hfInput.value = '0';
                 cpInput.value = '0';
@@ -998,7 +1002,7 @@
                 const onCancel = () => {
                     overlay.classList.remove('active');
                     cleanup();
-                    reject(new Error(`用户取消了 "${name}" 的数据输入`));
+                    reject(new Error(`用户取消了 "${formatFormula(name)}" 的数据输入`));
                 };
                 const cleanup = () => {
                     confirmBtn.onclick = null;
@@ -1040,7 +1044,7 @@
             for (const s of all) {
                 const opt = document.createElement('option');
                 opt.value = s;
-                opt.textContent = s;
+                opt.textContent = formatFormula(s);
                 selA.appendChild(opt);
             }
             selB.innerHTML = '<option value="">请先选择反应物A</option>';
@@ -1060,12 +1064,12 @@
             for (const b of options) {
                 const opt = document.createElement('option');
                 opt.value = b;
-                opt.textContent = b;
+                opt.textContent = formatFormula(b);
                 selB.appendChild(opt);
             }
             selB.disabled = false;
             clearResults();
-            reactionInfo.innerHTML = `<div class="placeholder"> 已选 A = ${A}，请选择反应物 B</div>`;
+            reactionInfo.innerHTML = `<div class="placeholder"> 已选 A = ${formatFormula(A)}，请选择反应物 B</div>`;
         });
         selB.addEventListener('change', function() {
             const A = selA.value;
@@ -1077,7 +1081,7 @@
             }
             const rxn = findReaction(A, B);
             if (!rxn) {
-                reactionInfo.innerHTML = `<div class="placeholder">⚠️ 未找到 ${A} 与 ${B} 的匹配反应</div>`;
+                reactionInfo.innerHTML = `<div class="placeholder">⚠️ 未找到 ${formatFormula(A)} 与 ${formatFormula(B)} 的匹配反应</div>`;
                 clearResults();
                 return;
             }
@@ -1117,10 +1121,10 @@
             for (const item of items) {
                 if (item.coeff < 0) {
                     const coeff = Math.abs(item.coeff);
-                    reactants.push((coeff === 1 ? '' : coeff) + item.name);
+                    reactants.push((coeff === 1 ? '' : coeff) + formatFormula(item.name));
                 } else {
                     const coeff = item.coeff;
-                    products.push((coeff === 1 ? '' : coeff) + item.name);
+                    products.push((coeff === 1 ? '' : coeff) + formatFormula(item.name));
                 }
             }
             const reactStr = reactants.join(' + ');
@@ -1195,7 +1199,7 @@
             }
             const rxn = findReaction(A, B);
             if (!rxn) {
-                setMsg(`⚠️ 未找到 ${A} 与 ${B} 的匹配反应`, 'error');
+                setMsg(`⚠️ 未找到 ${formatFormula(A)} 与 ${formatFormula(B)} 的匹配反应`, 'error');
                 return;
             }
             try {
