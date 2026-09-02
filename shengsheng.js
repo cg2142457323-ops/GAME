@@ -172,11 +172,26 @@
         bubble.style.display = 'none';
     }
 
-    avatar.addEventListener('click', function () {
+    // 点击头像 / 关闭按钮 / 对话框内部，都阻止事件冒泡到页面，
+    // 绝不触发页面的跳转或其它逻辑，始终停留在当前界面。
+    avatar.addEventListener('click', function (e) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
         if (bubble.style.display === 'none') open();
         else close();
     });
-    closeBtn.addEventListener('click', close);
+    closeBtn.addEventListener('click', function (e) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        close();
+    });
+    bubble.addEventListener('click', function (e) {
+        if (e) e.stopPropagation();
+    });
 
     /* ---------------- 发送 ---------------- */
     function send() {
