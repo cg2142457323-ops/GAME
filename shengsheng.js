@@ -12,6 +12,7 @@
         '你喜欢用亲切可爱的语气和少量表情符号（如 😊✨🔥❄️）说话。' +
         '你擅长把热力学、熵增原理、冷热水混合、化学反应熵变等物理化学知识讲得简单有趣、通俗易懂。' +
         '请始终使用简体中文回答，语气可爱但不啰嗦，内容严谨、条理清晰。' +
+        '回答请使用纯文本，不要使用 Markdown 格式，尤其不要出现 *、**、# 等符号。' +
         '如果被问到与物理化学无关的问题，也要友好地尽力解答。';
     var conversation = [{ role: 'system', content: SYSTEM_PROMPT }];
     var css = [
@@ -251,6 +252,15 @@
     }
     avatar.addEventListener('pointerdown', onPointerDown);
 
+    // 吞掉头像上产生的 click 事件：对话框开关已在 pointerup 中处理，
+    // 这里只负责阻断，避免 click 冒泡到页面触发全局监听器或跳转。
+    avatar.addEventListener('click', function (e) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    });
+
     window.addEventListener('resize', function () {
         clampRoot();
         if (bubble.style.display === 'flex') positionBubble();
@@ -292,6 +302,10 @@
                     data.choices[0].message && data.choices[0].message.content;
                 hideTyping();
                 if (!reply) reply = '（熵熵有点走神了，再试一次吧～）';
+                reply = String(reply)
+                    .replace(/\*\*/g, '')
+                    .replace(/\*/g, '')
+                    .replace(/^#{1,6}\s+/gm, '');
                 addMessage('bot', reply);
                 conversation.push({ role: 'assistant', content: reply });
             })
