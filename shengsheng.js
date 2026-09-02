@@ -1,42 +1,35 @@
-/* ============================================================
- * 「熵熵」智能体 · 全站通用小助手
- * 形象：熵熵.jpg；点击头像弹出漫画对话框，可提问并由 DeepSeek 回答
- * 引入方式：在每个页面 </body> 前加 <script src="shengsheng.js"></script>
- * ============================================================ */
 (function () {
     'use strict';
     if (window.__SHENGSHENG_LOADED__) return;
     window.__SHENGSHENG_LOADED__ = true;
-
     var API_KEY = 'sk-016e82b669ad4dda85d52f5b964513f9';
     var API_URL = 'https://api.deepseek.com/chat/completions';
     var MODEL = 'deepseek-chat';
     var AVATAR_SRC = '熵熵.jpg';
-
+    var AVATAR_SIZE = 74; // 与 CSS 中 .ss-avatar 尺寸一致
     var SYSTEM_PROMPT =
         '你是「熵熵」，生活在「熵增原理小游戏」里的可爱智能体精灵，圆滚滚、热情又机灵。' +
         '你喜欢用亲切可爱的语气和少量表情符号（如 😊✨🔥❄️）说话。' +
         '你擅长把热力学、熵增原理、冷热水混合、化学反应熵变等物理化学知识讲得简单有趣、通俗易懂。' +
         '请始终使用简体中文回答，语气可爱但不啰嗦，内容严谨、条理清晰。' +
         '如果被问到与物理化学无关的问题，也要友好地尽力解答。';
-
     var conversation = [{ role: 'system', content: SYSTEM_PROMPT }];
-
-    /* ---------------- 注入样式 ---------------- */
     var css = [
-        '.ss-root{position:fixed;right:20px;bottom:20px;z-index:2147483000;font-family:"SimSun","宋体","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent;text-align:left;}',
+        '.ss-root{position:fixed;left:20px;top:20px;z-index:2147483000;font-family:"SimSun","宋体","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent;text-align:left;line-height:1.4;}',
         '.ss-root *{box-sizing:border-box;margin:0;padding:0;}',
-        '.ss-avatar{position:relative;display:block;margin-left:auto;width:74px;height:74px;padding:0;border:3px solid #fff;border-radius:50%;background:#fff;box-shadow:0 5px 0 #111,0 10px 26px rgba(0,0,0,.4);cursor:pointer;overflow:visible;transition:transform .16s ease;}',
-        '.ss-avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;}',
-        '.ss-avatar:hover{transform:translateY(-4px) scale(1.05);}',
-        '.ss-avatar:active{transform:scale(.9);}',
-        '.ss-badge{position:absolute;right:-2px;bottom:-2px;min-width:26px;height:26px;padding:0 5px;border-radius:14px;background:#ff4757;color:#fff;font-size:12px;font-weight:900;line-height:26px;text-align:center;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3);}',
-        '.ss-hint{position:absolute;right:84px;bottom:18px;white-space:nowrap;background:#fff;border:2px solid #111;border-radius:12px;padding:8px 12px;font-size:13px;font-weight:700;color:#111;box-shadow:3px 3px 0 rgba(0,0,0,.9);animation:ssHint 3.2s ease forwards;pointer-events:none;}',
-        '@keyframes ssHint{0%{opacity:0;transform:translateX(10px);}12%{opacity:1;transform:translateX(0);}78%{opacity:1;}100%{opacity:0;transform:translateX(6px);}}',
-        '.ss-bubble{position:absolute;right:0;bottom:94px;width:350px;max-width:calc(100vw - 32px);display:flex;flex-direction:column;background:#fffdf4;border:3px solid #111;border-radius:18px;box-shadow:0 6px 0 rgba(0,0,0,.85),0 16px 38px rgba(0,0,0,.3);overflow:visible;animation:ssPop .18s ease;}',
+        '.ss-avatar{position:relative;display:block;width:74px;height:74px;padding:0;border:3px solid #fff;border-radius:50%;background:#fff;box-shadow:0 5px 0 #111,0 10px 26px rgba(0,0,0,.4);cursor:grab;overflow:visible;transition:transform .16s ease,box-shadow .16s ease;touch-action:none;}',
+        '.ss-avatar:hover{transform:scale(1.06);}',
+        '.ss-avatar.ss-dragging{cursor:grabbing;transform:scale(1.08);box-shadow:0 3px 0 #111,0 14px 32px rgba(0,0,0,.45);}',
+        '.ss-avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;-webkit-user-drag:none;user-select:none;pointer-events:none;}',
+        '.ss-badge{position:absolute;right:-2px;bottom:-2px;min-width:26px;height:26px;padding:0 5px;border-radius:14px;background:#ff4757;color:#fff;font-size:12px;font-weight:900;line-height:26px;text-align:center;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3);pointer-events:none;}',
+        '.ss-hint{position:absolute;left:50%;bottom:88px;transform:translateX(-50%);white-space:nowrap;background:#fff;border:2px solid #111;border-radius:12px;padding:7px 12px;font-size:13px;font-weight:700;color:#111;box-shadow:3px 3px 0 rgba(0,0,0,.9);animation:ssHint 3.4s ease forwards;pointer-events:none;}',
+        '@keyframes ssHint{0%{opacity:0;}12%{opacity:1;}82%{opacity:1;}100%{opacity:0;}}',
+        '.ss-bubble{position:absolute;width:350px;max-width:calc(100vw - 32px);display:none;flex-direction:column;background:#fffdf4;border:3px solid #111;border-radius:18px;box-shadow:0 6px 0 rgba(0,0,0,.85),0 16px 38px rgba(0,0,0,.3);overflow:visible;animation:ssPop .18s ease;}',
         '@keyframes ssPop{from{opacity:0;transform:translateY(10px) scale(.96);}to{opacity:1;transform:translateY(0) scale(1);}}',
-        '.ss-bubble::before{content:"";position:absolute;right:26px;bottom:-17px;border-left:14px solid transparent;border-right:14px solid transparent;border-top:17px solid #111;}',
-        '.ss-bubble::after{content:"";position:absolute;right:30px;bottom:-12px;border-left:10px solid transparent;border-right:10px solid transparent;border-top:12px solid #fffdf4;}',
+        '.ss-bubble.pos-above::before{content:"";position:absolute;bottom:-17px;left:var(--tail-x,30px);border-left:14px solid transparent;border-right:14px solid transparent;border-top:17px solid #111;}',
+        '.ss-bubble.pos-above::after{content:"";position:absolute;bottom:-12px;left:calc(var(--tail-x,30px) + 4px);border-left:10px solid transparent;border-right:10px solid transparent;border-top:12px solid #fffdf4;}',
+        '.ss-bubble.pos-below::before{content:"";position:absolute;top:-17px;left:var(--tail-x,30px);border-left:14px solid transparent;border-right:14px solid transparent;border-bottom:17px solid #111;}',
+        '.ss-bubble.pos-below::after{content:"";position:absolute;top:-12px;left:calc(var(--tail-x,30px) + 4px);border-left:10px solid transparent;border-right:10px solid transparent;border-bottom:12px solid #fffdf4;}',
         '.ss-head{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:3px solid #111;background:linear-gradient(135deg,#ffe259,#ffa751);border-radius:14px 14px 0 0;}',
         '.ss-head-avatar{width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid #fff;background:#fff;}',
         '.ss-head-text{flex:1;min-width:0;}',
@@ -64,24 +57,20 @@
         '.ss-send{border:2px solid #111;border-radius:10px;background:#2c7fb8;color:#fff;font-size:15px;font-weight:900;padding:0 16px;cursor:pointer;font-family:inherit;box-shadow:2px 2px 0 rgba(0,0,0,.8);transition:transform .12s,background .12s;}',
         '.ss-send:hover{background:#1f6a9e;}',
         '.ss-send:active{transform:scale(.94);}',
-        '.ss-send:disabled{opacity:.55;cursor:not-allowed;}',
-        '@media (max-width:420px){.ss-root{right:12px;bottom:12px;}.ss-avatar{width:62px;height:62px;}.ss-bubble{bottom:80px;}}'
+        '.ss-send:disabled{opacity:.55;cursor:not-allowed;}'
     ].join('\n');
-
     var styleEl = document.createElement('style');
     styleEl.id = 'shengsheng-style';
     styleEl.textContent = css;
     document.head.appendChild(styleEl);
-
-    /* ---------------- 构建 DOM ---------------- */
     var root = document.createElement('div');
     root.className = 'ss-root';
     root.innerHTML =
-        '<button class="ss-avatar" id="ssAvatar" type="button" title="召唤熵熵">' +
+        '<button class="ss-avatar" id="ssAvatar" type="button" title="可以拖动我，点击召唤熵熵">' +
         '<img src="' + AVATAR_SRC + '" alt="熵熵" />' +
         '<span class="ss-badge">💬</span>' +
         '</button>' +
-        '<div class="ss-bubble" id="ssBubble" style="display:none;">' +
+        '<div class="ss-bubble pos-above" id="ssBubble">' +
         '<div class="ss-head">' +
         '<img class="ss-head-avatar" src="' + AVATAR_SRC + '" alt="熵熵" />' +
         '<div class="ss-head-text"><div class="ss-name">熵熵</div><div class="ss-status">在线 · 热力学小助手</div></div>' +
@@ -94,7 +83,6 @@
         '</div>' +
         '</div>';
     document.body.appendChild(root);
-
     var avatar = document.getElementById('ssAvatar');
     var bubble = document.getElementById('ssBubble');
     var closeBtn = document.getElementById('ssClose');
@@ -103,17 +91,13 @@
     var sendBtn = document.getElementById('ssSend');
     var loading = false;
     var welcomed = false;
-
-    /* ---------------- 工具函数 ---------------- */
     function scrollToBottom() {
         chat.scrollTop = chat.scrollHeight;
     }
-
     function autoResize() {
         input.style.height = 'auto';
         input.style.height = Math.min(input.scrollHeight, 90) + 'px';
     }
-
     function addMessage(role, text) {
         var msg = document.createElement('div');
         msg.className = 'ss-msg ' + (role === 'user' ? 'ss-msg-user' : 'ss-msg-bot');
@@ -133,7 +117,6 @@
         scrollToBottom();
         return msg;
     }
-
     function showTyping() {
         var msg = document.createElement('div');
         msg.className = 'ss-msg ss-msg-bot';
@@ -149,39 +132,65 @@
         chat.appendChild(msg);
         scrollToBottom();
     }
-
     function hideTyping() {
         var t = document.getElementById('ssTyping');
         if (t) t.parentNode.removeChild(t);
     }
-
     function welcome() {
         if (welcomed) return;
         welcomed = true;
         addMessage('bot', '你好呀！我是「熵熵」😊\n有关熵、冷热水混合、化学反应熵变的问题，尽管问我～');
     }
-
-    /* ---------------- 打开/关闭 ---------------- */
+    function positionBubble() {
+        if (bubble.style.display !== 'flex') return;
+        var rx = root.offsetLeft;
+        var ry = root.offsetTop;
+        var bw = bubble.offsetWidth;
+        var bh = bubble.offsetHeight;
+        var vw = window.innerWidth;
+        var vh = window.innerHeight;
+        var ax = rx + AVATAR_SIZE / 2;
+        var GAP = 14;
+        var placeAbove = true;
+        var spaceAbove = ry - GAP;
+        var spaceBelow = vh - (ry + AVATAR_SIZE) - GAP;
+        if (spaceAbove < bh && spaceBelow > spaceAbove) placeAbove = false;
+        var left = ax - bw / 2;
+        left = Math.max(8, Math.min(left, vw - bw - 8));
+        bubble.style.left = (left - rx) + 'px';
+        bubble.style.right = 'auto';
+        if (placeAbove) {
+            bubble.style.top = 'auto';
+            bubble.style.bottom = (AVATAR_SIZE + GAP) + 'px';
+            bubble.classList.add('pos-above');
+            bubble.classList.remove('pos-below');
+        } else {
+            bubble.style.top = (AVATAR_SIZE + GAP) + 'px';
+            bubble.style.bottom = 'auto';
+            bubble.classList.add('pos-below');
+            bubble.classList.remove('pos-above');
+        }
+        var tailX = (ax - left) - 14;
+        tailX = Math.max(12, Math.min(tailX, bw - 40));
+        bubble.style.setProperty('--tail-x', tailX + 'px');
+    }
+    function clampRoot() {
+        var x = root.offsetLeft;
+        var y = root.offsetTop;
+        x = Math.max(0, Math.min(x, window.innerWidth - AVATAR_SIZE));
+        y = Math.max(0, Math.min(y, window.innerHeight - AVATAR_SIZE));
+        root.style.left = x + 'px';
+        root.style.top = y + 'px';
+    }
     function open() {
         bubble.style.display = 'flex';
         welcome();
+        positionBubble();
         input.focus();
     }
-
     function close() {
         bubble.style.display = 'none';
     }
-
-    // 点击头像 / 关闭按钮 / 对话框内部，都阻止事件冒泡到页面，
-    // 绝不触发页面的跳转或其它逻辑，始终停留在当前界面。
-    avatar.addEventListener('click', function (e) {
-        if (e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-        if (bubble.style.display === 'none') open();
-        else close();
-    });
     closeBtn.addEventListener('click', function (e) {
         if (e) {
             e.preventDefault();
@@ -192,8 +201,60 @@
     bubble.addEventListener('click', function (e) {
         if (e) e.stopPropagation();
     });
+    var isDragging = false;
+    var moved = false;
+    var startX = 0,
+        startY = 0;
+    var startLeft = 0,
+        startTop = 0;
+    function onPointerDown(e) {
+        if (e.button !== undefined && e.button !== 0) return;
+        isDragging = true;
+        moved = false;
+        startX = e.clientX;
+        startY = e.clientY;
+        startLeft = root.offsetLeft;
+        startTop = root.offsetTop;
+        avatar.classList.add('ss-dragging');
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        window.addEventListener('pointermove', onPointerMove, { passive: false });
+        window.addEventListener('pointerup', onPointerUp);
+        window.addEventListener('pointercancel', onPointerUp);
+    }
+    function onPointerMove(e) {
+        if (!isDragging) return;
+        var dx = e.clientX - startX;
+        var dy = e.clientY - startY;
+        if (!moved && Math.abs(dx) < 4 && Math.abs(dy) < 4) return;
+        moved = true;
+        var nx = Math.max(0, Math.min(startLeft + dx, window.innerWidth - AVATAR_SIZE));
+        var ny = Math.max(0, Math.min(startTop + dy, window.innerHeight - AVATAR_SIZE));
+        root.style.left = nx + 'px';
+        root.style.top = ny + 'px';
+        if (bubble.style.display === 'flex') positionBubble();
+        if (e) e.preventDefault();
+    }
+    function onPointerUp() {
+        if (!isDragging) return;
+        isDragging = false;
+        avatar.classList.remove('ss-dragging');
+        window.removeEventListener('pointermove', onPointerMove);
+        window.removeEventListener('pointerup', onPointerUp);
+        window.removeEventListener('pointercancel', onPointerUp);
+        if (!moved) {
+            if (bubble.style.display === 'none') open();
+            else close();
+        }
+    }
+    avatar.addEventListener('pointerdown', onPointerDown);
 
-    /* ---------------- 发送 ---------------- */
+    window.addEventListener('resize', function () {
+        clampRoot();
+        if (bubble.style.display === 'flex') positionBubble();
+    });
     function send() {
         var text = input.value.replace(/\s+$/g, '');
         if (!text || loading) return;
@@ -204,7 +265,6 @@
         showTyping();
         loading = true;
         sendBtn.disabled = true;
-
         fetch(API_URL, {
             method: 'POST',
             headers: {
@@ -246,7 +306,6 @@
                 input.focus();
             });
     }
-
     sendBtn.addEventListener('click', send);
     input.addEventListener('keydown', function (e) {
         if (e.key === 'Enter' && !e.shiftKey) {
@@ -255,17 +314,16 @@
         }
     });
     input.addEventListener('input', autoResize);
-
-    /* ---------------- 初次提示气泡 ---------------- */
+    root.style.left = Math.max(0, window.innerWidth - AVATAR_SIZE - 20) + 'px';
+    root.style.top = Math.max(0, window.innerHeight - AVATAR_SIZE - 20) + 'px';
     setTimeout(function () {
         var hint = document.createElement('div');
         hint.className = 'ss-hint';
-        hint.textContent = '有问题就点我呀～';
+        hint.textContent = '拖动我 · 点我提问';
         root.appendChild(hint);
         setTimeout(function () {
             if (hint.parentNode) hint.parentNode.removeChild(hint);
-        }, 3400);
+        }, 3500);
     }, 1200);
-
-    console.log('🤖 熵熵智能体已上线（点击右下角头像召唤）');
+    console.log('🤖 熵熵智能体已上线（可拖动，点击头像召唤）');
 })();
