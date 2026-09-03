@@ -6,7 +6,7 @@
     var API_URL = 'https://api.deepseek.com/chat/completions';
     var MODEL = 'deepseek-chat';
     var AVATAR_SRC = '熵熵.jpg';
-    var AVATAR_SIZE = 74; // 与 CSS 中 .ss-avatar 尺寸一致
+    var AVATAR_SIZE = 60; // 与 CSS 中 .ss-avatar 尺寸一致
     var SYSTEM_PROMPT =
     '你是「熵熵」，生活在「熵增原理小游戏」里的可爱智能体精灵，圆滚滚、热情又机灵。' +
         '你喜欢用亲切可爱的语气和少量表情符号（如 😊✨🔥❄️）说话。' +
@@ -18,12 +18,12 @@
     var css = [
         '.ss-root{position:fixed;left:20px;top:20px;z-index:2147483000;font-family:"SimSun","宋体","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent;text-align:left;line-height:1.4;}',
         '.ss-root *{box-sizing:border-box;margin:0;padding:0;}',
-        '.ss-avatar{position:relative;display:block;width:74px;height:74px;padding:0;border:3px solid #fff;border-radius:50%;background:#fff;box-shadow:0 5px 0 #111,0 10px 26px rgba(0,0,0,.4);cursor:grab;overflow:visible;transition:transform .16s ease,box-shadow .16s ease;touch-action:none;}',
+        '.ss-avatar{position:relative;display:block;width:60px;height:60px;padding:0;border:3px solid #fff;border-radius:50%;background:#fff;box-shadow:0 5px 0 #111,0 10px 26px rgba(0,0,0,.4);cursor:grab;overflow:visible;transition:transform .16s ease,box-shadow .16s ease;touch-action:none;}',
         '.ss-avatar:hover{transform:scale(1.06);}',
         '.ss-avatar.ss-dragging{cursor:grabbing;transform:scale(1.08);box-shadow:0 3px 0 #111,0 14px 32px rgba(0,0,0,.45);}',
         '.ss-avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;-webkit-user-drag:none;user-select:none;pointer-events:none;}',
         '.ss-badge{position:absolute;right:-2px;bottom:-2px;min-width:26px;height:26px;padding:0 5px;border-radius:14px;background:#ff4757;color:#fff;font-size:12px;font-weight:900;line-height:26px;text-align:center;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3);pointer-events:none;}',
-        '.ss-hint{position:absolute;left:50%;bottom:88px;transform:translateX(-50%);white-space:nowrap;background:#fff;border:2px solid #111;border-radius:12px;padding:7px 12px;font-size:13px;font-weight:700;color:#111;box-shadow:3px 3px 0 rgba(0,0,0,.9);animation:ssHint 3.4s ease forwards;pointer-events:none;}',
+        '.ss-hint{position:absolute;left:50%;bottom:70px;transform:translateX(-50%);white-space:nowrap;background:#fff;border:2px solid #111;border-radius:12px;padding:7px 12px;font-size:13px;font-weight:700;color:#111;box-shadow:3px 3px 0 rgba(0,0,0,.9);animation:ssHint 3.4s ease forwards;pointer-events:none;}',
         '@keyframes ssHint{0%{opacity:0;}12%{opacity:1;}82%{opacity:1;}100%{opacity:0;}}',
         '.ss-bubble{position:absolute;width:350px;max-width:calc(100vw - 32px);display:none;flex-direction:column;background:#fffdf4;border:3px solid #111;border-radius:18px;box-shadow:0 6px 0 rgba(0,0,0,.85),0 16px 38px rgba(0,0,0,.3);overflow:visible;animation:ssPop .18s ease;}',
         '@keyframes ssPop{from{opacity:0;transform:translateY(10px) scale(.96);}to{opacity:1;transform:translateY(0) scale(1);}}',
