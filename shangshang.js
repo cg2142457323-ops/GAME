@@ -99,6 +99,8 @@
     var loading = false;
     var welcomed = false;
     var sessionId = 0;
+    var dragHintMsg = null;
+    var dragHintTimer = null;
     function scrollToBottom() {
         chat.scrollTop = chat.scrollHeight;
     }
@@ -149,6 +151,23 @@
         welcomed = true;
         addMessage('bot', '你好呀！我是「熵熵」😊\n有关熵、冷热水混合、熵增原理的问题，尽管问我～');
     }
+    function showDragHint() {
+        if (dragHintMsg && dragHintMsg.parentNode) dragHintMsg.parentNode.removeChild(dragHintMsg);
+        if (dragHintTimer) clearTimeout(dragHintTimer);
+        dragHintMsg = addMessage('bot', '可以用拖动我向下拉哦');
+        dragHintTimer = setTimeout(function () {
+            var el = dragHintMsg;
+            dragHintMsg = null;
+            dragHintTimer = null;
+            if (el && el.parentNode) {
+                el.style.transition = 'opacity .4s ease';
+                el.style.opacity = '0';
+                setTimeout(function () {
+                    if (el.parentNode) el.parentNode.removeChild(el);
+                }, 400);
+            }
+        }, 5000);
+    }
     function positionBubble() {
         if (bubble.style.display !== 'flex') return;
         var rx = root.offsetLeft;
@@ -193,6 +212,7 @@
     function open() {
         bubble.style.display = 'flex';
         welcome();
+        showDragHint();
         positionBubble();
         input.focus();
     }
